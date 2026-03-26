@@ -194,14 +194,14 @@ const colors = [
 ];
 
 const directions = ['东南', '西北', '正南', '正北', '东北', '西南', '正东', '正西'];
-const levels = ['大吉', '吉', '中吉', '平', '需注意'];
+const levels = ['大吉', '吉', '中吉', '平', '小凶', '凶'];
 
 export function getFortune(user: UserInfo): Fortune {
   const today = new Date().toISOString().split('T')[0];
   const h = getHash(user.birthDate, user.birthTime, today);
 
   return {
-    level: levels[h % 5],
+    level: levels[h % 6],
     poem: poems[h % poems.length],
     career: careerLines[h % careerLines.length],
     love: loveLines[(h + 3) % loveLines.length],
