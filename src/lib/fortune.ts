@@ -201,7 +201,7 @@ export function getFortune(user: UserInfo): Fortune {
   const h = getHash(user.birthDate, user.birthTime, today);
 
   return {
-    level: levels[h % 5],
+    level: levels[h % 6],
     poem: poems[h % poems.length],
     career: careerLines[h % careerLines.length],
     love: loveLines[(h + 3) % loveLines.length],
