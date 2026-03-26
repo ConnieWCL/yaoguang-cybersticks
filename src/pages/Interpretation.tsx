@@ -9,22 +9,16 @@ const WuxingRing = ({ userWX, todayWX }: { userWX: string; todayWX: string }) =>
   const cx = 150, cy = 150, r = 105;
 
   return (
-    <div className="flex items-center justify-center my-8">
-      <svg viewBox="0 0 300 300" className="w-64 h-64 sm:w-72 sm:h-72">
+    <div className="flex items-center justify-center my-6 md:my-8">
+      <svg viewBox="0 0 300 300" className="w-56 h-56 md:w-72 md:h-72">
         <defs>
           <filter id="glow">
             <feGaussianBlur stdDeviation="6" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+            <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
           <filter id="glow-strong">
             <feGaussianBlur stdDeviation="10" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+            <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
         </defs>
 
@@ -32,16 +26,13 @@ const WuxingRing = ({ userWX, todayWX }: { userWX: string; todayWX: string }) =>
           const next = WUXING_RING[(i + 1) % 5];
           const rad1 = (el.angle * Math.PI) / 180;
           const rad2 = (next.angle * Math.PI) / 180;
-          const x1 = cx + r * Math.cos(rad1);
-          const y1 = cy + r * Math.sin(rad1);
-          const x2 = cx + r * Math.cos(rad2);
-          const y2 = cy + r * Math.sin(rad2);
+          const x1 = cx + r * Math.cos(rad1), y1 = cy + r * Math.sin(rad1);
+          const x2 = cx + r * Math.cos(rad2), y2 = cy + r * Math.sin(rad2);
           const isActive = el.name === userWX || next.name === todayWX;
           return (
             <line key={`line-${i}`} x1={x1} y1={y1} x2={x2} y2={y2}
               stroke={isActive ? '#8B4A3A' : '#444'} strokeWidth={isActive ? 2 : 1}
-              opacity={isActive ? 0.8 : 0.3} strokeDasharray={isActive ? undefined : '4 4'}
-            />
+              opacity={isActive ? 0.8 : 0.3} strokeDasharray={isActive ? undefined : '4 4'} />
           );
         })}
 
@@ -66,10 +57,8 @@ const WuxingRing = ({ userWX, todayWX }: { userWX: string; todayWX: string }) =>
 
         {WUXING_RING.map((el) => {
           const rad = (el.angle * Math.PI) / 180;
-          const x = cx + r * Math.cos(rad);
-          const y = cy + r * Math.sin(rad);
-          const isUser = el.name === userWX;
-          const isToday = el.name === todayWX;
+          const x = cx + r * Math.cos(rad), y = cy + r * Math.sin(rad);
+          const isUser = el.name === userWX, isToday = el.name === todayWX;
           const nodeR = isUser ? 28 : isToday ? 26 : 22;
           return (
             <g key={el.name} filter={isToday ? 'url(#glow-strong)' : isUser ? 'url(#glow)' : undefined}>
@@ -98,7 +87,7 @@ const WuxingRing = ({ userWX, todayWX }: { userWX: string; todayWX: string }) =>
         })}
 
         <text x={cx} y={cy - 8} textAnchor="middle" fill="#666" fontSize="11" fontFamily="Georgia, 'Noto Serif SC', serif">天机盘</text>
-        <text x={cx} y={cy + 10} textAnchor="middle" fill="#555" fontSize="9" fontFamily="Georgia, 'Noto Serif SC', serif">五行流转</text>
+        <text x={cx} y={cx + 10} textAnchor="middle" fill="#555" fontSize="9" fontFamily="Georgia, 'Noto Serif SC', serif">五行流转</text>
       </svg>
     </div>
   );
@@ -106,7 +95,7 @@ const WuxingRing = ({ userWX, todayWX }: { userWX: string; todayWX: string }) =>
 
 /* ── Divider ── */
 const ZhushaLine = () => (
-  <div className="flex items-center justify-center my-8 gap-3">
+  <div className="flex items-center justify-center my-6 md:my-8 gap-3">
     <div className="h-px flex-1 bg-primary/30" />
     <span className="text-primary text-lg opacity-60">☰</span>
     <div className="h-px flex-1 bg-primary/30" />
@@ -115,7 +104,7 @@ const ZhushaLine = () => (
 
 /* ── Section Title ── */
 const SectionTitle = ({ children }: { children: string }) => (
-  <p className="text-[#C9A86C] text-xs tracking-[0.3em] font-serif text-center mb-6">{children}</p>
+  <p className="text-[#C9A86C] text-xs tracking-[0.3em] font-serif text-center mb-4 md:mb-6">{children}</p>
 );
 
 /* ── Main Page ── */
@@ -146,7 +135,7 @@ const InterpretationPage = () => {
 
   return (
     <div className="min-h-screen bg-[#1A1A1A] animate-page-enter">
-      <div className="max-w-[480px] mx-auto px-6 sm:px-12 py-6">
+      <div className="w-full max-w-[480px] md:max-w-[800px] mx-auto px-4 md:px-12 py-6">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-6">
           <button onClick={() => navigate('/fortune')}
@@ -164,50 +153,32 @@ const InterpretationPage = () => {
 
         {/* ── 运势等级 + 签文 ── */}
         <div className="text-center mb-2">
-          <h1 className="font-serif text-[#F5F0E8] leading-none" style={{ fontSize: '72px' }}>
+          <h1 className="font-serif text-[#F5F0E8] leading-none text-[56px] md:text-[72px]">
             {fortune.level}
           </h1>
         </div>
-        <p className="font-serif text-[#F5F0E8] text-xl text-center leading-[1.8] mb-2 px-2">
+        <p className="font-serif text-[#F5F0E8] text-xl md:text-2xl text-center leading-[1.8] mb-2 px-2">
           「{fortune.poem}」
         </p>
 
         <ZhushaLine />
 
-        {/* ── 你的命 ── */}
+        {/* ── 你的命（简化：日主+时辰，隐藏四柱） ── */}
         <SectionTitle>你 的 命</SectionTitle>
-        <div className="bg-[#252525] rounded-lg p-6 mb-4 space-y-4">
-          {/* 四柱八字 */}
-          <div className="text-center">
-            <p className="text-[#777] text-xs tracking-wider mb-3">四柱八字</p>
-            <div className="flex justify-center gap-3">
-              {[
-                { label: '年柱', value: interp.bazi.year },
-                { label: '月柱', value: interp.bazi.month },
-                { label: '日柱', value: interp.bazi.day },
-                { label: '时柱', value: interp.bazi.time },
-              ].map((pillar) => (
-                <div key={pillar.label} className="text-center">
-                  <p className="text-[#666] text-[10px] mb-1">{pillar.label}</p>
-                  <div className="bg-[#1A1A1A] rounded px-3 py-2 border border-[#333]">
-                    <p className="font-serif text-[#F5F0E8] text-lg tracking-wider">
-                      {pillar.value}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="bg-[#252525] rounded-lg p-4 md:p-6 mb-4 space-y-4">
+          {/* TODO: 隐藏八字四柱，Cursor修复后显示 */}
 
           {/* 日主 */}
-          <div className="text-center pt-2 border-t border-[#333]">
-            <p className="text-[#999] text-sm font-serif">{interp.riZhuDesc}</p>
+          <div className="text-center">
+            <p className="text-[#777] text-xs tracking-wider mb-2">日主</p>
+            <p className="text-[#F5F0E8] text-lg md:text-xl font-serif">{interp.riZhuDesc}</p>
           </div>
 
           {/* 时辰影响 */}
-          <div className="text-center pt-2 border-t border-[#333]">
-            <p className="text-[#C9A86C] text-sm font-serif mb-1">{interp.shiZhuDesc}</p>
-            <p className="text-[#BBB] text-sm leading-[1.8]">{interp.shiChenAdvice}</p>
+          <div className="text-center pt-3 border-t border-[#333]">
+            <p className="text-[#777] text-xs tracking-wider mb-2">时辰</p>
+            <p className="text-[#C9A86C] text-base md:text-lg font-serif mb-1">{interp.shiZhuDesc}</p>
+            <p className="text-[#BBB] text-sm md:text-base leading-[1.8]">{interp.shiChenAdvice}</p>
           </div>
         </div>
 
@@ -216,7 +187,7 @@ const InterpretationPage = () => {
         {/* ── 今日运 ── */}
         <SectionTitle>今 日 运</SectionTitle>
         <div className="text-center mb-2">
-          <p className="text-[#999] text-sm font-serif">{interp.tianshi}</p>
+          <p className="text-[#999] text-sm md:text-base font-serif">{interp.tianshi}</p>
         </div>
 
         <ZhushaLine />
@@ -226,15 +197,15 @@ const InterpretationPage = () => {
         <div className="mb-2">
           <div className="text-center mb-6">
             {interp.poeticFlow.split('\n').map((line, i) => (
-              <p key={i} className="font-serif text-[#F5F0E8] text-lg leading-[1.8]">{line}</p>
+              <p key={i} className="font-serif text-[#F5F0E8] text-base md:text-lg leading-[1.8]">{line}</p>
             ))}
           </div>
-          <p className="text-[#999] text-sm leading-[1.8] text-center mb-6 px-4">
+          <p className="text-[#999] text-sm leading-[1.8] text-center mb-6 px-2 md:px-4">
             {interp.flowExplain}
           </p>
-          <div className="bg-[#252525] rounded-lg p-6 mx-auto">
+          <div className="bg-[#252525] rounded-lg p-4 md:p-6 mx-auto">
             {interp.flowAdvice.split('\n').map((line, i) => (
-              <p key={i} className="font-serif text-[#C9A86C] text-base text-center leading-[1.8]">{line}</p>
+              <p key={i} className="font-serif text-[#C9A86C] text-sm md:text-base text-center leading-[1.8]">{line}</p>
             ))}
           </div>
         </div>
@@ -243,8 +214,8 @@ const InterpretationPage = () => {
 
         {/* ── 行动 ── */}
         <SectionTitle>行 动 指 引</SectionTitle>
-        <div className="bg-[#252525] rounded-lg p-6 mb-2">
-          <p className="font-serif text-[#F5F0E8] text-base text-center leading-[1.8]">
+        <div className="bg-[#252525] rounded-lg p-4 md:p-6 mb-2">
+          <p className="font-serif text-[#F5F0E8] text-sm md:text-base text-center leading-[1.8]">
             {interp.xingdong}
           </p>
         </div>
@@ -255,14 +226,14 @@ const InterpretationPage = () => {
         <SectionTitle>签 解</SectionTitle>
         <div className="mb-2">
           <div className="text-center mb-6">
-            <span className="inline-block bg-primary text-primary-foreground font-serif text-2xl px-6 py-3 rounded">
+            <span className="inline-block bg-primary text-primary-foreground font-serif text-xl md:text-2xl px-5 md:px-6 py-2.5 md:py-3 rounded">
               {interp.poemKeyword}
             </span>
           </div>
-          <p className="text-[#BBB] text-sm leading-[1.8] text-center mb-6 italic px-4">
+          <p className="text-[#BBB] text-sm leading-[1.8] text-center mb-6 italic px-2 md:px-4">
             {interp.poemImagery}
           </p>
-          <div className="bg-[#252525] rounded-lg p-6">
+          <div className="bg-[#252525] rounded-lg p-4 md:p-6">
             <p className="text-[#DDD] text-sm leading-[1.8]">{interp.poemGuide}</p>
           </div>
         </div>
@@ -271,7 +242,7 @@ const InterpretationPage = () => {
 
         {/* ── 封存此爻 ── */}
         <button onClick={handleSeal}
-          className="w-full h-14 rounded bg-primary text-primary-foreground font-serif text-base tracking-[0.2em] hover:bg-primary-hover transition-colors btn-press flex items-center justify-center gap-3 mb-6">
+          className="w-full h-12 md:h-14 rounded bg-primary text-primary-foreground font-serif text-sm md:text-base tracking-[0.2em] hover:bg-primary-hover transition-colors btn-press flex items-center justify-center gap-3 mb-6">
           <Stamp className="w-5 h-5" />
           封存此爻
         </button>
