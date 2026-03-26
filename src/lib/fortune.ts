@@ -194,7 +194,7 @@ const colors = [
 ];
 
 const directions = ['东南', '西北', '正南', '正北', '东北', '西南', '正东', '正西'];
-const levels = ['大吉', '吉', '中吉', '平', '需注意'];
+const levels = ['大吉', '吉', '中吉', '平', '小凶', '凶'];
 
 export function getFortune(user: UserInfo): Fortune {
   const today = new Date().toISOString().split('T')[0];
