@@ -1,34 +1,30 @@
 /**
- * 解签逻辑：基于用户提供的八字+天时+五行生克推算
+ * 解签逻辑：基于八字+天时+五行生克，输出诗意语言
  */
 
 import type { UserInfo, Fortune } from './fortune';
 
 export interface Interpretation {
-  bazi: string;           // 八字日主
-  tianshi: string;        // 今日天时
-  liuzhuan: string;       // 五行流转
-  jieshi: string;         // 运势解释
-  qianwen: string;        // 签文原文
-  poemMeaning: string;    // 签文白话
+  bazi: string;
+  tianshi: string;
+  userWuxing: string;      // 用户日主五行
+  todayWuxing: string;     // 今日当令五行
+  relation: 'sheng' | 'ke' | 'bei' | 'bi' | 'neutral';
+  poeticFlow: string;      // 诗意流转描述
+  flowExplain: string;     // 人话解释
+  flowAdvice: string;      // 具体建议
+  poemKeyword: string;     // 签解关键词
+  poemImagery: string;     // 签解意象
+  poemGuide: string;       // 签解指引
+  qianwen: string;
 }
 
-// 年份尾数 → 天干
 const TIANGAN_BY_YEAR = ['庚', '辛', '壬', '癸', '甲', '乙', '丙', '丁', '戊', '己'];
-
-// 月份 → 季节
-const SEASON_BY_MONTH = ['冬', '冬', '春', '春', '春', '夏', '夏', '夏', '秋', '秋', '秋', '冬'];
-
-// 月份 → 五行
+const SEASON_NAMES = ['严冬', '严冬', '初春', '仲春', '暮春', '初夏', '盛夏', '暮夏', '初秋', '仲秋', '暮秋', '初冬'];
 const WUXING_BY_MONTH = ['水', '水', '木', '木', '木', '火', '火', '火', '金', '金', '金', '土'];
-
-// 月份 → 月支
 const YUEZHI_BY_MONTH = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
-
-// 月份 → 当令五行
 const YUN_BY_MONTH = ['木', '木', '土', '火', '火', '土', '金', '金', '土', '水', '水', '土'];
 
-// 五行生克关系
 const SHENGKE: Record<string, { s: string; k: string; b: string }> = {
   '木': { s: '火', k: '土', b: '金' },
   '火': { s: '土', k: '金', b: '水' },
@@ -37,39 +33,75 @@ const SHENGKE: Record<string, { s: string; k: string; b: string }> = {
   '水': { s: '木', k: '火', b: '土' },
 };
 
-// 运势等级解释
-const LEVEL_JIESHI: Record<string, string> = {
-  '大吉': '天时地利，诸事皆宜',
-  '吉': '气运通畅，宜主动',
-  '中吉': '稳中求进，不宜冒进',
-  '平': '平淡是真，宜静',
-  '需注意': '暂避锋芒，以守为攻',
+// 五行意象
+const WUXING_IMAGERY: Record<string, string> = {
+  '木': '林中清风',
+  '火': '烈焰灼天',
+  '土': '厚土承载',
+  '金': '秋霜肃杀',
+  '水': '深渊静流',
 };
 
-// 签文白话解释（扩展）
-const POEM_MEANINGS = [
-  '此签寓意时来运转，当下正是大展宏图之际，莫要犹豫观望。机会稍纵即逝，当果断出击。',
-  '此签暗示虽眼前困顿，但转机就在不远处。山重水复之后必有柳暗花明，守得云开见月明。',
-  '此签鼓励自信与豁达，天赋异禀者终将绽放光芒。千金散尽还复来，不必为一时得失忧心。',
-  '此签提醒珍惜人际缘分，真挚的情谊跨越山海。身边之人即是最珍贵的财富，当好好珍惜。',
-  '此签预示愿望终将达成，但需耐心等待与坚持。长风破浪会有时，水到渠成方为上策。',
-  '此签劝人随遇而安，山穷水尽之处自有别样风景。行至水穷处，坐看云起时，放下执念反得自在。',
-  '此签歌颂淡泊宁静的生活态度，远离喧嚣方能看清内心所向。采菊东篱下，悠然自得。',
-  '此签暗示新的机遇正在萌芽，虽小却充满生机。小荷初露，当细心呵护，未来可期。',
-  '此签寓意默默耕耘终有回报，润物无声的努力最为可贵。不必急于求成，时间会给出答案。',
-  '此签预示即将迎来人生高光时刻。大鹏展翅，蓄势待发，一飞冲天指日可待。',
-  '此签告诫轻装前行，放下过往包袱。轻舟已过万重山，当向前看。',
-  '此签鼓励志存高远，脚踏实地。会当凌绝顶，一览众山小，胸怀决定格局。',
-  '此签暗示旧事将了，新局将开。沉舟侧畔千帆过，病树前头万木春，革新是大势。',
-  '此签劝勿忧前路，自有贵人相助。莫愁前路无知己，天下谁人不识君。',
-  '此签寓意奉献精神终得善果。落红化泥更护花，善行自有回响。',
+// 诗意流转模板
+function getPoetry(userWX: string, todayWX: string, rel: string): { poetic: string; explain: string; advice: string } {
+  switch (rel) {
+    case 'sheng':
+      return {
+        poetic: `你的${userWX}气，正逢${WUXING_IMAGERY[todayWX]}之势\n${userWX}生${todayWX}，如薪助火，能量自然流转而出`,
+        explain: `你的力量正在向外输出，精气化为行动力。顺势而为则如水行舟，逆之则如木枯于火。`,
+        advice: `宜顺势，不宜强求\n强求则${userWX}枯，顺势则根深`,
+      };
+    case 'ke':
+      return {
+        poetic: `你的${userWX}气，正压${WUXING_IMAGERY[todayWX]}之场\n${userWX}克${todayWX}，如虎踞山，主动之象`,
+        explain: `你对当前局势有掌控力，气场强于环境。此时出击，阻力最小。`,
+        advice: `宜主动出击，把握先机\n犹豫则势散，果断则功成`,
+      };
+    case 'bei':
+      return {
+        poetic: `${WUXING_IMAGERY[todayWX]}之气，正压你的${userWX}势\n${todayWX}克${userWX}，如风摧木，外力压制之象`,
+        explain: `环境气场强于你的日主，硬碰硬只会徒耗心力。守拙藏锋，方为上策。`,
+        advice: `宜守不宜攻，藏锋待时\n退一步海阔天空，进一步荆棘满途`,
+      };
+    case 'bi':
+      return {
+        poetic: `你的${userWX}气，正遇同气之场\n${userWX}遇${todayWX}，如龙入海，比和相助`,
+        explain: `天地同气，你与今日气场同频共振。万事和谐，阻力极小。`,
+        advice: `宜大胆行动，天时在我\n同气连枝，事半功倍`,
+      };
+    default:
+      return {
+        poetic: `你的${userWX}气，行于${WUXING_IMAGERY[todayWX]}之间\n五行流转平稳，无明显冲克`,
+        explain: `今日气场平和，无大起大落。适合按部就班地推进事务。`,
+        advice: `宜平常心，稳步前行\n不急不躁，自有节奏`,
+      };
+  }
+}
+
+// 签解三层
+const POEM_LAYERS = [
+  { keyword: '破局', imagery: '乌云裂缝中的一线天光，预示困境将解', guide: '今日宜打破常规，用新的方式处理旧问题。哪怕只是换一条路上班，也能带来新的视角。' },
+  { keyword: '静水', imagery: '水面平静，深处涌动。看似无波，实则暗藏生机', guide: '今日宜藏锋守拙，静待时机。最好的猎手往往以猎物的姿态出现。' },
+  { keyword: '归途', imagery: '远方的灯火渐近，旅人的脚步不自觉加快', guide: '你离目标比想象中更近。今日宜坚持当前方向，不要被岔路迷惑。' },
+  { keyword: '种子', imagery: '泥土之下，一粒种子正在无声地裂开壳', guide: '今日适合播种——无论是一个想法、一段关系，还是一个新习惯。不要急着看到结果。' },
+  { keyword: '风起', imagery: '山顶的风总是最先到达，而山谷中的人尚未察觉', guide: '你比周围人更早感知到变化。今日宜提前布局，占据有利位置。' },
+  { keyword: '磨石', imagery: '刀刃与磨石的摩擦，每一次都在去除多余', guide: '今日的困难都是在打磨你。感到阻力恰恰说明你在成长。保持耐心。' },
+  { keyword: '渡口', imagery: '两岸之间，渡船正在缓缓靠岸', guide: '你正处在一个过渡期。今日不必急于做出重大决定，先到对岸再说。' },
+  { keyword: '明镜', imagery: '一面擦拭干净的铜镜，映出真实的面容', guide: '今日宜自省，诚实面对自己的真实想法。自欺是最大的内耗。' },
+  { keyword: '春雷', imagery: '惊蛰之后，万物苏醒。沉睡已久的事物即将复活', guide: '你搁置已久的计划，今日可以重新启动了。时机已到。' },
+  { keyword: '云游', imagery: '白云无心出岫，飘向不可知的远方', guide: '今日宜放下控制欲，让事情自然发展。有时候不干预就是最好的干预。' },
+  { keyword: '焚香', imagery: '一缕青烟袅袅升起，空间被净化', guide: '今日宜清理——无论是桌面、手机相册还是心中的杂念。轻装才能远行。' },
+  { keyword: '对弈', imagery: '棋盘上黑白交错，每一步都在改变全局', guide: '今日做决定前多想一步。不是犹豫不决，而是深思熟虑。全局观是今日的关键。' },
+  { keyword: '拾遗', imagery: '路边一朵被忽略的野花，其实是珍贵的药草', guide: '今日留意那些被你忽略的细节和人。意外之喜往往来自不经意处。' },
+  { keyword: '铸剑', imagery: '烈火中反复锤炼，只为那一刻的锋芒', guide: '今日适合集中精力做一件事，做到极致。散兵游勇不如一剑封喉。' },
+  { keyword: '听雨', imagery: '夜雨敲窗，独坐灯下，万籁中只有此刻', guide: '今日宜慢下来，给自己留一段独处时光。灵感和答案往往在安静中浮现。' },
 ];
 
 function getBaziInfo(birthDate: string) {
   const year = parseInt(birthDate.split('-')[0], 10);
   const month = parseInt(birthDate.split('-')[1], 10);
   const tiangan = TIANGAN_BY_YEAR[year % 10];
-  const season = SEASON_BY_MONTH[month - 1];
+  const season = SEASON_NAMES[month - 1];
   const wuxing = WUXING_BY_MONTH[month - 1];
   const rizhu = tiangan + wuxing;
   return { tiangan, season, wuxing, rizhu };
@@ -86,26 +118,19 @@ function getTodayInfo() {
 export function getInterpretation(user: UserInfo, fortune: Fortune): Interpretation {
   const bazi = getBaziInfo(user.birthDate);
   const todayInfo = getTodayInfo();
-
   const sk = SHENGKE[bazi.wuxing];
   const todayWX = todayInfo.yun;
 
-  let liuzhuan: string;
-  if (todayWX === sk.s) {
-    liuzhuan = `${bazi.wuxing}生${todayWX}，气运流通，精力外泄宜收敛`;
-  } else if (todayWX === sk.k) {
-    liuzhuan = `${bazi.wuxing}克${todayWX}，主动出击可得财`;
-  } else if (todayWX === sk.b) {
-    liuzhuan = `${todayWX}克${bazi.wuxing}，外力压制宜守不宜攻`;
-  } else if (todayWX === bazi.wuxing) {
-    liuzhuan = `${bazi.wuxing}遇${todayWX}，比和相助，同气连枝`;
-  } else {
-    liuzhuan = '五行平稳中和，无明显冲克';
-  }
+  let relation: Interpretation['relation'];
+  if (todayWX === sk.s) relation = 'sheng';
+  else if (todayWX === sk.k) relation = 'ke';
+  else if (todayWX === sk.b) relation = 'bei';
+  else if (todayWX === bazi.wuxing) relation = 'bi';
+  else relation = 'neutral';
 
-  const jieshi = LEVEL_JIESHI[fortune.level] || '平稳中和';
+  const poetry = getPoetry(bazi.wuxing, todayWX, relation);
 
-  // 哈希选签文解释
+  // hash for poem layer selection
   const s = user.birthDate + user.birthTime + new Date().toISOString().split('T')[0];
   let h = 0;
   for (let i = 0; i < s.length; i++) {
@@ -113,15 +138,29 @@ export function getInterpretation(user: UserInfo, fortune: Fortune): Interpretat
     h = h & h;
   }
   h = Math.abs(h);
-
-  const poemMeaning = POEM_MEANINGS[h % POEM_MEANINGS.length];
+  const layer = POEM_LAYERS[h % POEM_LAYERS.length];
 
   return {
-    bazi: `${bazi.rizhu}日主，生于${bazi.season}月`,
+    bazi: `${bazi.rizhu}日主，生于${bazi.season}`,
     tianshi: `今日${todayInfo.yuezhi}月，${todayWX}气当令`,
-    liuzhuan,
-    jieshi,
+    userWuxing: bazi.wuxing,
+    todayWuxing: todayWX,
+    relation,
+    poeticFlow: poetry.poetic,
+    flowExplain: poetry.explain,
+    flowAdvice: poetry.advice,
+    poemKeyword: layer.keyword,
+    poemImagery: layer.imagery,
+    poemGuide: layer.guide,
     qianwen: fortune.poem,
-    poemMeaning,
   };
 }
+
+// Wuxing ring data for visualization
+export const WUXING_RING = [
+  { name: '木', color: '#5A7A6A', angle: 270 },  // top
+  { name: '火', color: '#B85C4A', angle: 342 },   // top-right
+  { name: '土', color: '#C9A86C', angle: 54 },    // bottom-right
+  { name: '金', color: '#E8E8E8', angle: 126 },   // bottom-left
+  { name: '水', color: '#2C3E50', angle: 198 },   // top-left
+] as const;
