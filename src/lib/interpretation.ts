@@ -1,83 +1,112 @@
 /**
- * 解签逻辑：将哈希包装为"八字+天时+五行"的专业解释
+ * 解签逻辑：基于用户提供的八字+天时+五行生克推算
  */
 
 import type { UserInfo, Fortune } from './fortune';
 
 export interface Interpretation {
-  baziSummary: string;    // 你的八字
-  tianshiSummary: string; // 今日天时
-  wuxingFlow: string;     // 五行流转
-  poemMeaning: string;    // 签文深意
+  bazi: string;           // 八字日主
+  tianshi: string;        // 今日天时
+  liuzhuan: string;       // 五行流转
+  jieshi: string;         // 运势解释
+  qianwen: string;        // 签文原文
+  poemMeaning: string;    // 签文白话
 }
 
-const TIANGAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-const WUXING_MAP: Record<string, string> = {
-  '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
-  '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水',
-};
-const SEASON_WUXING: Record<string, { name: string; element: string }> = {
-  '1': { name: '孟春', element: '木' },
-  '2': { name: '仲春', element: '木' },
-  '3': { name: '季春', element: '木' },
-  '4': { name: '孟夏', element: '火' },
-  '5': { name: '仲夏', element: '火' },
-  '6': { name: '季夏', element: '土' },
-  '7': { name: '孟秋', element: '金' },
-  '8': { name: '仲秋', element: '金' },
-  '9': { name: '季秋', element: '金' },
-  '10': { name: '孟冬', element: '水' },
-  '11': { name: '仲冬', element: '水' },
-  '12': { name: '季冬', element: '土' },
+// 年份尾数 → 天干
+const TIANGAN_BY_YEAR = ['庚', '辛', '壬', '癸', '甲', '乙', '丙', '丁', '戊', '己'];
+
+// 月份 → 季节
+const SEASON_BY_MONTH = ['冬', '冬', '春', '春', '春', '夏', '夏', '夏', '秋', '秋', '秋', '冬'];
+
+// 月份 → 五行
+const WUXING_BY_MONTH = ['水', '水', '木', '木', '木', '火', '火', '火', '金', '金', '金', '土'];
+
+// 月份 → 月支
+const YUEZHI_BY_MONTH = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
+
+// 月份 → 当令五行
+const YUN_BY_MONTH = ['木', '木', '土', '火', '火', '土', '金', '金', '土', '水', '水', '土'];
+
+// 五行生克关系
+const SHENGKE: Record<string, { s: string; k: string; b: string }> = {
+  '木': { s: '火', k: '土', b: '金' },
+  '火': { s: '土', k: '金', b: '水' },
+  '土': { s: '金', k: '水', b: '木' },
+  '金': { s: '水', k: '木', b: '火' },
+  '水': { s: '木', k: '火', b: '土' },
 };
 
-const WUXING_RELATIONS: Record<string, Record<string, string>> = {
-  '木': { '木': '比和相助', '火': '生发有力', '土': '克伐得财', '金': '受制有压', '水': '得生有源' },
-  '火': { '木': '得生旺盛', '火': '比和相助', '土': '生发有力', '金': '克伐得财', '水': '受制有压' },
-  '土': { '木': '受制有压', '火': '得生旺盛', '土': '比和相助', '金': '生发有力', '水': '克伐得财' },
-  '金': { '木': '克伐得财', '火': '受制有压', '土': '得生旺盛', '金': '比和相助', '水': '生发有力' },
-  '水': { '木': '生发有力', '火': '克伐得财', '土': '受制有压', '金': '得生旺盛', '水': '比和相助' },
+// 运势等级解释
+const LEVEL_JIESHI: Record<string, string> = {
+  '大吉': '天时地利，诸事皆宜',
+  '吉': '气运通畅，宜主动',
+  '中吉': '稳中求进，不宜冒进',
+  '平': '平淡是真，宜静',
+  '需注意': '暂避锋芒，以守为攻',
 };
 
-const LEVEL_EXPLANATIONS: Record<string, string> = {
-  '大吉': '日主与天时五行相生相合，气场顺畅，万事亨通之象。宜积极进取，把握时机。',
-  '吉': '日主得天时之助，运势平顺向好。行事稳健，自有佳音。',
-  '中吉': '天时与命局虽有小碍，但总体趋吉。谨慎行事，可化险为夷。',
-  '平': '五行流转平和，无大起大落。宜守不宜攻，韬光养晦。',
-  '需注意': '日主与天时五行有冲克之象，需谨慎行事。退一步海阔天空，忍一时风平浪静。',
-};
-
-const POEM_INTERPRETATIONS = [
-  '此签寓意时来运转，当下正是大展宏图之际，莫要犹豫观望。',
-  '此签暗示虽眼前困顿，但转机就在不远处，守得云开见月明。',
-  '此签鼓励自信与豁达，天赋异禀者终将绽放光芒，不必为一时得失忧心。',
-  '此签提醒珍惜人际缘分，真挚的友情跨越山海，是最珍贵的财富。',
-  '此签预示愿望终将达成，但需耐心等待与坚持，水到渠成方为上策。',
-  '此签劝人随遇而安，山穷水尽之处自有别样风景，放下执念反得自在。',
-  '此签歌颂淡泊宁静的生活态度，远离喧嚣，方能看清内心所向。',
-  '此签暗示新的机遇正在萌芽，虽小却充满生机，当细心呵护。',
-  '此签寓意默默耕耘终有回报，润物无声的努力最为可贵。',
-  '此签预示即将迎来人生高光时刻，蓄势待发，一飞冲天。',
+// 签文白话解释（扩展）
+const POEM_MEANINGS = [
+  '此签寓意时来运转，当下正是大展宏图之际，莫要犹豫观望。机会稍纵即逝，当果断出击。',
+  '此签暗示虽眼前困顿，但转机就在不远处。山重水复之后必有柳暗花明，守得云开见月明。',
+  '此签鼓励自信与豁达，天赋异禀者终将绽放光芒。千金散尽还复来，不必为一时得失忧心。',
+  '此签提醒珍惜人际缘分，真挚的情谊跨越山海。身边之人即是最珍贵的财富，当好好珍惜。',
+  '此签预示愿望终将达成，但需耐心等待与坚持。长风破浪会有时，水到渠成方为上策。',
+  '此签劝人随遇而安，山穷水尽之处自有别样风景。行至水穷处，坐看云起时，放下执念反得自在。',
+  '此签歌颂淡泊宁静的生活态度，远离喧嚣方能看清内心所向。采菊东篱下，悠然自得。',
+  '此签暗示新的机遇正在萌芽，虽小却充满生机。小荷初露，当细心呵护，未来可期。',
+  '此签寓意默默耕耘终有回报，润物无声的努力最为可贵。不必急于求成，时间会给出答案。',
+  '此签预示即将迎来人生高光时刻。大鹏展翅，蓄势待发，一飞冲天指日可待。',
+  '此签告诫轻装前行，放下过往包袱。轻舟已过万重山，当向前看。',
+  '此签鼓励志存高远，脚踏实地。会当凌绝顶，一览众山小，胸怀决定格局。',
+  '此签暗示旧事将了，新局将开。沉舟侧畔千帆过，病树前头万木春，革新是大势。',
+  '此签劝勿忧前路，自有贵人相助。莫愁前路无知己，天下谁人不识君。',
+  '此签寓意奉献精神终得善果。落红化泥更护花，善行自有回响。',
 ];
 
+function getBaziInfo(birthDate: string) {
+  const year = parseInt(birthDate.split('-')[0], 10);
+  const month = parseInt(birthDate.split('-')[1], 10);
+  const tiangan = TIANGAN_BY_YEAR[year % 10];
+  const season = SEASON_BY_MONTH[month - 1];
+  const wuxing = WUXING_BY_MONTH[month - 1];
+  const rizhu = tiangan + wuxing;
+  return { tiangan, season, wuxing, rizhu };
+}
+
+function getTodayInfo() {
+  const month = new Date().getMonth() + 1;
+  return {
+    yuezhi: YUEZHI_BY_MONTH[month - 1],
+    yun: YUN_BY_MONTH[month - 1],
+  };
+}
+
 export function getInterpretation(user: UserInfo, fortune: Fortune): Interpretation {
-  // 从出生年份推算天干
-  const birthYear = parseInt(user.birthDate.split('-')[0], 10);
-  const birthMonth = parseInt(user.birthDate.split('-')[1], 10);
-  const ganIndex = birthYear % 10;
-  const dayGan = TIANGAN[ganIndex];
-  const dayWuxing = WUXING_MAP[dayGan];
+  const bazi = getBaziInfo(user.birthDate);
+  const todayInfo = getTodayInfo();
 
-  // 今日月份推算天时
-  const today = new Date();
-  const todayMonth = String(today.getMonth() + 1);
-  const season = SEASON_WUXING[todayMonth];
+  const sk = SHENGKE[bazi.wuxing];
+  const todayWX = todayInfo.yun;
 
-  // 五行关系
-  const relation = WUXING_RELATIONS[dayWuxing]?.[season.element] || '相互作用';
+  let liuzhuan: string;
+  if (todayWX === sk.s) {
+    liuzhuan = `${bazi.wuxing}生${todayWX}，气运流通，精力外泄宜收敛`;
+  } else if (todayWX === sk.k) {
+    liuzhuan = `${bazi.wuxing}克${todayWX}，主动出击可得财`;
+  } else if (todayWX === sk.b) {
+    liuzhuan = `${todayWX}克${bazi.wuxing}，外力压制宜守不宜攻`;
+  } else if (todayWX === bazi.wuxing) {
+    liuzhuan = `${bazi.wuxing}遇${todayWX}，比和相助，同气连枝`;
+  } else {
+    liuzhuan = '五行平稳中和，无明显冲克';
+  }
 
-  // 简单哈希选签文解释
-  const s = user.birthDate + user.birthTime + today.toISOString().split('T')[0];
+  const jieshi = LEVEL_JIESHI[fortune.level] || '平稳中和';
+
+  // 哈希选签文解释
+  const s = user.birthDate + user.birthTime + new Date().toISOString().split('T')[0];
   let h = 0;
   for (let i = 0; i < s.length; i++) {
     h = ((h << 5) - h) + s.charCodeAt(i);
@@ -85,13 +114,14 @@ export function getInterpretation(user: UserInfo, fortune: Fortune): Interpretat
   }
   h = Math.abs(h);
 
-  const baziSummary = `${dayGan}${dayWuxing}日主，生于${birthMonth}月（${SEASON_WUXING[String(birthMonth)]?.name || ''}），${dayWuxing}气${birthMonth >= 1 && birthMonth <= 3 ? '生发' : birthMonth >= 4 && birthMonth <= 6 ? '旺盛' : birthMonth >= 7 && birthMonth <= 9 ? '收敛' : '潜藏'}`;
+  const poemMeaning = POEM_MEANINGS[h % POEM_MEANINGS.length];
 
-  const tianshiSummary = `今值${season.name}，${season.element}气当令，天时${season.element === dayWuxing ? '与命局相合' : '流转变化'}`;
-
-  const wuxingFlow = `你的日主${dayWuxing}遇今日${season.element}气，二者${relation}。${LEVEL_EXPLANATIONS[fortune.level]}`;
-
-  const poemMeaning = POEM_INTERPRETATIONS[h % POEM_INTERPRETATIONS.length];
-
-  return { baziSummary, tianshiSummary, wuxingFlow, poemMeaning };
+  return {
+    bazi: `${bazi.rizhu}日主，生于${bazi.season}月`,
+    tianshi: `今日${todayInfo.yuezhi}月，${todayWX}气当令`,
+    liuzhuan,
+    jieshi,
+    qianwen: fortune.poem,
+    poemMeaning,
+  };
 }
