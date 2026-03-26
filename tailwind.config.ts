@@ -22,6 +22,7 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hover: "hsl(var(--primary-hover))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -51,6 +52,8 @@ export default {
           green: "hsl(var(--fortune-green))",
           red: "hsl(var(--fortune-red))",
           gold: "hsl(var(--fortune-gold))",
+          yi: "hsl(var(--fortune-yi))",
+          ji: "hsl(var(--fortune-ji))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -67,6 +70,9 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        subtle: "0 2px 8px rgba(0,0,0,0.08)",
       },
       keyframes: {
         "accordion-down": {

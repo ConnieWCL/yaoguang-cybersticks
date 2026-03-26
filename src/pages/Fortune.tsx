@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// TODO: 接入Claude API真实生成
 import { loadUser, getFortune, type Fortune } from '@/lib/fortune';
 import { ArrowLeft } from 'lucide-react';
 
@@ -29,13 +30,14 @@ const FortunePage = () => {
   if (!fortune) return null;
 
   const today = new Date();
+  // TODO: 转换为农历日期
   const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
   const weekday = `星期${weekdays[today.getDay()]}`;
 
   return (
-    <div className="min-h-screen bg-background paper-texture">
-      <div className="relative z-10 max-w-sm mx-auto px-4 py-6">
+    <div className="min-h-screen bg-background paper-texture animate-page-enter">
+      <div className="relative z-10 max-w-[480px] mx-auto px-6 sm:px-12 py-6 stagger-children">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-6">
           <button
@@ -57,53 +59,59 @@ const FortunePage = () => {
         </div>
 
         {/* Seal + Poem */}
-        <div className="text-center mb-8 animate-fade-up">
+        <div className="text-center mb-6">
           <div
             className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${levelColors[fortune.level] || 'bg-primary'} text-primary-foreground animate-stamp`}
           >
             <span className="font-serif text-2xl font-bold">{fortune.level}</span>
           </div>
-          <p className="font-serif text-lg text-foreground mt-5 leading-relaxed px-2">
+          <p className="font-serif text-lg text-foreground mt-6 leading-relaxed px-2" style={{ lineHeight: '1.6' }}>
             「{fortune.poem}」
           </p>
         </div>
 
         {/* Three aspects */}
-        <div className="grid grid-cols-3 gap-3 mb-6" style={{ animationDelay: '0.1s' }}>
+        <div className="grid grid-cols-3 gap-3 mb-6">
           {[
             { title: '事业运', text: fortune.career },
             { title: '感情运', text: fortune.love },
             { title: '健康运', text: fortune.health },
           ].map((item) => (
-            <div key={item.title} className="bg-card border border-border rounded p-3 text-center">
-              <p className="font-serif text-xs text-primary mb-1.5">{item.title}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">{item.text}</p>
+            <div key={item.title} className="bg-card border border-border rounded shadow-subtle p-3 text-center">
+              <p className="font-serif text-xs text-muted-foreground mb-1.5">{item.title}</p>
+              <p className="text-xs text-foreground leading-relaxed">{item.text}</p>
             </div>
           ))}
         </div>
 
         {/* Yi & Ji */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="bg-card border border-border rounded p-4">
-            <p className="font-serif text-sm text-fortune-green mb-2 text-center">宜</p>
-            <div className="space-y-1.5">
+          <div className="bg-card border border-border rounded shadow-subtle p-4">
+            <p className="font-serif text-sm text-fortune-yi mb-3 text-center">宜</p>
+            <div className="space-y-2">
               {fortune.yi.map((item, i) => (
-                <p key={i} className="text-xs text-center text-foreground">{item}</p>
+                <div key={i} className="flex items-center justify-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-fortune-yi flex-shrink-0" />
+                  <p className="text-xs text-foreground">{item}</p>
+                </div>
               ))}
             </div>
           </div>
-          <div className="bg-card border border-border rounded p-4">
-            <p className="font-serif text-sm text-fortune-red mb-2 text-center">忌</p>
-            <div className="space-y-1.5">
+          <div className="bg-card border border-border rounded shadow-subtle p-4">
+            <p className="font-serif text-sm text-fortune-ji mb-3 text-center">忌</p>
+            <div className="space-y-2">
               {fortune.ji.map((item, i) => (
-                <p key={i} className="text-xs text-center text-foreground">{item}</p>
+                <div key={i} className="flex items-center justify-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-fortune-ji flex-shrink-0" />
+                  <p className="text-xs text-foreground">{item}</p>
+                </div>
               ))}
             </div>
           </div>
         </div>
 
         {/* Lucky elements */}
-        <div className="bg-card border border-border rounded p-4 mb-8">
+        <div className="bg-card border border-border rounded shadow-subtle p-4 mb-8">
           <p className="font-serif text-sm text-center text-foreground mb-3">幸运元素</p>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
@@ -134,17 +142,18 @@ const FortunePage = () => {
         <div className="space-y-3">
           <button
             onClick={() => navigate('/')}
-            className="w-full h-12 rounded-sm bg-primary text-primary-foreground font-serif text-sm tracking-wider hover:opacity-90 transition-opacity"
+            className="w-full h-12 rounded-sm border border-border bg-card text-foreground font-serif text-sm tracking-wider hover:bg-muted transition-colors btn-press"
           >
             再算一次
           </button>
+          {/* TODO: 添加分享海报功能（html2canvas+二维码） */}
           <button
             onClick={() => {
               const text = `【爻光·${dateStr}】\n${fortune.level}\n「${fortune.poem}」\n宜：${fortune.yi.join('、')}\n忌：${fortune.ji.join('、')}\n幸运色：${fortune.color.name} | 幸运数字：${fortune.number} | 方位：${fortune.direction}`;
               navigator.clipboard.writeText(text);
               alert('已复制到剪贴板');
             }}
-            className="w-full h-12 rounded-sm border border-border bg-card text-foreground font-serif text-sm tracking-wider hover:bg-muted transition-colors"
+            className="w-full h-12 rounded-sm bg-primary text-primary-foreground font-serif text-sm tracking-wider hover:bg-primary-hover transition-colors btn-press"
           >
             保存今日爻光
           </button>
