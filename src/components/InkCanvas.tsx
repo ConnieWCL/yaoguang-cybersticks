@@ -86,12 +86,20 @@ export function InkCanvas() {
       window.removeEventListener('resize', resize);
     };
   }, []);
-
-  return (
+return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.8, height: '100vh', width: '100vw' }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        opacity: 0.8,
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}
     />
   );
+  
 }
