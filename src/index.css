@@ -63,10 +63,12 @@ body {
 
 /* ── LAYOUT ──────────────────────────────── */
 .app-root {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
