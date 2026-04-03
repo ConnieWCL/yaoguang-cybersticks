@@ -84,24 +84,20 @@ export default function Index() {
   }, [fortune]);
 
   return (
-    <div style={{position: 'relative'}}>
+    <>
       <InkCanvas />
 
       <div style={{
-    position: 'fixed',
-    inset: 0,
-    zIndex: 2,
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }}>
-    <div style={{
-      width: '100%',
-      maxWidth: '480px',
-      padding: '48px 20px 80px'
-    }}>
+        position: 'relative',
+        zIndex: 2,
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '48px 20px 80px',
+      }}>
+        <div style={{width: '100%', maxWidth: '480px'}}>
         {/* ── HEADER ── */}
         <header className="site-header">
           <div className="header-ornament">
@@ -275,5 +271,6 @@ export default function Index() {
         </footer>
       </div>
     </div>
-  );
+  </>
+ );
 }
