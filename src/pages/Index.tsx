@@ -87,7 +87,7 @@ export default function Index() {
     <div className="app-root" style={{minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
       <InkCanvas />
 
-      <div className="page-wrap">
+      <div className="page-wrap" style={{width: '100%', maxWidth: '480px', padding: '48px 20px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         {/* ── HEADER ── */}
         <header className="site-header">
           <div className="header-ornament">
