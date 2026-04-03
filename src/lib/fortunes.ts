@@ -173,6 +173,8 @@ export function loadUser(): UserInfo | null {
 }
 
 /** Fortune view used by Fortune.tsx page */
+export type Wuxing = '木' | '火' | '土' | '金' | '水';
+
 export interface PageFortune {
   level: string;
   poem: string;
@@ -187,6 +189,8 @@ export interface PageFortune {
   hexagram: string;
   hexagramName: string;
   guaIndex: number;
+  todayWuxing: Wuxing;
+  userWuxing: Wuxing;
 }
 
 const COLOR_MAP: { name: string; hex: string }[] = [
