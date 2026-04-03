@@ -184,6 +184,9 @@ export interface PageFortune {
   color: { name: string; hex: string };
   number: number;
   direction: string;
+  hexagram: string;
+  hexagramName: string;
+  guaIndex: number;
 }
 
 const COLOR_MAP: { name: string; hex: string }[] = [
@@ -222,5 +225,8 @@ export function getFortune(user: UserInfo): PageFortune {
     color: COLOR_MAP[h % COLOR_MAP.length],
     number: base.luckyNumber,
     direction: DIRECTIONS[h % DIRECTIONS.length],
+    hexagram: base.hexagram,
+    hexagramName: base.hexagramName,
+    guaIndex: h % 8,
   };
 }
