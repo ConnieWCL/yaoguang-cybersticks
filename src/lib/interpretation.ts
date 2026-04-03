@@ -225,7 +225,7 @@ function getPoetry(
 
 /* ── Main ── */
 
-export function getInterpretation(user: UserInfo, fortune: Fortune): Interpretation {
+export function getInterpretation(user: UserInfo, fortune: PageFortune): Interpretation {
   const bazi = getFullBazi(user.birthDate, user.birthTime);
   const todayInfo = getTodayInfo();
 

@@ -110,7 +110,7 @@ const SectionTitle = ({ children }: { children: string }) => (
 /* ── Main Page ── */
 const InterpretationPage = () => {
   const navigate = useNavigate();
-  const [fortune, setFortune] = useState<Fortune | null>(null);
+  const [fortune, setFortune] = useState<PageFortune | null>(null);
   const [interp, setInterp] = useState<Interpretation | null>(null);
 
   useEffect(() => {

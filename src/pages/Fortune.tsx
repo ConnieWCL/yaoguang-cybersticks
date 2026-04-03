@@ -20,7 +20,7 @@ function saveToHistory(fortune: PageFortune) {
 
 const FortunePage = () => {
   const navigate = useNavigate();
-  const [fortune, setFortune] = useState<Fortune | null>(null);
+  const [fortune, setFortune] = useState<PageFortune | null>(null);
   const [sealed, setSealed] = useState(false);
 
   useEffect(() => {
