@@ -3,8 +3,31 @@ import { InkCanvas } from '@/components/InkCanvas';
 import { LuckBar } from '@/components/LuckBar';
 import { useSound } from '@/hooks/useSound';
 import { getTodayFortune, getRandomFortune, type Fortune } from '@/lib/fortunes';
+import WuxingPentagon from '@/components/WuxingPentagon';
+import type { Wuxing } from '@/lib/fortunes';
 
 type Phase = 'idle' | 'shaking' | 'revealing' | 'done';
+
+const HEXAGRAM_WUXING: Record<string, Wuxing> = {
+  '乾': '金', '兑': '金',
+  '离': '火',
+  '震': '木', '巽': '木',
+  '坎': '水',
+  '艮': '土', '坤': '土',
+  '比': '水', '大有': '火', '咸': '金', '蹇': '水',
+  '随': '木', '既济': '水',
+};
+
+function getFortuneWuxing(f: Fortune): Wuxing {
+  return HEXAGRAM_WUXING[f.hexagramName] || '土';
+}
+
+function getTodayWuxing(): Wuxing {
+  const WUXING_LIST: Wuxing[] = ['木', '火', '土', '金', '水'];
+  const d = new Date();
+  const seed = d.getFullYear() * 400 + (d.getMonth() + 1) * 31 + d.getDate();
+  return WUXING_LIST[seed % 5];
+}
 
 export default function Index() {
   const [phase, setPhase] = useState<Phase>('idle');
@@ -162,6 +185,14 @@ export default function Index() {
                 </p>
               ))}
             </div>
+
+            {/* 五行盘 */}
+            {cardVisible && (
+              <WuxingPentagon
+                todayWuxing={getTodayWuxing()}
+                userWuxing={getFortuneWuxing(fortune)}
+              />
+            )}
 
             {/* Interpretation */}
             <p className="card-interpret">{fortune.interpretation}</p>
