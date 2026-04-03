@@ -2,7 +2,7 @@
  * 解签逻辑：完整四柱八字 + 五行生克 + 时辰个性化
  */
 
-import type { UserInfo, Fortune } from './fortune';
+import type { UserInfo, Fortune } from '@/lib/fortune';
 
 /* ── Types ── */
 
