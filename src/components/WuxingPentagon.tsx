@@ -29,16 +29,16 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 100);
-    const t2 = setTimeout(() => setLit(true), 500);
+    const t2 = setTimeout(() => setLit(true), 600);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  const size = 220;
+  const size = 320;
   const cx = size / 2;
   const cy = size / 2;
-  const R = 75;
+  const R = 110;
   const pts = getPentagonPoints(cx, cy, R);
-  const nodeR = 19;
+  const nodeR = 28;
 
   return (
     <div
@@ -46,30 +46,19 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
         margin: '20px auto',
         textAlign: 'center',
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(16px)',
-        transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'opacity 0.6s ease-out, transform 0.6s ease-out',
       }}
     >
-      <p style={{
-        fontFamily: "'Noto Serif SC', Georgia, serif",
-        fontSize: '14px',
-        color: 'var(--gold)',
-        marginBottom: '10px',
-        letterSpacing: '3px',
-        opacity: 0.6,
-      }}>
-        天机盘
-      </p>
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        style={{ width: '170px', maxWidth: '60vw', height: 'auto', display: 'block', margin: '0 auto' }}
+        style={{ width: '260px', maxWidth: '70vw', height: 'auto', display: 'block', margin: '0 auto' }}
       >
         <defs>
-          {/* Glow filters for each element color */}
           {ELEMENTS.map((el, i) => (
-            <filter key={`glow-${i}`} id={`wx-glow-${i}`} x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
-              <feFlood floodColor={el.color} floodOpacity="0.6" result="color" />
+            <filter key={`glow-${i}`} id={`wx-glow-${i}`} x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="8" result="blur" />
+              <feFlood floodColor={el.color} floodOpacity="0.5" result="color" />
               <feComposite in="color" in2="blur" operator="in" result="colorBlur" />
               <feMerge>
                 <feMergeNode in="colorBlur" />
@@ -77,21 +66,12 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
               </feMerge>
             </filter>
           ))}
-          <marker id="wx-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
-            <path d="M0,0 L5,2.5 L0,5" fill="none" stroke="var(--gold)" strokeWidth="0.8" opacity="0.4" />
+          <marker id="wx-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="var(--gold)" strokeWidth="1" opacity="0.35" />
           </marker>
         </defs>
 
-        {/* Pentagon outline */}
-        <polygon
-          points={pts.map(p => `${p.x},${p.y}`).join(' ')}
-          fill="none"
-          stroke="var(--gold)"
-          strokeWidth="0.8"
-          opacity="0.15"
-        />
-
-        {/* Edges with arrows */}
+        {/* Edges with arrows — dashed lines */}
         {pts.map((p, i) => {
           const next = pts[(i + 1) % 5];
           const dx = next.x - p.x;
@@ -99,21 +79,48 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           const len = Math.sqrt(dx * dx + dy * dy);
           const ux = dx / len;
           const uy = dy / len;
-          const x1 = p.x + ux * (nodeR + 4);
-          const y1 = p.y + uy * (nodeR + 4);
-          const x2 = next.x - ux * (nodeR + 7);
-          const y2 = next.y - uy * (nodeR + 7);
+          const x1 = p.x + ux * (nodeR + 6);
+          const y1 = p.y + uy * (nodeR + 6);
+          const x2 = next.x - ux * (nodeR + 9);
+          const y2 = next.y - uy * (nodeR + 9);
           return (
             <line
               key={`edge-${i}`}
               x1={x1} y1={y1} x2={x2} y2={y2}
               stroke="var(--gold)"
-              strokeWidth="0.8"
-              opacity="0.2"
+              strokeWidth="1"
+              opacity="0.18"
+              strokeDasharray="4 3"
               markerEnd="url(#wx-arrow)"
             />
           );
         })}
+
+        {/* Center label */}
+        <text
+          x={cx} y={cy - 8}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill="var(--gold)"
+          fontSize="13"
+          fontFamily="'Noto Serif SC', Georgia, serif"
+          opacity="0.45"
+          letterSpacing="4"
+        >
+          天机盘
+        </text>
+        <text
+          x={cx} y={cy + 10}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill="var(--gold)"
+          fontSize="10"
+          fontFamily="'Noto Serif SC', Georgia, serif"
+          opacity="0.3"
+          letterSpacing="2"
+        >
+          五行气运
+        </text>
 
         {/* Element nodes */}
         {ELEMENTS.map((el, i) => {
@@ -122,23 +129,29 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           const isDim = lit && i !== todayIdx;
 
           return (
-            <g key={el.name} style={{ transition: 'opacity 0.4s ease' }}>
-              {/* Breathing glow for active element */}
+            <g key={el.name}>
+              {/* Breathing outer glow for active */}
               {isActive && (
-                <circle cx={p.x} cy={p.y} r={nodeR + 6} fill={el.color} opacity="0.25"
-                  filter={`url(#wx-glow-${i})`}>
-                  <animate attributeName="r" values={`${nodeR + 5};${nodeR + 10};${nodeR + 5}`} dur="3s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.3;0.12;0.3" dur="3s" repeatCount="indefinite" />
-                </circle>
+                <>
+                  <circle cx={p.x} cy={p.y} r={nodeR + 10} fill="none"
+                    stroke={el.color} strokeWidth="1.5" opacity="0.3"
+                    filter={`url(#wx-glow-${i})`}>
+                    <animate attributeName="r" values={`${nodeR + 8};${nodeR + 14};${nodeR + 8}`} dur="3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.35;0.12;0.35" dur="3s" repeatCount="indefinite" />
+                  </circle>
+                  {/* Ring border */}
+                  <circle cx={p.x} cy={p.y} r={nodeR + 3}
+                    fill="none" stroke={el.color} strokeWidth="2" opacity="0.6" />
+                </>
               )}
 
-              {/* Circle - ink wash style */}
+              {/* Main circle */}
               <circle
                 cx={p.x} cy={p.y} r={nodeR}
                 fill={el.color}
-                opacity={isActive ? 0.7 : isDim ? 0.3 : 0.5}
+                opacity={isActive ? 0.75 : isDim ? 0.25 : 0.45}
                 stroke="none"
-                filter={isActive ? `url(#wx-glow-${i})` : undefined}
+                style={{ transition: 'opacity 0.5s ease' }}
               />
 
               {/* Text */}
@@ -147,13 +160,29 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
                 textAnchor="middle"
                 dominantBaseline="central"
                 fill="white"
-                fontSize="16"
+                fontSize="18"
                 fontFamily="'Noto Serif SC', Georgia, serif"
                 fontWeight={isActive ? 600 : 400}
-                opacity={isDim ? 0.5 : 1}
+                opacity={isDim ? 0.4 : 1}
+                style={{ transition: 'opacity 0.5s ease' }}
               >
                 {el.name}
               </text>
+
+              {/* "日主当令" label for active */}
+              {isActive && (
+                <text
+                  x={p.x} y={p.y + nodeR + 16}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill={el.color}
+                  fontSize="10"
+                  fontFamily="'Noto Serif SC', Georgia, serif"
+                  opacity="0.7"
+                >
+                  日主当令
+                </text>
+              )}
             </g>
           );
         })}
