@@ -84,7 +84,7 @@ export default function Index() {
   }, [fortune]);
 
   return (
-    <div className="app-root">
+    <div className="app-root" style={{minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
       <InkCanvas />
 
       <div className="page-wrap">
