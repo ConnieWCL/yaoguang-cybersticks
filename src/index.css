@@ -578,7 +578,7 @@ body {
 
 /* ── MOBILE REFINEMENTS ──────────────────── */
 @media (max-width: 390px) {
-  .page-wrap { padding: 0 16px; }
+  .page-wrap { padding: 48px 16px calc(env(safe-area-inset-bottom, 0px) + 60px); }
   .site-title { font-size: 52px; }
   .advice-grid { grid-template-columns: 1fr; }
   .lucky-row { flex-wrap: wrap; }
