@@ -184,6 +184,9 @@ export interface PageFortune {
   color: { name: string; hex: string };
   number: number;
   direction: string;
+  hexagram: string;
+  hexagramName: string;
+  guaIndex: number;
 }
 
 const COLOR_MAP: { name: string; hex: string }[] = [
