@@ -186,6 +186,14 @@ export default function Index() {
               ))}
             </div>
 
+            {/* 五行盘 */}
+            {cardVisible && (
+              <WuxingPentagon
+                todayWuxing={getTodayWuxing()}
+                userWuxing={getFortuneWuxing(fortune)}
+              />
+            )}
+
             {/* Interpretation */}
             <p className="card-interpret">{fortune.interpretation}</p>
 
