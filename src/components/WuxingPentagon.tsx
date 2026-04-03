@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
 
-/**
- * 五行正五边形 — Wuxing Pentagon
- * Displays the Five Elements in a regular pentagon with directional arrows.
- */
-
 type Wuxing = '木' | '火' | '土' | '金' | '水';
 
 const ELEMENTS: { name: Wuxing; color: string }[] = [
@@ -20,7 +15,6 @@ interface WuxingPentagonProps {
   userWuxing?: Wuxing;
 }
 
-/** Get vertices of a regular pentagon, top-centered, clockwise */
 function getPentagonPoints(cx: number, cy: number, r: number) {
   return ELEMENTS.map((_, i) => {
     const angle = -Math.PI / 2 + (2 * Math.PI * i) / 5;
@@ -39,19 +33,19 @@ const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
     const t1 = setTimeout(() => setVisible(true), 100);
     const t2 = setTimeout(() => {
       setLitIndices(prev => todayIdx >= 0 ? [...prev, todayIdx] : prev);
-    }, 700);
+    }, 400);
     const t3 = setTimeout(() => {
       setLitIndices(prev => userIdx >= 0 ? [...prev, userIdx] : prev);
-    }, 1000);
+    }, 600);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [todayIdx, userIdx]);
 
-  const size = 240;
+  const size = 160;
   const cx = size / 2;
   const cy = size / 2;
-  const R = 90;
+  const R = 55;
   const pts = getPentagonPoints(cx, cy, R);
-  const nodeR = 22;
+  const nodeR = 15;
 
   const isUser = (i: number) => userIdx >= 0 && i === userIdx;
   const isToday = (i: number) => i === todayIdx;
@@ -59,30 +53,38 @@ const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
 
   return (
     <div
-      className="flex items-center justify-center"
       style={{
-        margin: '24px auto',
+        margin: '16px auto',
+        textAlign: 'center',
         opacity: visible ? 1 : 0,
-        transform: visible ? 'scale(1)' : 'scale(0.8)',
-        transition: 'opacity 0.6s ease-out, transform 0.6s ease-out',
+        transform: visible ? 'translateY(0)' : 'translateY(12px)',
+        transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
       }}
     >
+      <p style={{
+        fontFamily: 'var(--serif)',
+        fontSize: '14px',
+        color: 'var(--gold)',
+        marginBottom: '8px',
+        letterSpacing: '2px',
+        opacity: 0.7,
+      }}>
+        五行气运
+      </p>
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        className="w-[60vw] max-w-[260px] h-auto"
+        style={{ width: '140px', maxWidth: '60vw', height: 'auto', display: 'block', margin: '0 auto' }}
       >
         <defs>
-          {/* Glow filter for user element */}
           <filter id="wx-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feGaussianBlur stdDeviation="4" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          {/* Arrow marker */}
-          <marker id="wx-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6" fill="none" stroke="var(--gold)" strokeWidth="1" opacity="0.35" />
+          <marker id="wx-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
+            <path d="M0,0 L5,2.5 L0,5" fill="none" stroke="var(--gold)" strokeWidth="0.8" opacity="0.5" />
           </marker>
         </defs>
 
@@ -91,30 +93,29 @@ const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
           points={pts.map(p => `${p.x},${p.y}`).join(' ')}
           fill="none"
           stroke="var(--gold)"
-          strokeWidth="0.5"
-          opacity="0.15"
+          strokeWidth="1"
+          opacity="0.2"
         />
 
-        {/* Edges with arrows (相生: 木→火→土→金→水→木) */}
+        {/* Edges with arrows */}
         {pts.map((p, i) => {
           const next = pts[(i + 1) % 5];
-          // Shorten line to not overlap circles
           const dx = next.x - p.x;
           const dy = next.y - p.y;
           const len = Math.sqrt(dx * dx + dy * dy);
           const ux = dx / len;
           const uy = dy / len;
-          const x1 = p.x + ux * (nodeR + 4);
-          const y1 = p.y + uy * (nodeR + 4);
-          const x2 = next.x - ux * (nodeR + 8);
-          const y2 = next.y - uy * (nodeR + 8);
+          const x1 = p.x + ux * (nodeR + 3);
+          const y1 = p.y + uy * (nodeR + 3);
+          const x2 = next.x - ux * (nodeR + 6);
+          const y2 = next.y - uy * (nodeR + 6);
           return (
             <line
               key={`edge-${i}`}
               x1={x1} y1={y1} x2={x2} y2={y2}
               stroke="var(--gold)"
-              strokeWidth="0.8"
-              opacity="0.25"
+              strokeWidth="1"
+              opacity="0.3"
               markerEnd="url(#wx-arrow)"
             />
           );
@@ -125,57 +126,42 @@ const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
           const p = pts[i];
           const lit = isLit(i);
           const user = isUser(i);
-          const today = isToday(i);
           const dim = !lit && litIndices.length > 0;
-          const baseOpacity = dim ? 0.3 : 1;
+          const baseOpacity = dim ? 0.4 : 1;
 
           return (
             <g key={el.name} opacity={baseOpacity} style={{ transition: 'opacity 0.4s ease' }}>
               {/* User glow breathing ring */}
               {user && lit && (
-                <circle cx={p.x} cy={p.y} r={nodeR + 6} fill="none" stroke="white" strokeWidth="1.5" opacity="0.4"
+                <circle cx={p.x} cy={p.y} r={nodeR + 4} fill="none" stroke="white" strokeWidth="1.5" opacity="0.4"
                   filter="url(#wx-glow)">
-                  <animate attributeName="r" values={`${nodeR + 4};${nodeR + 10};${nodeR + 4}`} dur="3s" repeatCount="indefinite" />
+                  <animate attributeName="r" values={`${nodeR + 3};${nodeR + 7};${nodeR + 3}`} dur="3s" repeatCount="indefinite" />
                   <animate attributeName="opacity" values="0.5;0.15;0.5" dur="3s" repeatCount="indefinite" />
                 </circle>
               )}
 
-              {/* Circle background */}
+              {/* Circle */}
               <circle
                 cx={p.x} cy={p.y} r={nodeR}
                 fill={el.color}
                 opacity={lit ? 0.9 : 0.5}
                 stroke={user && lit ? 'white' : 'var(--gold)'}
-                strokeWidth={user && lit ? 2.5 : 0.5}
+                strokeWidth={user && lit ? 2 : 0.5}
                 filter={user && lit ? 'url(#wx-glow)' : undefined}
               />
 
-              {/* Text label */}
+              {/* Text */}
               <text
                 x={p.x} y={p.y + 1}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill={el.name === '水' ? '#CBD5E1' : (lit ? '#1a1a1a' : '#888')}
-                fontSize="14"
+                fill="white"
+                fontSize="16"
                 fontFamily="var(--serif)"
                 fontWeight={lit ? 600 : 400}
               >
                 {el.name}
               </text>
-
-              {/* Subtle label for today */}
-              {today && lit && !user && (
-                <text x={p.x} y={p.y + nodeR + 12} textAnchor="middle"
-                  fill="var(--ink3)" fontSize="8" fontFamily="var(--mono)">
-                  今日
-                </text>
-              )}
-              {user && lit && (
-                <text x={p.x} y={p.y + nodeR + 12} textAnchor="middle"
-                  fill="var(--gold)" fontSize="8" fontFamily="var(--mono)">
-                  命主
-                </text>
-              )}
             </g>
           );
         })}
