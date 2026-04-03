@@ -3,6 +3,8 @@ import { InkCanvas } from '@/components/InkCanvas';
 import { LuckBar } from '@/components/LuckBar';
 import { useSound } from '@/hooks/useSound';
 import { getTodayFortune, getRandomFortune, type Fortune } from '@/lib/fortunes';
+import WuxingPentagon from '@/components/WuxingPentagon';
+import type { Wuxing } from '@/lib/fortunes';
 
 type Phase = 'idle' | 'shaking' | 'revealing' | 'done';
 
