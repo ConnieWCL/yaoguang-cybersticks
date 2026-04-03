@@ -84,10 +84,24 @@ export default function Index() {
   }, [fortune]);
 
   return (
-    <div className="app-root" style={{minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+    <div style={{position: 'relative'}}>
       <InkCanvas />
 
-      <div className="page-wrap" style={{width: '100%', maxWidth: '480px', padding: '48px 20px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+      <div style={{
+    position: 'fixed',
+    inset: 0,
+    zIndex: 2,
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }}>
+    <div style={{
+      width: '100%',
+      maxWidth: '480px',
+      padding: '48px 20px 80px'
+    }}>
         {/* ── HEADER ── */}
         <header className="site-header">
           <div className="header-ornament">
