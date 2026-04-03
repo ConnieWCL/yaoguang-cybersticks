@@ -193,7 +193,6 @@ export default function Index() {
             {cardVisible && (
               <WuxingPentagon
                 todayWuxing={getTodayWuxing()}
-                userWuxing={getFortuneWuxing(fortune)}
               />
             )}
 

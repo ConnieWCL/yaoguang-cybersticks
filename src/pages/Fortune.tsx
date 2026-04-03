@@ -70,7 +70,6 @@ const FortunePage = () => {
         {/* 五行盘 — Wuxing Pentagon */}
         <WuxingPentagon
           todayWuxing={fortune.todayWuxing}
-          userWuxing={fortune.userWuxing}
         />
 
         {/* Poem — clickable */}
