@@ -89,10 +89,7 @@ body {
 }
 
 /* ── HEADER ──────────────────────────────── */
-.site-header {
-  text-align: center;
-  padding: 52px 0 28px;
-}
+/* header is now flex-defined in .page-wrap */
 
 .header-ornament {
   display: flex;
