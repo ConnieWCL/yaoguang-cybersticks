@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 type Wuxing = '木' | '火' | '土' | '金' | '水';
 
 const ELEMENTS: { name: Wuxing; color: string }[] = [
-  { name: '木', color: '#4ADE80' },
-  { name: '火', color: '#F87171' },
-  { name: '土', color: '#F59E0B' },
-  { name: '金', color: '#FCD34D' },
-  { name: '水', color: '#60A5FA' },
+  { name: '木', color: '#5B8C5A' },   // 竹青，沉稳
+  { name: '火', color: '#C75050' },   // 朱砂赤
+  { name: '土', color: '#A0784C' },   // 赭石，偏暖棕
+  { name: '金', color: '#C0C0C0' },   // 银白，区别于土
+  { name: '水', color: '#4A7FB5' },   // 靛蓝
 ];
 
 interface WuxingPentagonProps {
@@ -20,6 +20,16 @@ function getPentagonPoints(cx: number, cy: number, r: number) {
     return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
   });
 }
+
+// 相生顺序: 木→火→土→金→水→木 (already the array order)
+// 相克顺序: 木→土, 土→水, 水→火, 火→金, 金→木
+const KELINES: [number, number][] = [
+  [0, 2], // 木克土
+  [2, 4], // 土克水
+  [4, 1], // 水克火
+  [1, 3], // 火克金
+  [3, 0], // 金克木
+];
 
 const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
   const [visible, setVisible] = useState(false);
@@ -35,10 +45,10 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
 
   const size = 320;
   const cx = size / 2;
-  const cy = size / 2;
-  const R = 110;
+  const cy = size / 2 + 4;
+  const R = 108;
   const pts = getPentagonPoints(cx, cy, R);
-  const nodeR = 28;
+  const nodeR = 26;
 
   return (
     <div
@@ -52,13 +62,13 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
     >
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        style={{ width: '260px', maxWidth: '70vw', height: 'auto', display: 'block', margin: '0 auto' }}
+        style={{ width: '250px', maxWidth: '68vw', height: 'auto', display: 'block', margin: '0 auto' }}
       >
         <defs>
           {ELEMENTS.map((el, i) => (
             <filter key={`glow-${i}`} id={`wx-glow-${i}`} x="-100%" y="-100%" width="300%" height="300%">
-              <feGaussianBlur stdDeviation="8" result="blur" />
-              <feFlood floodColor={el.color} floodOpacity="0.5" result="color" />
+              <feGaussianBlur stdDeviation="7" result="blur" />
+              <feFlood floodColor={el.color} floodOpacity="0.45" result="color" />
               <feComposite in="color" in2="blur" operator="in" result="colorBlur" />
               <feMerge>
                 <feMergeNode in="colorBlur" />
@@ -66,12 +76,17 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
               </feMerge>
             </filter>
           ))}
-          <marker id="wx-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6" fill="none" stroke="var(--gold)" strokeWidth="1" opacity="0.35" />
+          {/* 相生箭头 — 淡金 */}
+          <marker id="wx-sheng" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0.5 L4.5,2.5 L0,4.5" fill="none" stroke="var(--gold)" strokeWidth="0.8" opacity="0.3" />
+          </marker>
+          {/* 相克箭头 — 淡红 */}
+          <marker id="wx-ke" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0.5 L4.5,2.5 L0,4.5" fill="none" stroke="#B85C4A" strokeWidth="0.8" opacity="0.25" />
           </marker>
         </defs>
 
-        {/* Edges with arrows — dashed lines */}
+        {/* 相生线 — 五边形边，实线淡金 */}
         {pts.map((p, i) => {
           const next = pts[(i + 1) % 5];
           const dx = next.x - p.x;
@@ -79,33 +94,58 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           const len = Math.sqrt(dx * dx + dy * dy);
           const ux = dx / len;
           const uy = dy / len;
-          const x1 = p.x + ux * (nodeR + 6);
-          const y1 = p.y + uy * (nodeR + 6);
-          const x2 = next.x - ux * (nodeR + 9);
-          const y2 = next.y - uy * (nodeR + 9);
+          const x1 = p.x + ux * (nodeR + 5);
+          const y1 = p.y + uy * (nodeR + 5);
+          const x2 = next.x - ux * (nodeR + 8);
+          const y2 = next.y - uy * (nodeR + 8);
           return (
             <line
-              key={`edge-${i}`}
+              key={`sheng-${i}`}
               x1={x1} y1={y1} x2={x2} y2={y2}
               stroke="var(--gold)"
-              strokeWidth="1"
-              opacity="0.18"
-              strokeDasharray="4 3"
-              markerEnd="url(#wx-arrow)"
+              strokeWidth="0.8"
+              opacity="0.15"
+              markerEnd="url(#wx-sheng)"
+            />
+          );
+        })}
+
+        {/* 相克线 — 对角虚线，淡赭红 */}
+        {KELINES.map(([from, to], i) => {
+          const p = pts[from];
+          const q = pts[to];
+          const dx = q.x - p.x;
+          const dy = q.y - p.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          const ux = dx / len;
+          const uy = dy / len;
+          const x1 = p.x + ux * (nodeR + 5);
+          const y1 = p.y + uy * (nodeR + 5);
+          const x2 = q.x - ux * (nodeR + 8);
+          const y2 = q.y - uy * (nodeR + 8);
+          return (
+            <line
+              key={`ke-${i}`}
+              x1={x1} y1={y1} x2={x2} y2={y2}
+              stroke="#B85C4A"
+              strokeWidth="0.6"
+              opacity="0.1"
+              strokeDasharray="3 4"
+              markerEnd="url(#wx-ke)"
             />
           );
         })}
 
         {/* Center label */}
         <text
-          x={cx} y={cy - 8}
+          x={cx} y={cy - 6}
           textAnchor="middle"
           dominantBaseline="central"
           fill="var(--gold)"
-          fontSize="13"
+          fontSize="12"
           fontFamily="'Noto Serif SC', Georgia, serif"
-          opacity="0.45"
-          letterSpacing="4"
+          opacity="0.4"
+          letterSpacing="5"
         >
           天机盘
         </text>
@@ -114,9 +154,9 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           textAnchor="middle"
           dominantBaseline="central"
           fill="var(--gold)"
-          fontSize="10"
+          fontSize="9"
           fontFamily="'Noto Serif SC', Georgia, serif"
-          opacity="0.3"
+          opacity="0.25"
           letterSpacing="2"
         >
           五行气运
@@ -130,55 +170,57 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
 
           return (
             <g key={el.name}>
-              {/* Breathing outer glow for active */}
+              {/* Breathing glow ring for active */}
               {isActive && (
-                <>
-                  <circle cx={p.x} cy={p.y} r={nodeR + 10} fill="none"
-                    stroke={el.color} strokeWidth="1.5" opacity="0.3"
-                    filter={`url(#wx-glow-${i})`}>
-                    <animate attributeName="r" values={`${nodeR + 8};${nodeR + 14};${nodeR + 8}`} dur="3s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.35;0.12;0.35" dur="3s" repeatCount="indefinite" />
-                  </circle>
-                  {/* Ring border */}
-                  <circle cx={p.x} cy={p.y} r={nodeR + 3}
-                    fill="none" stroke={el.color} strokeWidth="2" opacity="0.6" />
-                </>
+                <circle cx={p.x} cy={p.y} r={nodeR + 10} fill="none"
+                  stroke={el.color} strokeWidth="1.2" opacity="0.25"
+                  filter={`url(#wx-glow-${i})`}>
+                  <animate attributeName="r" values={`${nodeR + 8};${nodeR + 14};${nodeR + 8}`} dur="3s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite" />
+                </circle>
               )}
 
-              {/* Main circle */}
+              {/* Subtle ring for active */}
+              {isActive && (
+                <circle cx={p.x} cy={p.y} r={nodeR + 2}
+                  fill="none" stroke={el.color} strokeWidth="1.5" opacity="0.5" />
+              )}
+
+              {/* Main circle — ink wash fill */}
               <circle
                 cx={p.x} cy={p.y} r={nodeR}
                 fill={el.color}
-                opacity={isActive ? 0.75 : isDim ? 0.25 : 0.45}
+                opacity={isActive ? 0.8 : isDim ? 0.22 : 0.4}
                 stroke="none"
                 style={{ transition: 'opacity 0.5s ease' }}
               />
 
-              {/* Text */}
+              {/* Character */}
               <text
                 x={p.x} y={p.y + 1}
                 textAnchor="middle"
                 dominantBaseline="central"
                 fill="white"
-                fontSize="18"
+                fontSize="16"
                 fontFamily="'Noto Serif SC', Georgia, serif"
                 fontWeight={isActive ? 600 : 400}
-                opacity={isDim ? 0.4 : 1}
+                opacity={isDim ? 0.35 : 0.95}
                 style={{ transition: 'opacity 0.5s ease' }}
               >
                 {el.name}
               </text>
 
-              {/* "日主当令" label for active */}
+              {/* Label under active node */}
               {isActive && (
                 <text
-                  x={p.x} y={p.y + nodeR + 16}
+                  x={p.x} y={p.y + nodeR + 14}
                   textAnchor="middle"
                   dominantBaseline="central"
                   fill={el.color}
-                  fontSize="10"
+                  fontSize="9"
                   fontFamily="'Noto Serif SC', Georgia, serif"
-                  opacity="0.7"
+                  opacity="0.6"
+                  letterSpacing="1"
                 >
                   日主当令
                 </text>
