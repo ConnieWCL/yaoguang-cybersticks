@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loadUser, getFortune, type Fortune } from '@/lib/fortune';
+import { loadUser, getFortune, type PageFortune } from '@/lib/fortunes';
 import { getInterpretation, WUXING_RING, type Interpretation } from '@/lib/interpretation';
 import { ArrowLeft, Stamp } from 'lucide-react';
 
@@ -110,7 +110,7 @@ const SectionTitle = ({ children }: { children: string }) => (
 /* ── Main Page ── */
 const InterpretationPage = () => {
   const navigate = useNavigate();
-  const [fortune, setFortune] = useState<Fortune | null>(null);
+  const [fortune, setFortune] = useState<PageFortune | null>(null);
   const [interp, setInterp] = useState<Interpretation | null>(null);
 
   useEffect(() => {

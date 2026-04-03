@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loadUser, getFortune, type Fortune } from '@/lib/fortune';
+import { loadUser, getFortune, type PageFortune } from '@/lib/fortunes';
 import { ArrowLeft, Stamp } from 'lucide-react';
 
 const HISTORY_KEY = 'yaoguang_history';
 
-function saveToHistory(fortune: Fortune) {
+function saveToHistory(fortune: PageFortune) {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
     const history = raw ? JSON.parse(raw) : [];
@@ -20,7 +20,7 @@ function saveToHistory(fortune: Fortune) {
 
 const FortunePage = () => {
   const navigate = useNavigate();
-  const [fortune, setFortune] = useState<Fortune | null>(null);
+  const [fortune, setFortune] = useState<PageFortune | null>(null);
   const [sealed, setSealed] = useState(false);
 
   useEffect(() => {
