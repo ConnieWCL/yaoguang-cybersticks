@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loadUser, getFortune, type PageFortune } from '@/lib/fortunes';
 import { ArrowLeft, Stamp } from 'lucide-react';
+import TianJiPan from '@/components/TianJiPan';
 
 const HISTORY_KEY = 'yaoguang_history';
 
