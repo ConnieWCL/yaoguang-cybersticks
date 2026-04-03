@@ -67,6 +67,14 @@ const FortunePage = () => {
           </p>
         </button>
 
+        {/* 天机盘 — Cosmic Wheel */}
+        <TianJiPan
+          hexagramName={fortune.hexagramName}
+          hexagram={fortune.hexagram}
+          guaIndex={fortune.guaIndex}
+          level={fortune.level}
+        />
+
         {/* Poem — clickable */}
         <button onClick={() => navigate('/interpretation')}
           className="w-full text-center mb-10 cursor-pointer group">
