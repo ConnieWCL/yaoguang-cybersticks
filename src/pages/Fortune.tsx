@@ -5,7 +5,7 @@ import { ArrowLeft, Stamp } from 'lucide-react';
 
 const HISTORY_KEY = 'yaoguang_history';
 
-function saveToHistory(fortune: Fortune) {
+function saveToHistory(fortune: PageFortune) {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
     const history = raw ? JSON.parse(raw) : [];
