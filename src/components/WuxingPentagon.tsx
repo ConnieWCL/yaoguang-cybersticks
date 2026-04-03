@@ -7,12 +7,11 @@ const ELEMENTS: { name: Wuxing; color: string }[] = [
   { name: '火', color: '#F87171' },
   { name: '土', color: '#F59E0B' },
   { name: '金', color: '#FCD34D' },
-  { name: '水', color: '#1E3A5F' },
+  { name: '水', color: '#60A5FA' },
 ];
 
 interface WuxingPentagonProps {
   todayWuxing: Wuxing;
-  userWuxing?: Wuxing;
 }
 
 function getPentagonPoints(cx: number, cy: number, r: number) {
@@ -22,69 +21,64 @@ function getPentagonPoints(cx: number, cy: number, r: number) {
   });
 }
 
-const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
+const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
   const [visible, setVisible] = useState(false);
-  const [litIndices, setLitIndices] = useState<number[]>([]);
+  const [lit, setLit] = useState(false);
 
   const todayIdx = ELEMENTS.findIndex(e => e.name === todayWuxing);
-  const userIdx = userWuxing ? ELEMENTS.findIndex(e => e.name === userWuxing) : -1;
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 100);
-    const t2 = setTimeout(() => {
-      setLitIndices(prev => todayIdx >= 0 ? [...prev, todayIdx] : prev);
-    }, 400);
-    const t3 = setTimeout(() => {
-      setLitIndices(prev => userIdx >= 0 ? [...prev, userIdx] : prev);
-    }, 600);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [todayIdx, userIdx]);
+    const t2 = setTimeout(() => setLit(true), 500);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
 
-  const size = 160;
+  const size = 220;
   const cx = size / 2;
   const cy = size / 2;
-  const R = 55;
+  const R = 75;
   const pts = getPentagonPoints(cx, cy, R);
-  const nodeR = 15;
-
-  const isUser = (i: number) => userIdx >= 0 && i === userIdx;
-  const isToday = (i: number) => i === todayIdx;
-  const isLit = (i: number) => litIndices.includes(i);
+  const nodeR = 19;
 
   return (
     <div
       style={{
-        margin: '16px auto',
+        margin: '20px auto',
         textAlign: 'center',
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(12px)',
+        transform: visible ? 'translateY(0)' : 'translateY(16px)',
         transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
       }}
     >
       <p style={{
-        fontFamily: 'var(--serif)',
+        fontFamily: "'Noto Serif SC', Georgia, serif",
         fontSize: '14px',
         color: 'var(--gold)',
-        marginBottom: '8px',
-        letterSpacing: '2px',
-        opacity: 0.7,
+        marginBottom: '10px',
+        letterSpacing: '3px',
+        opacity: 0.6,
       }}>
-        五行气运
+        天机盘
       </p>
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        style={{ width: '140px', maxWidth: '60vw', height: 'auto', display: 'block', margin: '0 auto' }}
+        style={{ width: '170px', maxWidth: '60vw', height: 'auto', display: 'block', margin: '0 auto' }}
       >
         <defs>
-          <filter id="wx-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          {/* Glow filters for each element color */}
+          {ELEMENTS.map((el, i) => (
+            <filter key={`glow-${i}`} id={`wx-glow-${i}`} x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feFlood floodColor={el.color} floodOpacity="0.6" result="color" />
+              <feComposite in="color" in2="blur" operator="in" result="colorBlur" />
+              <feMerge>
+                <feMergeNode in="colorBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          ))}
           <marker id="wx-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
-            <path d="M0,0 L5,2.5 L0,5" fill="none" stroke="var(--gold)" strokeWidth="0.8" opacity="0.5" />
+            <path d="M0,0 L5,2.5 L0,5" fill="none" stroke="var(--gold)" strokeWidth="0.8" opacity="0.4" />
           </marker>
         </defs>
 
@@ -93,8 +87,8 @@ const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
           points={pts.map(p => `${p.x},${p.y}`).join(' ')}
           fill="none"
           stroke="var(--gold)"
-          strokeWidth="1"
-          opacity="0.2"
+          strokeWidth="0.8"
+          opacity="0.15"
         />
 
         {/* Edges with arrows */}
@@ -105,17 +99,17 @@ const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
           const len = Math.sqrt(dx * dx + dy * dy);
           const ux = dx / len;
           const uy = dy / len;
-          const x1 = p.x + ux * (nodeR + 3);
-          const y1 = p.y + uy * (nodeR + 3);
-          const x2 = next.x - ux * (nodeR + 6);
-          const y2 = next.y - uy * (nodeR + 6);
+          const x1 = p.x + ux * (nodeR + 4);
+          const y1 = p.y + uy * (nodeR + 4);
+          const x2 = next.x - ux * (nodeR + 7);
+          const y2 = next.y - uy * (nodeR + 7);
           return (
             <line
               key={`edge-${i}`}
               x1={x1} y1={y1} x2={x2} y2={y2}
               stroke="var(--gold)"
-              strokeWidth="1"
-              opacity="0.3"
+              strokeWidth="0.8"
+              opacity="0.2"
               markerEnd="url(#wx-arrow)"
             />
           );
@@ -124,30 +118,27 @@ const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
         {/* Element nodes */}
         {ELEMENTS.map((el, i) => {
           const p = pts[i];
-          const lit = isLit(i);
-          const user = isUser(i);
-          const dim = !lit && litIndices.length > 0;
-          const baseOpacity = dim ? 0.4 : 1;
+          const isActive = lit && i === todayIdx;
+          const isDim = lit && i !== todayIdx;
 
           return (
-            <g key={el.name} opacity={baseOpacity} style={{ transition: 'opacity 0.4s ease' }}>
-              {/* User glow breathing ring */}
-              {user && lit && (
-                <circle cx={p.x} cy={p.y} r={nodeR + 4} fill="none" stroke="white" strokeWidth="1.5" opacity="0.4"
-                  filter="url(#wx-glow)">
-                  <animate attributeName="r" values={`${nodeR + 3};${nodeR + 7};${nodeR + 3}`} dur="3s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.5;0.15;0.5" dur="3s" repeatCount="indefinite" />
+            <g key={el.name} style={{ transition: 'opacity 0.4s ease' }}>
+              {/* Breathing glow for active element */}
+              {isActive && (
+                <circle cx={p.x} cy={p.y} r={nodeR + 6} fill={el.color} opacity="0.25"
+                  filter={`url(#wx-glow-${i})`}>
+                  <animate attributeName="r" values={`${nodeR + 5};${nodeR + 10};${nodeR + 5}`} dur="3s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.3;0.12;0.3" dur="3s" repeatCount="indefinite" />
                 </circle>
               )}
 
-              {/* Circle */}
+              {/* Circle - ink wash style */}
               <circle
                 cx={p.x} cy={p.y} r={nodeR}
                 fill={el.color}
-                opacity={lit ? 0.9 : 0.5}
-                stroke={user && lit ? 'white' : 'var(--gold)'}
-                strokeWidth={user && lit ? 2 : 0.5}
-                filter={user && lit ? 'url(#wx-glow)' : undefined}
+                opacity={isActive ? 0.7 : isDim ? 0.3 : 0.5}
+                stroke="none"
+                filter={isActive ? `url(#wx-glow-${i})` : undefined}
               />
 
               {/* Text */}
@@ -157,8 +148,9 @@ const WuxingPentagon = ({ todayWuxing, userWuxing }: WuxingPentagonProps) => {
                 dominantBaseline="central"
                 fill="white"
                 fontSize="16"
-                fontFamily="var(--serif)"
-                fontWeight={lit ? 600 : 400}
+                fontFamily="'Noto Serif SC', Georgia, serif"
+                fontWeight={isActive ? 600 : 400}
+                opacity={isDim ? 0.5 : 1}
               >
                 {el.name}
               </text>
