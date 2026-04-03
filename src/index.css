@@ -74,13 +74,22 @@ body {
   margin: 0 auto;
   padding: 0 20px env(safe-area-inset-bottom, 24px);
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 60px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.site-header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 20px;
 }
 
 /* ── HEADER ──────────────────────────────── */
-.site-header {
-  text-align: center;
-  padding: 52px 0 28px;
-}
+/* header is now flex-defined in .page-wrap */
 
 .header-ornament {
   display: flex;
