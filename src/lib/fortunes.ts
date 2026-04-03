@@ -151,3 +151,76 @@ export function getRandomFortune(exclude?: number): Fortune {
   const pool = exclude !== undefined ? FORTUNES.filter(f => f.id !== exclude) : FORTUNES;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+/* ── User Info & Page Fortune bridge ── */
+
+export interface UserInfo {
+  birthDate: string;   // 'YYYY-MM-DD'
+  birthTime: string;   // dizhi e.g. '子','丑',...
+}
+
+const USER_KEY = 'yaoguang_user';
+
+export function saveUser(info: UserInfo) {
+  localStorage.setItem(USER_KEY, JSON.stringify(info));
+}
+
+export function loadUser(): UserInfo | null {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+/** Fortune view used by Fortune.tsx page */
+export interface PageFortune {
+  level: string;
+  poem: string;
+  career: string;
+  love: string;
+  health: string;
+  yi: string[];
+  ji: string[];
+  color: { name: string; hex: string };
+  number: number;
+  direction: string;
+}
+
+const COLOR_MAP: { name: string; hex: string }[] = [
+  { name: '青碧', hex: '#5A7A6A' },
+  { name: '朱砂', hex: '#B85C4A' },
+  { name: '藤黄', hex: '#C9A86C' },
+  { name: '靛蓝', hex: '#2C3E50' },
+  { name: '胭脂', hex: '#D4849A' },
+];
+
+const DIRECTIONS = ['正东', '东南', '正南', '西南', '正西', '西北', '正北', '东北'];
+
+export function getFortune(user: UserInfo): PageFortune {
+  const today = new Date().toISOString().split('T')[0];
+  const s = user.birthDate + user.birthTime + today;
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h) + s.charCodeAt(i);
+    h = h & h;
+  }
+  h = Math.abs(h);
+
+  const base = FORTUNES[h % FORTUNES.length];
+
+  const LEVELS = ['大吉', '吉', '中吉', '平', '小凶', '凶'];
+  const level = LEVELS[h % 6];
+
+  return {
+    level,
+    poem: base.poem[h % base.poem.length],
+    career: base.interpretation.slice(0, 20),
+    love: base.interpretation.slice(10, 30),
+    health: base.interpretation.slice(20, 40),
+    yi: base.doList,
+    ji: base.dontList,
+    color: COLOR_MAP[h % COLOR_MAP.length],
+    number: base.luckyNumber,
+    direction: DIRECTIONS[h % DIRECTIONS.length],
+  };
+}
