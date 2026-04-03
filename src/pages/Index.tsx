@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { InkCanvas } from '@/components/InkCanvas';
 import { LuckBar } from '@/components/LuckBar';
 import { useSound } from '@/hooks/useSound';
-import { getTodayFortune, getRandomFortune, type Fortune } from '@/data/fortunes';
+import { getTodayFortune, getRandomFortune, type Fortune } from '@/lib/fortunes';
 
 type Phase = 'idle' | 'shaking' | 'revealing' | 'done';
 
