@@ -218,6 +218,19 @@ export function getFortune(user: UserInfo): PageFortune {
   const LEVELS = ['大吉', '吉', '中吉', '平', '小凶', '凶'];
   const level = LEVELS[h % 6];
 
+  const WUXING_LIST: Wuxing[] = ['木', '火', '土', '金', '水'];
+  const todayDate = new Date();
+  const todaySeed = todayDate.getFullYear() * 400 + (todayDate.getMonth() + 1) * 31 + todayDate.getDate();
+  const todayWuxing = WUXING_LIST[todaySeed % 5];
+
+  // Derive user wuxing from birth info
+  let uh = 0;
+  for (let i = 0; i < user.birthDate.length; i++) {
+    uh = ((uh << 5) - uh) + user.birthDate.charCodeAt(i);
+    uh = uh & uh;
+  }
+  const userWuxing = WUXING_LIST[Math.abs(uh) % 5];
+
   return {
     level,
     poem: base.poem[h % base.poem.length],
@@ -232,5 +245,7 @@ export function getFortune(user: UserInfo): PageFortune {
     hexagram: base.hexagram,
     hexagramName: base.hexagramName,
     guaIndex: h % 8,
+    todayWuxing,
+    userWuxing,
   };
 }

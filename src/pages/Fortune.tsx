@@ -67,12 +67,10 @@ const FortunePage = () => {
           </p>
         </button>
 
-        {/* 天机盘 — Cosmic Wheel */}
-        <TianJiPan
-          hexagramName={fortune.hexagramName}
-          hexagram={fortune.hexagram}
-          guaIndex={fortune.guaIndex}
-          level={fortune.level}
+        {/* 五行盘 — Wuxing Pentagon */}
+        <WuxingPentagon
+          todayWuxing={fortune.todayWuxing}
+          userWuxing={fortune.userWuxing}
         />
 
         {/* Poem — clickable */}
