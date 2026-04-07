@@ -365,3 +365,55 @@ export function getRandomFortune(excludeId?: number): Fortune {
     : FORTUNES;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+// ── Legacy types & functions for Fortune/Interpretation pages ──
+
+export interface UserInfo {
+  birthDate: string;
+  birthTime: string;
+}
+
+export interface PageFortune {
+  level: string;
+  poem: string;
+  career: string;
+  love: string;
+  health: string;
+  yi: string[];
+  ji: string[];
+  color: { name: string; hex: string };
+  number: number;
+  direction: string;
+  todayWuxing: Wuxing;
+}
+
+const USER_KEY = 'yaoguang_user';
+
+export function loadUser(): UserInfo | null {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getFortune(user: UserInfo): PageFortune {
+  const f = getTodayFortune();
+  const todayWuxing = (['木', '火', '土', '金', '水'] as Wuxing[])[
+    (new Date().getFullYear() * 400 + (new Date().getMonth() + 1) * 31 + new Date().getDate()) % 5
+  ];
+  return {
+    level: f.gradeLabel,
+    poem: f.poem.join('\n'),
+    career: f.interpretation,
+    love: f.interpretation,
+    health: f.interpretation,
+    yi: f.doList,
+    ji: f.dontList,
+    color: { name: f.luckyColor, hex: f.gradeColor },
+    number: f.luckyNumber,
+    direction: f.luckyDirection,
+    todayWuxing,
+  };
+}
