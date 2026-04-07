@@ -94,37 +94,6 @@ export default function Index() {
       }}>
         <div style={{ width: '100%', maxWidth: '480px' }}>
 
-          {/* ── 今日主题 banner ── */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            marginBottom: '16px',
-            padding: '6px 16px',
-            borderRadius: '20px',
-            background: dailyTheme.bgTint,
-            border: `1px solid ${dailyTheme.primaryColor}30`,
-            width: 'fit-content',
-            margin: '0 auto 16px',
-          }}>
-            <span style={{
-              width: '6px', height: '6px',
-              borderRadius: '50%',
-              background: dailyTheme.primaryColor,
-              boxShadow: `0 0 6px ${dailyTheme.primaryColor}`,
-              display: 'inline-block',
-            }} />
-            <span style={{
-              fontFamily: 'Share Tech Mono, monospace',
-              fontSize: '10px',
-              letterSpacing: '0.16em',
-              color: dailyTheme.primaryColor,
-            }}>
-              {dailyTheme.label} · {dailyTheme.desc}
-            </span>
-          </div>
-
           {/* ── HEADER ── */}
           <header className="site-header">
             <div className="header-ornament">
