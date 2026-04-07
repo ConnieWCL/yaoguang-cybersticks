@@ -330,7 +330,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.fillText('每日一签 · 仅供娱乐', 150, curY + 72);
     ctx.restore();
 
-    curY += 148;
+    curY += 178;
     drawOrnamentLine(curY + 8);
 
     setImageUrl(canvas.toDataURL('image/png'));
