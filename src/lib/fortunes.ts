@@ -417,4 +417,3 @@ export function getFortune(user: UserInfo): PageFortune {
     todayWuxing,
   };
 }
-}
