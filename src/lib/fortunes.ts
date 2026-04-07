@@ -448,3 +448,58 @@ export function getRandomFortune(excludeId?: number): Fortune {
     : FORTUNES;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+/* ── Legacy types & helpers used by Fortune / Interpretation pages ── */
+
+export interface UserInfo {
+  birthDate: string;
+  birthTime: string;
+}
+
+export interface PageFortune {
+  level: string;
+  poem: string;
+  career: string;
+  love: string;
+  health: string;
+  yi: string[];
+  ji: string[];
+  todayWuxing: string;
+  color: { name: string; hex: string };
+  number: number;
+  direction: string;
+}
+
+const WUXING_CYCLE: Wuxing[] = ['木', '火', '土', '金', '水'];
+
+export function loadUser(): UserInfo | null {
+  try {
+    const raw = localStorage.getItem('yaoguang_user');
+    if (!raw) return null;
+    return JSON.parse(raw) as UserInfo;
+  } catch { return null; }
+}
+
+export function getFortune(user: UserInfo): PageFortune {
+  const s = user.birthDate + user.birthTime + new Date().toISOString().split('T')[0];
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h = h & h; }
+  h = Math.abs(h);
+  const f = FORTUNES[h % FORTUNES.length];
+
+  const grades: Record<string, string> = { supreme: '大吉', great: '中吉', middle: '小吉', caution: '小凶', warning: '凶' };
+
+  return {
+    level: grades[f.grade] ?? f.gradeLabel,
+    poem: f.poem[0],
+    career: f.interpretation,
+    love: f.interpretation,
+    health: f.interpretation,
+    yi: f.doList,
+    ji: f.dontList,
+    todayWuxing: WUXING_CYCLE[h % 5],
+    color: { name: f.luckyColor, hex: f.gradeColor },
+    number: f.luckyNumber,
+    direction: f.luckyDirection,
+  };
+}

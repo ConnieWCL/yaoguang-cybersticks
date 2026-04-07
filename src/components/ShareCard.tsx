@@ -320,7 +320,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.font = '19px "Share Tech Mono", monospace';
     ctx.fillStyle = '#3A3458';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    ctx.fillText('${typeof window !== 'undefined' ? window.location.hostname : 'yaoguang-cyberoracle.lovable.app'}', 150, curY + 46);
+    ctx.fillText(typeof window !== 'undefined' ? window.location.hostname : 'yaoguang-cyberoracle.lovable.app', 150, curY + 46);
     ctx.restore();
 
     ctx.save();

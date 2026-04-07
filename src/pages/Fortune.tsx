@@ -69,7 +69,7 @@ const FortunePage = () => {
 
         {/* 五行盘 — Wuxing Pentagon */}
         <WuxingPentagon
-          todayWuxing={fortune.todayWuxing}
+          todayWuxing={fortune.todayWuxing as import('@/lib/fortunes').Wuxing}
         />
 
         {/* Poem — clickable */}
