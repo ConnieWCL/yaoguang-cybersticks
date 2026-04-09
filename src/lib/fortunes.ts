@@ -511,3 +511,67 @@ export function getRandomFortune(excludeId?: number): Fortune {
     : FORTUNES;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+/* ══════════════════════════════════════════
+   Legacy compatibility layer
+   Used by Fortune.tsx, Interpretation.tsx, interpretation.ts
+   ══════════════════════════════════════════ */
+
+export interface UserInfo {
+  name: string;
+  birthDate: string;
+  birthTime: string;
+}
+
+export interface PageFortune {
+  level: string;
+  poem: string;
+  career: string;
+  love: string;
+  health: string;
+  yi: string[];
+  ji: string[];
+  color: { name: string; hex: string };
+  number: number;
+  direction: string;
+  todayWuxing: string;
+}
+
+const LUCKY_COLOR_HEX: Record<string, string> = {
+  '朱红': '#C84040', '琥珀': '#E8A040', '翠绿': '#4CA870',
+  '靛蓝': '#405890', '玄墨': '#2D2D2D', '紫檀': '#6B3A6B',
+  '鹅黄': '#E8D060', '青碧': '#3D9990', '胭脂': '#C85070',
+  '月白': '#D0D8E0', '赤金': '#C8A040', '松花': '#A0C858',
+  '藕粉': '#E8B8C8', '石青': '#5888A0', '深蓝': '#304878',
+};
+
+export function loadUser(): UserInfo | null {
+  try {
+    const raw = localStorage.getItem('yaoguang_user');
+    return raw ? JSON.parse(raw) : { name: '旅人', birthDate: '2000-01-01', birthTime: '12:00' };
+  } catch { return null; }
+}
+
+export function getFortune(user: UserInfo): PageFortune {
+  const d = new Date();
+  const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()
+    + user.name.length + user.birthDate.length;
+  const f = FORTUNES[seed % FORTUNES.length];
+
+  const WUXING_LIST: Wuxing[] = ['木', '火', '土', '金', '水'];
+  const todayWuxing = WUXING_LIST[seed % 5];
+
+  return {
+    level: f.gradeLabel,
+    poem: f.poem.join('，'),
+    career: f.interpretation,
+    love: f.interpretation,
+    health: f.interpretation,
+    yi: f.doList,
+    ji: f.dontList,
+    color: { name: f.luckyColor, hex: LUCKY_COLOR_HEX[f.luckyColor] || '#C8A96E' },
+    number: f.luckyNumber,
+    direction: f.luckyDirection,
+    todayWuxing,
+  };
+}
