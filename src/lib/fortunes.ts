@@ -446,3 +446,71 @@ export function getRandomFortune(excludeId?: number): Fortune {
     : FORTUNES;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+/* ── Legacy compatibility layer ── */
+
+export interface UserInfo {
+  name: string;
+  birthDate: string;   // e.g. "1990-01-15"
+  birthTime: string;   // e.g. "14:00"
+  gender: 'male' | 'female';
+}
+
+export interface PageFortune {
+  level: string;
+  poem: string;
+  career: string;
+  love: string;
+  health: string;
+  yi: string[];
+  ji: string[];
+  color: { name: string; hex: string };
+  number: number;
+  direction: string;
+  todayWuxing: string;
+}
+
+const LUCKY_COLOR_HEX: Record<string, string> = {
+  '红色':'#C83232','橙色':'#E88A30','金色':'#C8A96E','绿色':'#5A9E6F',
+  '青色':'#4A8A8A','蓝色':'#4A72A8','紫色':'#8A5AB0','白色':'#E8E4DD',
+  '浅棕':'#A08060','深蓝':'#2A4A7A','天蓝':'#5A9AC8','粉色':'#D4849A',
+  '黄色':'#D4B040','翠绿':'#3A8A5A','琥珀':'#C88A40','深红':'#8A2020',
+  '玫红':'#C84060','银色':'#A8A8B0','墨绿':'#2A5A3A','米白':'#F0E8D8',
+  '暖橙':'#D48040',
+};
+
+const WUXING_LIST: Wuxing[] = ['木','火','土','金','水'];
+
+export function loadUser(): UserInfo | null {
+  try {
+    const raw = localStorage.getItem('yaoguang_user');
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+export function getFortune(user: UserInfo): PageFortune {
+  const d = new Date();
+  const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()
+    + user.name.length + user.birthDate.length;
+  const f = FORTUNES[seed % FORTUNES.length];
+  const todayWuxing = WUXING_LIST[seed % 5];
+
+  const grades: Record<string, string> = {
+    supreme: '上上签', great: '上吉签', middle: '中平签',
+    caution: '下签', warning: '凶签',
+  };
+
+  return {
+    level: grades[f.grade] ?? f.gradeLabel,
+    poem: f.poem.slice(1).join('，'),
+    career: f.interpretation,
+    love: f.interpretation,
+    health: f.interpretation,
+    yi: f.doList,
+    ji: f.dontList,
+    color: { name: f.luckyColor, hex: LUCKY_COLOR_HEX[f.luckyColor] ?? '#C8A96E' },
+    number: f.luckyNumber,
+    direction: f.luckyDirection,
+    todayWuxing,
+  };
+}
