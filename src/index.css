@@ -597,3 +597,14 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+/* ── DAILY TIP ── */
+.daily-tip {
+  padding: 16px 20px;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  background: rgba(200,169,110,0.04);
+}
