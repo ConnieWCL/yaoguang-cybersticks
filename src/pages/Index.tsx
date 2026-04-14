@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { InkCanvas } from '@/components/InkCanvas';
 import { LuckBar } from '@/components/LuckBar';
 import { useSound } from '@/hooks/useSound';
-import { getTodayFortune, getRandomFortune, getTodayTheme, type Fortune } from '@/lib/fortunes';
+import { getTodayFortune, getRandomFortune, type Fortune } from '@/lib/fortunes';
 import WuxingPentagon from '@/components/WuxingPentagon';
 import type { Wuxing } from '@/lib/fortunes';
 import { ShareCard } from '@/components/ShareCard';
@@ -41,8 +41,6 @@ export default function Index() {
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
   const dateStr = `${today.getMonth() + 1}月${today.getDate()}日 · 星期${weekdays[today.getDay()]}`;
 
-  // 今日主题
-  const dailyTheme = getTodayTheme();
 
   const handleShake = useCallback(() => {
     if (phase !== 'idle' && phase !== 'done') return;
@@ -94,36 +92,6 @@ export default function Index() {
       }}>
         <div style={{ width: '100%', maxWidth: '480px' }}>
 
-          {/* ── 今日主题 banner ── */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            marginBottom: '16px',
-            padding: '6px 16px',
-            borderRadius: '20px',
-            background: dailyTheme.bgTint,
-            border: `1px solid ${dailyTheme.primaryColor}30`,
-            width: 'fit-content',
-            margin: '0 auto 16px',
-          }}>
-            <span style={{
-              width: '6px', height: '6px',
-              borderRadius: '50%',
-              background: dailyTheme.primaryColor,
-              boxShadow: `0 0 6px ${dailyTheme.primaryColor}`,
-              display: 'inline-block',
-            }} />
-            <span style={{
-              fontFamily: 'Share Tech Mono, monospace',
-              fontSize: '10px',
-              letterSpacing: '0.16em',
-              color: dailyTheme.primaryColor,
-            }}>
-              {dailyTheme.label} · {dailyTheme.desc}
-            </span>
-          </div>
 
           {/* ── HEADER ── */}
           <header className="site-header">
