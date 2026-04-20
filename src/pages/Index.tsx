@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { InkCanvas } from '@/components/InkCanvas';
 import { LuckBar } from '@/components/LuckBar';
 import { useSound } from '@/hooks/useSound';
-import { getTodayFortune, getRandomFortune, getTodayTheme, type Fortune } from '@/lib/fortunes';
+import { getTodayFortune, getRandomFortune, type Fortune } from '@/lib/fortunes';
 import WuxingPentagon from '@/components/WuxingPentagon';
 import type { Wuxing } from '@/lib/fortunes';
 import { ShareCard } from '@/components/ShareCard';
