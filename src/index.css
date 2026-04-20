@@ -414,12 +414,13 @@ body {
   padding: 16px 20px 0;
 }
 .section-label {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink4);
-  margin-bottom: 12px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--gold-lt);
+  margin-bottom: 14px;
+  text-shadow: 0 0 12px rgba(200,169,110,0.25);
 }
 .luck-bar-row {
   display: flex;
@@ -488,31 +489,34 @@ body {
 .lucky-row {
   display: flex;
   gap: 10px;
-  padding: 16px 20px 0;
+  padding: 18px 20px 0;
 }
 .lucky-chip {
   flex: 1;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(200,169,110,0.08), var(--surface));
+  border: 1px solid var(--border2);
   border-radius: var(--r);
-  padding: 10px 8px;
+  padding: 14px 8px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  box-shadow: 0 0 16px rgba(200,169,110,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .lucky-key {
-  font-family: var(--mono);
-  font-size: 9px;
+  font-family: var(--serif);
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0.14em;
-  color: var(--ink4);
-  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
 }
 .lucky-val {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gold);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--gold-lt);
   letter-spacing: 0.06em;
+  text-shadow: 0 0 10px rgba(200,169,110,0.3);
 }
 
 /* Actions */
@@ -547,9 +551,69 @@ body {
   background: transparent;
   border: 1px solid var(--border2);
   color: var(--ink3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  line-height: 1.2;
 }
-.btn-redraw:hover  { border-color: var(--border); color: var(--ink2); background: rgba(200,169,110,0.04); }
-.btn-redraw:active { transform: scale(0.97); }
+.btn-redraw-line1 {
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: var(--ink2);
+}
+.btn-redraw-line2 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink4);
+}
+.btn-redraw:hover:not(:disabled)  { border-color: var(--border); color: var(--ink2); background: rgba(200,169,110,0.04); }
+.btn-redraw:active:not(:disabled) { transform: scale(0.97); }
+
+/* 我的签文册 — 固化入口 */
+.btn-archive {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: var(--r);
+  background: linear-gradient(135deg, rgba(200,169,110,0.12), rgba(200,169,110,0.04));
+  border: 1px solid var(--border2);
+  color: var(--gold-lt);
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(200,169,110,0.08);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-archive:hover {
+  background: linear-gradient(135deg, rgba(200,169,110,0.2), rgba(200,169,110,0.08));
+  border-color: var(--gold);
+  box-shadow: 0 0 28px rgba(200,169,110,0.25);
+  transform: translateY(-1px);
+}
+.btn-archive:active { transform: scale(0.98); }
+.archive-icon {
+  color: var(--gold);
+  text-shadow: 0 0 8px var(--gold-glow);
+  font-size: 16px;
+}
+.archive-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
 
 /* ── FOOTER ──────────────────────────────── */
 .site-footer {

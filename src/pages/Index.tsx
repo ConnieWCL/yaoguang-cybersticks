@@ -50,7 +50,14 @@ export default function Index() {
 
   const handleShake = useCallback(() => {
     if (phase !== 'idle' && phase !== 'done') return;
-    if (todayLocked) return;
+    // 用完次数后：只回到当前已显示的最新签，不再重新抽，不重置次数
+    if (todayLocked) {
+      if (fortune) {
+        setCardVisible(true);
+        setPhase('done');
+      }
+      return;
+    }
 
     setCardVisible(false);
     setStickRaised(false);
@@ -296,31 +303,29 @@ export default function Index() {
 
               <div className="action-row">
                 <button className="btn-share" onClick={handleShare}>
-                  分享今日签
+                  分享签文
                 </button>
-                {!todayLocked ? (
-                  <button className="btn-redraw" onClick={handleShake}>
-                    再抽一签 · 还剩{attemptsLeft}次
-                  </button>
-                ) : (
-                  <button className="btn-redraw" onClick={() => setShowArchive(true)}>
-                    我的签 ✦
-                  </button>
-                )}
-              </div>
-              {/* 签册入口 — 摇完签后显示 */}
-              <div style={{ padding: '0 20px 20px', textAlign: 'center' }}>
                 <button
-                  onClick={() => setShowArchive(true)}
-                  style={{
-                    background: 'transparent', border: 'none',
-                    fontFamily: 'Share Tech Mono, monospace',
-                    fontSize: '11px', color: 'var(--ink4)',
-                    letterSpacing: '0.12em', cursor: 'pointer',
-                    padding: '8px 0',
-                  }}
+                  className="btn-redraw"
+                  onClick={handleShake}
+                  disabled={todayLocked}
+                  style={todayLocked ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
                 >
-                  ✦ 我的签 · {Object.keys(archive).length}/64
+                  <span className="btn-redraw-line1">再抽一签</span>
+                  <span className="btn-redraw-line2">
+                    {todayLocked ? '今日已用完' : `还剩 ${attemptsLeft} 次`}
+                  </span>
+                </button>
+              </div>
+              {/* 我的签文册 — 固化的醒目入口 */}
+              <div style={{ padding: '0 20px 24px' }}>
+                <button
+                  className="btn-archive"
+                  onClick={() => setShowArchive(true)}
+                >
+                  <span className="archive-icon">✦</span>
+                  <span className="archive-label">我的签文册</span>
+                  <span className="archive-count">{Object.keys(archive).length} / 64</span>
                 </button>
               </div>
             </div>

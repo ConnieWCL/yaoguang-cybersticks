@@ -257,12 +257,14 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     // Luck bars
     ctx.save();
-    ctx.font = '18px "Share Tech Mono", monospace';
-    ctx.fillStyle = '#3A3458';
+    ctx.font = '700 28px "Noto Serif SC", "ZCOOL XiaoWei", serif';
+    ctx.fillStyle = '#E8C88A';
+    ctx.shadowColor = 'rgba(200,169,110,0.4)';
+    ctx.shadowBlur = 12;
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    ctx.fillText('FORTUNE  INDEX', 58, curY);
+    ctx.fillText('运势分项', 58, curY);
     ctx.restore();
-    curY += 36;
+    curY += 50;
 
     const bars = [
       { label: '事业', value: fortune.career,  color: '#C8A96E' },
