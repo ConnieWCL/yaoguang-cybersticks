@@ -495,15 +495,32 @@ body {
   opacity: 0.85;
   letter-spacing: 0.04em;
 }
-.luck-bar-segments {
-  display: flex;
-  gap: 4px;
-  height: 6px;
+.luck-bar-track {
+  position: relative;
+  height: 8px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
 }
-.luck-seg {
-  flex: 1;
-  border-radius: 2px;
-  transition: background 0.5s ease, box-shadow 0.5s ease, opacity 0.5s ease;
+.luck-bar-fill {
+  position: relative;
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1.1s cubic-bezier(0.16,1,0.3,1);
+  overflow: hidden;
+}
+.luck-bar-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: luck-shine 2.8s ease-in-out infinite;
+}
+@keyframes luck-shine {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
 }
 
 /* Advice */
