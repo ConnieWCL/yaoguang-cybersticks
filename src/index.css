@@ -318,26 +318,31 @@ body {
   gap: 8px;
 }
 .banner-hexagram {
-  font-size: 20px;
+  font-size: 24px;
   color: var(--grade-color, var(--gold));
-  text-shadow: 0 0 12px currentColor;
+  text-shadow: 0 0 14px currentColor;
+  font-family: 'ZCOOL XiaoWei', var(--serif);
 }
 .banner-name {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--ink3);
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--grade-color, var(--gold));
+  text-shadow: 0 0 10px currentColor;
+  opacity: 0.95;
 }
 .banner-grade {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  padding: 3px 12px;
-  border-radius: 12px;
-  background: rgba(var(--grade-color, #C8A96E), 0.12);
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 4px 14px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.25);
   color: var(--grade-color, var(--gold));
   border: 1px solid currentColor;
-  opacity: 0.85;
+  text-shadow: 0 0 10px currentColor;
 }
 
 /* Hero */
@@ -409,51 +414,91 @@ body {
   margin: 20px 20px 0;
 }
 
-/* Luck section */
+/* Luck section — sectioned card style */
 .luck-section {
-  padding: 16px 20px 0;
+  padding: 18px 20px 0;
 }
 .section-label {
-  font-family: var(--serif);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  color: var(--gold-lt);
-  margin-bottom: 14px;
-  text-shadow: 0 0 12px rgba(200,169,110,0.25);
-}
-.luck-bar-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  background: linear-gradient(135deg, var(--gold-lt), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(200,169,110,0.35));
+  margin-bottom: 16px;
 }
-.luck-label {
-  width: 30px;
-  font-size: 12px;
-  color: var(--ink3);
-  flex-shrink: 0;
-  text-align: right;
+.section-label::before, .section-label::after {
+  content: '';
+  display: inline-block;
+  width: 22px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+  -webkit-text-fill-color: initial;
 }
-.luck-track {
-  flex: 1;
-  height: 3px;
-  background: var(--overlay);
-  border-radius: 2px;
-  overflow: hidden;
+.section-label::after {
+  background: linear-gradient(90deg, var(--gold), transparent);
 }
-.luck-fill {
-  height: 100%;
-  border-radius: 2px;
-  width: 0;
+
+.luck-bar-row-v2 {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.015);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.25s ease;
 }
-.luck-grade {
+.luck-bar-row-v2:hover {
+  background: rgba(200,169,110,0.04);
+}
+.luck-bar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.luck-bar-label {
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.luck-bar-icon {
+  font-size: 14px;
+  opacity: 0.9;
+}
+.luck-bar-grade {
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.luck-bar-num {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  width: 28px;
-  text-align: right;
-  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+}
+.luck-bar-segments {
+  display: flex;
+  gap: 4px;
+  height: 6px;
+}
+.luck-seg {
+  flex: 1;
+  border-radius: 2px;
+  transition: background 0.5s ease, box-shadow 0.5s ease, opacity 0.5s ease;
 }
 
 /* Advice */
