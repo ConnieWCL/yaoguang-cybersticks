@@ -637,24 +637,19 @@ body {
 .pbtn:active:not(:disabled) { transform: scale(0.98); }
 .pbtn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* primary = 实心金色发光主按钮 */
+/* primary = 与 secondary 同款金色描边设计，仅强度更高 */
 .pbtn-primary {
-  background: linear-gradient(135deg, var(--gold-dk), var(--gold) 55%, var(--gold-lt));
-  border-color: var(--gold-lt);
-  color: var(--void);
-  box-shadow: 0 4px 24px rgba(200,169,110,0.35),
-              inset 0 1px 0 rgba(255,255,255,0.25);
+  background: linear-gradient(135deg, rgba(200,169,110,0.28), rgba(200,169,110,0.10));
+  border-color: var(--gold);
+  color: var(--gold-lt);
+  box-shadow: 0 0 26px rgba(200,169,110,0.28),
+              inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .pbtn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--gold), var(--gold-lt) 55%, #FFE3A8);
-  box-shadow: 0 6px 32px rgba(200,169,110,0.55),
-              inset 0 1px 0 rgba(255,255,255,0.35);
-}
-.pbtn-primary .pbtn-label,
-.pbtn-primary .pbtn-suffix,
-.pbtn-primary .pbtn-icon {
-  color: var(--void);
-  text-shadow: none;
+  background: linear-gradient(135deg, rgba(200,169,110,0.38), rgba(200,169,110,0.16));
+  border-color: var(--gold-lt);
+  box-shadow: 0 0 36px rgba(200,169,110,0.45),
+              inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .pbtn-particles {
@@ -672,36 +667,41 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
   line-height: 1.25;
   pointer-events: none;
-}
-.pbtn-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px;
-  color: var(--gold);
-  text-shadow: 0 0 8px var(--gold-glow);
 }
 .pbtn-label {
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.18em;
+  background: linear-gradient(135deg, var(--gold-lt), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 6px rgba(200,169,110,0.4));
 }
 .pbtn-suffix {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
-  color: var(--ink3);
-  opacity: 0.85;
+  color: var(--ink2);
+  opacity: 0.9;
 }
-.pbtn-primary .pbtn-suffix { color: rgba(7,6,15,0.7); }
+.pbtn-suffix-icon {
+  font-size: 11px;
+  color: var(--gold);
+  text-shadow: 0 0 6px var(--gold-glow);
+  line-height: 1;
+}
 
 @media (max-width: 390px) {
-  .pbtn { min-height: 54px; padding: 10px 12px; }
+  .pbtn { min-height: 56px; padding: 10px 12px; }
   .pbtn-label { font-size: 15px; letter-spacing: 0.14em; }
+  .pbtn-suffix { font-size: 10px; }
 }
 
 
