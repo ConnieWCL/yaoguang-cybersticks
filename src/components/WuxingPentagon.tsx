@@ -64,12 +64,12 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
               <stop offset="100%" stopColor={el.color}      stopOpacity="0" />
             </radialGradient>
           ))}
-          {/* today 节点 — 中心白热，更明亮 */}
+          {/* today 节点 — 中心稍暗便于文字辨识，外层亮色光晕 */}
           {todayIdx >= 0 && (
             <radialGradient id="wx-grad-today" cx="50%" cy="50%" r="60%">
-              <stop offset="0%"   stopColor="#ffffff"                          stopOpacity="0.95" />
-              <stop offset="25%"  stopColor={ELEMENTS[todayIdx].colorLight}    stopOpacity="1" />
-              <stop offset="60%"  stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0.75" />
+              <stop offset="0%"   stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0.95" />
+              <stop offset="40%"  stopColor={ELEMENTS[todayIdx].colorLight}    stopOpacity="0.95" />
+              <stop offset="75%"  stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0.5" />
               <stop offset="100%" stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0" />
             </radialGradient>
           )}
