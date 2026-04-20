@@ -86,15 +86,30 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           const next = pts[(i + 1) % 5];
           const isActiveLine = lit && (i === todayIdx || (i + 1) % 5 === todayIdx);
           return (
-            <line
-              key={`line-${i}`}
-              x1={p.x} y1={p.y} x2={next.x} y2={next.y}
-              stroke="var(--gold)"
-              strokeWidth={isActiveLine ? 1.2 : 0.8}
-              strokeLinecap="round"
-              opacity={isActiveLine ? 0.4 : 0.18}
-              style={{ transition: 'opacity 0.6s ease' }}
-            />
+            <g key={`line-${i}`} style={{ transition: 'opacity 0.6s ease' }}>
+              {/* 底层柔光 */}
+              <line
+                x1={p.x} y1={p.y} x2={next.x} y2={next.y}
+                stroke="var(--gold)"
+                strokeWidth={isActiveLine ? 4 : 3}
+                strokeLinecap="round"
+                opacity={isActiveLine ? 0.22 : 0.12}
+                style={{ filter: 'blur(2.5px)' }}
+              />
+              {/* 粒子链 — 密集圆点 */}
+              <line
+                x1={p.x} y1={p.y} x2={next.x} y2={next.y}
+                stroke={isActiveLine ? 'var(--gold-lt)' : 'var(--gold)'}
+                strokeWidth={isActiveLine ? 2.2 : 1.6}
+                strokeLinecap="round"
+                strokeDasharray="0.4 3.2"
+                opacity={isActiveLine ? 0.95 : 0.7}
+              >
+                {isActiveLine && (
+                  <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="6s" repeatCount="indefinite" />
+                )}
+              </line>
+            </g>
           );
         })}
 
