@@ -321,20 +321,20 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.fillText('爻光', 58, curY);
     ctx.restore();
 
-    // Cyber Oracle
+    // 副标语
     ctx.save();
-    ctx.fillStyle = 'rgba(126,184,160,0.7)';
-    ctx.font = '18px "Share Tech Mono", monospace';
+    ctx.font = '300 20px "Noto Serif SC", serif';
+    ctx.fillStyle = 'rgba(232,224,200,0.7)';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    ctx.fillText('Cyber Oracle', 58, curY + 58);
+    ctx.fillText('一爻一光，日日新启', 58, curY + 62);
     ctx.restore();
 
-    // slogan
+    // 免责
     ctx.save();
-    ctx.font = '300 18px "Noto Serif SC", serif';
-    ctx.fillStyle = '#5C5480';
+    ctx.font = '300 16px "Noto Serif SC", serif';
+    ctx.fillStyle = 'rgba(200,169,110,0.5)';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    ctx.fillText('一爻一光，日日新启', 58, curY + 86);
+    ctx.fillText('仅供娱乐，不影响真实命运', 58, curY + 92);
     ctx.restore();
 
     // 右列：网址 pill
