@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Fortune } from '@/lib/fortunes';
+import { ParticleButton } from '@/components/ParticleButton';
 
 interface ShareCardProps {
   fortune: Fortune;
@@ -490,76 +491,37 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
             </div>
           ) : (
             <div style={{
-              display: 'flex', gap: '10px',
+              display: 'flex', flexDirection: 'column', gap: '10px',
               marginTop: '16px',
               width: '100%', maxWidth: '400px',
             }}>
-              <button onClick={handleSave} style={{
-                flex: 1, padding: '13px 8px',
-                background: 'linear-gradient(135deg, #8A6A30, #C8A96E)',
-                border: 'none', borderRadius: '8px',
-                color: '#07060f', fontFamily: 'Noto Serif SC, serif',
-                fontSize: '15px', fontWeight: 700,
-                letterSpacing: '0.1em', cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(200,169,110,0.25)',
-              }}>
-                {saveStatus === 'saving' ? '生成中…' : saveStatus === 'saved' ? '已保存 ✓' : '保存图片'}
-              </button>
-              <button onClick={handleShare} style={{
-                flex: 1, padding: '13px 8px',
-                background: 'transparent',
-                border: '1px solid rgba(200,169,110,0.35)',
-                borderRadius: '8px',
-                color: '#C8A96E', fontFamily: 'Noto Serif SC, serif',
-                fontSize: '15px', letterSpacing: '0.1em', cursor: 'pointer',
-              }}>
-                分享给朋友
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <ParticleButton variant="primary" onClick={handleSave}>
+                    {saveStatus === 'saving' ? '生成中…' : saveStatus === 'saved' ? '已保存 ✓' : '保存图片'}
+                  </ParticleButton>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <ParticleButton variant="secondary" onClick={handleShare}>
+                    分享给朋友
+                  </ParticleButton>
+                </div>
+              </div>
+              <ParticleButton
+                variant="secondary"
+                onClick={handleCopyUrl}
+                icon="🔗"
+                suffix={SITE_URL}
+              >
+                {saveStatus === 'copied' ? '已复制 ✓' : '复制链接'}
+              </ParticleButton>
             </div>
           )}
 
-          {/* 可复制网址行 — 所有环境显示 */}
-          <div style={{
-            marginTop: '10px',
-            width: '100%', maxWidth: '400px',
-            display: 'flex', alignItems: 'center', gap: '8px',
-            background: 'rgba(200,169,110,0.06)',
-            border: '1px solid rgba(200,169,110,0.2)',
-            borderRadius: '8px',
-            padding: '10px 14px',
-          }}>
-            <span style={{
-              flex: 1,
-              fontFamily: 'Share Tech Mono, monospace',
-              fontSize: '12px',
-              color: '#A89EC8',
-              letterSpacing: '0.04em',
-              userSelect: 'all',
-            }}>
-              {SITE_URL}
-            </span>
-            <button
-              onClick={handleCopyUrl}
-              style={{
-                padding: '4px 12px',
-                background: 'transparent',
-                border: '1px solid rgba(200,169,110,0.3)',
-                borderRadius: '6px',
-                color: '#C8A96E',
-                fontFamily: 'Share Tech Mono, monospace',
-                fontSize: '11px',
-                cursor: 'pointer', flexShrink: 0,
-                letterSpacing: '0.06em',
-              }}
-            >
-              {saveStatus === 'copied' ? '已复制 ✓' : '复制链接'}
-            </button>
-          </div>
-
           <p style={{
-            marginTop: '10px',
+            marginTop: '14px',
             fontFamily: 'Share Tech Mono, monospace',
-            fontSize: '11px', color: '#3A3458', letterSpacing: '0.1em',
+            fontSize: '11px', color: 'rgba(200,169,110,0.45)', letterSpacing: '0.1em',
           }}>
             点击空白处关闭
           </p>
