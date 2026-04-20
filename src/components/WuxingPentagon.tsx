@@ -64,12 +64,12 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
               <stop offset="100%" stopColor={el.color}      stopOpacity="0" />
             </radialGradient>
           ))}
-          {/* today 节点 — 中心白热，更明亮 */}
+          {/* today 节点 — 中心稍暗便于文字辨识，外层亮色光晕 */}
           {todayIdx >= 0 && (
             <radialGradient id="wx-grad-today" cx="50%" cy="50%" r="60%">
-              <stop offset="0%"   stopColor="#ffffff"                          stopOpacity="0.95" />
-              <stop offset="25%"  stopColor={ELEMENTS[todayIdx].colorLight}    stopOpacity="1" />
-              <stop offset="60%"  stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0.75" />
+              <stop offset="0%"   stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0.95" />
+              <stop offset="40%"  stopColor={ELEMENTS[todayIdx].colorLight}    stopOpacity="0.95" />
+              <stop offset="75%"  stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0.5" />
               <stop offset="100%" stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0" />
             </radialGradient>
           )}
@@ -138,14 +138,23 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
                 </circle>
               )}
 
-              {/* 文字 */}
+              {/* 文字 — 高对比，带描边/阴影确保可读 */}
               <text x={p.x} y={p.y + 1} textAnchor="middle" dominantBaseline="central"
-                fill={isActive ? el.colorLight : 'rgba(245,239,224,0.85)'}
-                fontSize={isActive ? 20 : 16}
+                fill="#ffffff"
+                fontSize={isActive ? 22 : 18}
                 fontFamily="'ZCOOL XiaoWei', 'Noto Serif SC', serif"
-                fontWeight={isActive ? 700 : 500}
-                opacity={isDim ? 0.5 : 1}
-                style={{ transition: 'opacity 0.6s ease, font-size 0.6s ease', letterSpacing: '0.04em' }}>
+                fontWeight={isActive ? 800 : 700}
+                opacity={isDim ? 0.85 : 1}
+                stroke="rgba(0,0,0,0.55)"
+                strokeWidth="0.6"
+                paintOrder="stroke"
+                style={{
+                  transition: 'opacity 0.6s ease, font-size 0.6s ease',
+                  letterSpacing: '0.04em',
+                  filter: isActive
+                    ? `drop-shadow(0 0 6px ${el.colorLight}) drop-shadow(0 1px 2px rgba(0,0,0,0.6))`
+                    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.55))',
+                }}>
                 {el.name}
               </text>
 
