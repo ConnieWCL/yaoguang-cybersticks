@@ -46,8 +46,7 @@ export default function Index() {
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
   const dateStr = `${today.getMonth() + 1}月${today.getDate()}日 · 星期${weekdays[today.getDay()]}`;
 
-  // 今日主题
-  const dailyTheme = getTodayTheme();
+
 
   const handleShake = useCallback(() => {
     if (phase !== 'idle' && phase !== 'done') return;
