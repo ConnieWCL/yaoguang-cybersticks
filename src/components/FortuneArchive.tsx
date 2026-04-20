@@ -239,8 +239,17 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
           return (
             <div
               key={f.id}
-              className={`archive-cell ${has ? 'has' : ''}`}
+              className={`archive-cell ${has ? 'has' : ''} ${isToday ? 'is-today' : ''}`}
               onClick={() => has && setSelected(entry)}
+              onKeyDown={e => {
+                if (has && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  setSelected(entry);
+                }
+              }}
+              role={has ? 'button' : undefined}
+              tabIndex={has ? 0 : -1}
+              aria-label={has ? `查看 ${f.hexagramName}卦` : undefined}
               style={{
                 cursor: has ? 'pointer' : 'default',
                 border: isToday
@@ -255,9 +264,7 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
                     : 'rgba(255,255,255,0.02)',
                 boxShadow: isToday
                   ? `0 0 28px ${f.gradeColor}80, 0 0 50px ${f.gradeColor}40, 0 6px 24px rgba(0,0,0,0.6)`
-                  : has
-                    ? '0 0 16px rgba(232,200,138,0.22), 0 4px 16px rgba(0,0,0,0.5)'
-                    : 'none',
+                  : undefined,
                 transform: isToday ? 'scale(1.06)' : 'scale(1)',
               }}
             >
@@ -303,6 +310,7 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
                   background: f.gradeColor,
                   boxShadow: `0 0 8px ${f.gradeColor}`,
                   animation: 'archivePulse 2s ease-in-out infinite',
+                  pointerEvents: 'none',
                 }} />
               )}
             </div>
