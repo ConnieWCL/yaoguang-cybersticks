@@ -55,43 +55,22 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
         style={{ width: '290px', maxWidth: '78vw', height: 'auto', display: 'block', margin: '0 auto' }}
       >
         <defs>
-          {/* 柔和光球渐变 — 中心亮 → 外圈淡出，无反光 */}
+          {/* 节点光球 — 中心微亮 → 外缘融入背景，低饱和、低不透明 */}
           {ELEMENTS.map((el, i) => (
             <radialGradient key={`grad-${i}`} id={`wx-grad-${i}`} cx="50%" cy="50%" r="60%">
-              <stop offset="0%"   stopColor={el.colorLight} stopOpacity="1" />
-              <stop offset="40%"  stopColor={el.color}      stopOpacity="0.85" />
-              <stop offset="75%"  stopColor={el.color}      stopOpacity="0.35" />
+              <stop offset="0%"   stopColor={el.colorLight} stopOpacity="0.55" />
+              <stop offset="45%"  stopColor={el.color}      stopOpacity="0.32" />
+              <stop offset="80%"  stopColor={el.color}      stopOpacity="0.08" />
               <stop offset="100%" stopColor={el.color}      stopOpacity="0" />
             </radialGradient>
           ))}
-          {/* 强光晕滤镜 — today 节点 */}
-          {ELEMENTS.map((el, i) => (
-            <filter key={`glow-${i}`} id={`wx-glow-${i}`} x="-150%" y="-150%" width="400%" height="400%">
-              <feGaussianBlur stdDeviation="8" result="b1" />
-              <feFlood floodColor={el.colorLight} floodOpacity="0.85" result="c1" />
-              <feComposite in="c1" in2="b1" operator="in" result="g1" />
-              <feMerge>
-                <feMergeNode in="g1" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          ))}
-          {/* 普通节点柔光 */}
-          <filter id="wx-soft-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="4" />
-          </filter>
-          {/* 整盘背景光晕 */}
-          <radialGradient id="wx-aura" cx="50%" cy="50%" r="55%">
-            <stop offset="0%"   stopColor="#C8A96E" stopOpacity="0.18" />
-            <stop offset="50%"  stopColor="#C8A96E" stopOpacity="0.07" />
-            <stop offset="100%" stopColor="#C8A96E" stopOpacity="0" />
-          </radialGradient>
-          {/* today 节点的彩色 aura */}
+          {/* today 节点 — 略亮一档，仍保持柔和 */}
           {todayIdx >= 0 && (
-            <radialGradient id="wx-today-aura" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stopColor={ELEMENTS[todayIdx].colorLight} stopOpacity="0.35" />
-              <stop offset="60%"  stopColor={ELEMENTS[todayIdx].colorLight} stopOpacity="0.1" />
-              <stop offset="100%" stopColor={ELEMENTS[todayIdx].colorLight} stopOpacity="0" />
+            <radialGradient id="wx-grad-today" cx="50%" cy="50%" r="60%">
+              <stop offset="0%"   stopColor={ELEMENTS[todayIdx].colorLight} stopOpacity="0.85" />
+              <stop offset="40%"  stopColor={ELEMENTS[todayIdx].color}      stopOpacity="0.5" />
+              <stop offset="80%"  stopColor={ELEMENTS[todayIdx].color}      stopOpacity="0.12" />
+              <stop offset="100%" stopColor={ELEMENTS[todayIdx].color}      stopOpacity="0" />
             </radialGradient>
           )}
           {/* 标题渐变 */}
@@ -102,110 +81,79 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           </linearGradient>
         </defs>
 
-        {/* 整盘金色光晕 */}
-        <circle cx={cx} cy={cy} r={R + 40} fill="url(#wx-aura)" />
-        {/* today 五行专属光晕 */}
-        {todayIdx >= 0 && (
-          <circle cx={cx} cy={cy} r={R + 30} fill="url(#wx-today-aura)" opacity="0.85">
-            <animate attributeName="opacity" values="0.6;1;0.6" dur="4s" repeatCount="indefinite" />
-          </circle>
-        )}
-
-        {/* 相生关系 — 五边形外圈 (虚化光线) */}
+        {/* 相生关系 — 单层细线，低调融入 */}
         {pts.map((p, i) => {
           const next = pts[(i + 1) % 5];
           const isActiveLine = lit && (i === todayIdx || (i + 1) % 5 === todayIdx);
           return (
-            <g key={`line-${i}`} filter="url(#wx-soft-glow)">
-              <line
-                x1={p.x} y1={p.y} x2={next.x} y2={next.y}
-                stroke="var(--gold)"
-                strokeWidth={isActiveLine ? 3.5 : 2.2}
-                strokeLinecap="round"
-                opacity={isActiveLine ? 0.55 : 0.28}
-              />
-            </g>
-          );
-        })}
-        {/* 相生 — 清晰细线在光晕之上 */}
-        {pts.map((p, i) => {
-          const next = pts[(i + 1) % 5];
-          return (
             <line
-              key={`line-top-${i}`}
+              key={`line-${i}`}
               x1={p.x} y1={p.y} x2={next.x} y2={next.y}
-              stroke="var(--gold-lt)"
-              strokeWidth="0.6"
+              stroke="var(--gold)"
+              strokeWidth={isActiveLine ? 1.2 : 0.8}
               strokeLinecap="round"
-              opacity="0.35"
+              opacity={isActiveLine ? 0.4 : 0.18}
+              style={{ transition: 'opacity 0.6s ease' }}
             />
           );
         })}
 
         {/* 中心标题 — 更大更亮 */}
-        <text x={cx} y={cy - 6} textAnchor="middle" dominantBaseline="central"
-          fill="url(#wx-title)" fontSize="22" fontWeight="700"
+        <text x={cx} y={cy - 4} textAnchor="middle" dominantBaseline="central"
+          fill="url(#wx-title)" fontSize="26" fontWeight="700"
           fontFamily="'ZCOOL XiaoWei', 'Noto Serif SC', serif"
-          letterSpacing="8"
-          style={{ filter: 'drop-shadow(0 0 12px rgba(232,200,138,0.6))' }}>
+          letterSpacing="10"
+          style={{ filter: 'drop-shadow(0 0 4px rgba(232,200,138,0.35))' }}>
           天机盘
         </text>
-        <text x={cx} y={cy + 14} textAnchor="middle" dominantBaseline="central"
-          fill="var(--gold)" fontSize="9"
+        <text x={cx} y={cy + 18} textAnchor="middle" dominantBaseline="central"
+          fill="var(--gold)" fontSize="8"
           fontFamily="'Share Tech Mono', monospace"
-          opacity="0.55" letterSpacing="4">
+          opacity="0.4" letterSpacing="4">
           WU XING
         </text>
 
-        {/* 节点 — 光晕光球 (无反光) */}
+        {/* 节点 — 纯光晕光球，无反光、无硬边 */}
         {ELEMENTS.map((el, i) => {
           const p = pts[i];
           const isActive = lit && i === todayIdx;
           const isDim = lit && i !== todayIdx;
-          const auraR = isActive ? nodeR + 28 : nodeR + 14;
+          const auraR = isActive ? nodeR + 18 : nodeR + 10;
 
           return (
             <g key={el.name}>
-              {/* 大范围柔光晕 */}
+              {/* 柔光晕 */}
               <circle cx={p.x} cy={p.y} r={auraR}
-                fill={`url(#wx-grad-${i})`}
-                opacity={isActive ? 0.95 : isDim ? 0.32 : 0.55}
+                fill={isActive ? 'url(#wx-grad-today)' : `url(#wx-grad-${i})`}
+                opacity={isActive ? 1 : isDim ? 0.45 : 0.7}
                 style={{ transition: 'opacity 0.7s ease' }}
               />
 
-              {/* today — 呼吸外环 */}
+              {/* today — 一道极细的呼吸光环，融入背景 */}
               {isActive && (
-                <>
-                  <circle cx={p.x} cy={p.y} r={nodeR + 18} fill="none"
-                    stroke={el.colorLight} strokeWidth="0.6" opacity="0.5">
-                    <animate attributeName="r" values={`${nodeR + 16};${nodeR + 26};${nodeR + 16}`} dur="3s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.6;0.1;0.6" dur="3s" repeatCount="indefinite" />
-                  </circle>
-                  <circle cx={p.x} cy={p.y} r={nodeR + 32} fill="none"
-                    stroke={el.colorLight} strokeWidth="0.4" opacity="0.3">
-                    <animate attributeName="r" values={`${nodeR + 28};${nodeR + 42};${nodeR + 28}`} dur="4s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.35;0.05;0.35" dur="4s" repeatCount="indefinite" />
-                  </circle>
-                </>
+                <circle cx={p.x} cy={p.y} r={nodeR + 14} fill="none"
+                  stroke={el.colorLight} strokeWidth="0.5" opacity="0.3">
+                  <animate attributeName="r" values={`${nodeR + 12};${nodeR + 20};${nodeR + 12}`} dur="3.5s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.4;0.05;0.4" dur="3.5s" repeatCount="indefinite" />
+                </circle>
               )}
 
               {/* 文字 */}
               <text x={p.x} y={p.y + 1} textAnchor="middle" dominantBaseline="central"
-                fill="white" fontSize={isActive ? 22 : 17}
+                fill={isActive ? el.colorLight : 'rgba(245,239,224,0.85)'}
+                fontSize={isActive ? 20 : 16}
                 fontFamily="'ZCOOL XiaoWei', 'Noto Serif SC', serif"
-                fontWeight={isActive ? 800 : 500}
-                opacity={isDim ? 0.55 : 1}
-                filter={isActive ? `url(#wx-glow-${i})` : undefined}
+                fontWeight={isActive ? 700 : 500}
+                opacity={isDim ? 0.5 : 1}
                 style={{ transition: 'opacity 0.6s ease, font-size 0.6s ease', letterSpacing: '0.04em' }}>
                 {el.name}
               </text>
 
               {/* 今日旺气 标签 */}
               {isActive && (
-                <text x={p.x} y={p.y + nodeR + 18} textAnchor="middle" dominantBaseline="central"
-                  fill={el.colorLight} fontSize="10" fontFamily="'Noto Serif SC', serif"
-                  opacity="0.9" letterSpacing="3"
-                  style={{ filter: `drop-shadow(0 0 6px ${el.colorLight})` }}>
+                <text x={p.x} y={p.y + nodeR + 14} textAnchor="middle" dominantBaseline="central"
+                  fill={el.colorLight} fontSize="9" fontFamily="'Noto Serif SC', serif"
+                  opacity="0.7" letterSpacing="3">
                   今日旺气
                 </text>
               )}
