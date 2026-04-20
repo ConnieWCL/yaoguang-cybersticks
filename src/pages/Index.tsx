@@ -8,6 +8,7 @@ import type { Wuxing } from '@/lib/fortunes';
 import { ShareCard } from '@/components/ShareCard';
 import { FortuneArchive } from '@/components/FortuneArchive';
 import { useFortuneStorage } from '@/hooks/useFortuneStorage';
+import { ParticleButton } from '@/components/ParticleButton';
 
 type Phase = 'idle' | 'shaking' | 'revealing' | 'done';
 
@@ -263,10 +264,10 @@ export default function Index() {
 
               <div className="luck-section">
                 <p className="section-label">运势分项</p>
-                <LuckBar label="事业" value={fortune.career} color="#C8A96E" delay={100} />
-                <LuckBar label="财运" value={fortune.wealth} color="#E8A040" delay={200} />
-                <LuckBar label="感情" value={fortune.love}   color="#D4849A" delay={300} />
-                <LuckBar label="健康" value={fortune.health} color="#7EB8A0" delay={400} />
+                <LuckBar label="事业" value={fortune.career} color="#C8A96E" icon="✦" delay={100} />
+                <LuckBar label="财运" value={fortune.wealth} color="#E8A040" icon="❖" delay={200} />
+                <LuckBar label="感情" value={fortune.love}   color="#D4849A" icon="❀" delay={300} />
+                <LuckBar label="健康" value={fortune.health} color="#7EB8A0" icon="❉" delay={400} />
               </div>
 
               <div className="card-divider" />
@@ -302,31 +303,32 @@ export default function Index() {
               </div>
 
               <div className="action-row">
-                <button className="btn-share" onClick={handleShare}>
+                <ParticleButton
+                  variant="primary"
+                  onClick={handleShare}
+                >
                   分享签文
-                </button>
-                <button
-                  className="btn-redraw"
+                </ParticleButton>
+                <ParticleButton
+                  variant="secondary"
                   onClick={handleShake}
                   disabled={todayLocked}
-                  style={todayLocked ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
+                  suffix={todayLocked ? '今日已用完' : `还剩 ${attemptsLeft} 次`}
                 >
-                  <span className="btn-redraw-line1">再抽一签</span>
-                  <span className="btn-redraw-line2">
-                    {todayLocked ? '今日已用完' : `还剩 ${attemptsLeft} 次`}
-                  </span>
-                </button>
+                  再抽一签
+                </ParticleButton>
               </div>
-              {/* 我的签文册 — 固化的醒目入口 */}
-              <div style={{ padding: '0 20px 24px' }}>
-                <button
-                  className="btn-archive"
+
+              {/* 我的签文册 — 固化入口 */}
+              <div className="btn-archive-wrap">
+                <ParticleButton
+                  variant="secondary"
                   onClick={() => setShowArchive(true)}
+                  icon="✦"
+                  suffix={`${Object.keys(archive).length} / 64`}
                 >
-                  <span className="archive-icon">✦</span>
-                  <span className="archive-label">我的签文册</span>
-                  <span className="archive-count">{Object.keys(archive).length} / 64</span>
-                </button>
+                  我的签文册
+                </ParticleButton>
               </div>
             </div>
           )}

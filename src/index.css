@@ -318,26 +318,31 @@ body {
   gap: 8px;
 }
 .banner-hexagram {
-  font-size: 20px;
+  font-size: 24px;
   color: var(--grade-color, var(--gold));
-  text-shadow: 0 0 12px currentColor;
+  text-shadow: 0 0 14px currentColor;
+  font-family: 'ZCOOL XiaoWei', var(--serif);
 }
 .banner-name {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--ink3);
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--grade-color, var(--gold));
+  text-shadow: 0 0 10px currentColor;
+  opacity: 0.95;
 }
 .banner-grade {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  padding: 3px 12px;
-  border-radius: 12px;
-  background: rgba(var(--grade-color, #C8A96E), 0.12);
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 4px 14px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.25);
   color: var(--grade-color, var(--gold));
   border: 1px solid currentColor;
-  opacity: 0.85;
+  text-shadow: 0 0 10px currentColor;
 }
 
 /* Hero */
@@ -409,51 +414,91 @@ body {
   margin: 20px 20px 0;
 }
 
-/* Luck section */
+/* Luck section — sectioned card style */
 .luck-section {
-  padding: 16px 20px 0;
+  padding: 18px 20px 0;
 }
 .section-label {
-  font-family: var(--serif);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  color: var(--gold-lt);
-  margin-bottom: 14px;
-  text-shadow: 0 0 12px rgba(200,169,110,0.25);
-}
-.luck-bar-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  background: linear-gradient(135deg, var(--gold-lt), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(200,169,110,0.35));
+  margin-bottom: 16px;
 }
-.luck-label {
-  width: 30px;
-  font-size: 12px;
-  color: var(--ink3);
-  flex-shrink: 0;
-  text-align: right;
+.section-label::before, .section-label::after {
+  content: '';
+  display: inline-block;
+  width: 22px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+  -webkit-text-fill-color: initial;
 }
-.luck-track {
-  flex: 1;
-  height: 3px;
-  background: var(--overlay);
-  border-radius: 2px;
-  overflow: hidden;
+.section-label::after {
+  background: linear-gradient(90deg, var(--gold), transparent);
 }
-.luck-fill {
-  height: 100%;
-  border-radius: 2px;
-  width: 0;
+
+.luck-bar-row-v2 {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.015);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.25s ease;
 }
-.luck-grade {
+.luck-bar-row-v2:hover {
+  background: rgba(200,169,110,0.04);
+}
+.luck-bar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.luck-bar-label {
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.luck-bar-icon {
+  font-size: 14px;
+  opacity: 0.9;
+}
+.luck-bar-grade {
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.luck-bar-num {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  width: 28px;
-  text-align: right;
-  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+}
+.luck-bar-segments {
+  display: flex;
+  gap: 4px;
+  height: 6px;
+}
+.luck-seg {
+  flex: 1;
+  border-radius: 2px;
+  transition: background 0.5s ease, box-shadow 0.5s ease, opacity 0.5s ease;
 }
 
 /* Advice */
@@ -461,159 +506,182 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding: 16px 20px 0;
+  padding: 18px 20px 0;
 }
 .advice-do, .advice-dont {
   background: var(--surface);
   border-radius: var(--r);
-  padding: 14px;
+  padding: 16px 16px 14px;
 }
-.advice-do  { border-left: 2px solid var(--jade-dk); }
-.advice-dont { border-left: 2px solid rgba(212,132,154,0.5); }
+.advice-do  { border-left: 3px solid var(--jade); }
+.advice-dont { border-left: 3px solid var(--rose); }
 .advice-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  margin-bottom: 12px;
+  text-shadow: 0 0 10px currentColor;
 }
 .do-label   { color: var(--jade); }
 .dont-label { color: var(--rose); }
 .advice-item {
-  font-size: 12px;
-  color: var(--ink2);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink);
   line-height: 1.8;
+  letter-spacing: 0.04em;
 }
 
 /* Lucky row */
 .lucky-row {
   display: flex;
   gap: 10px;
-  padding: 18px 20px 0;
+  padding: 20px 20px 0;
 }
 .lucky-chip {
   flex: 1;
-  background: linear-gradient(160deg, rgba(200,169,110,0.08), var(--surface));
+  background: linear-gradient(160deg, rgba(200,169,110,0.12), var(--surface));
   border: 1px solid var(--border2);
   border-radius: var(--r);
-  padding: 14px 8px;
+  padding: 16px 8px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  box-shadow: 0 0 16px rgba(200,169,110,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+  gap: 8px;
+  box-shadow: 0 0 18px rgba(200,169,110,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 .lucky-key {
-  font-family: var(--serif);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  font-family: 'ZCOOL XiaoWei', var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   color: var(--gold);
-  opacity: 0.85;
+  opacity: 0.95;
+  text-shadow: 0 0 8px var(--gold-glow);
 }
 .lucky-val {
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--gold-lt);
   letter-spacing: 0.06em;
   text-shadow: 0 0 10px rgba(200,169,110,0.3);
 }
 
-/* Actions */
+/* ═══════════════════════════════════════════════
+   统一粒子按钮 — 分享 / 再抽 / 签文册
+   ═══════════════════════════════════════════════ */
 .action-row {
   display: flex;
   gap: 10px;
-  padding: 20px 20px 20px;
+  padding: 22px 20px 12px;
 }
-.btn-share, .btn-redraw {
-  flex: 1;
-  padding: 14px 10px;
+.action-row .pbtn { flex: 1; }
+
+.btn-archive-wrap {
+  padding: 6px 20px 22px;
+}
+
+.pbtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
   border-radius: var(--r);
-  font-family: var(--serif);
-  font-size: 14px;
-  letter-spacing: 0.1em;
+  background: linear-gradient(135deg, rgba(200,169,110,0.14), rgba(200,169,110,0.04));
+  border: 1px solid var(--border2);
+  color: var(--gold-lt);
+  font-family: 'ZCOOL XiaoWei', var(--serif);
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  transition: background 0.3s ease, border-color 0.3s ease,
+              box-shadow 0.3s ease, transform 0.15s ease;
+  box-shadow: 0 0 18px rgba(200,169,110,0.08),
+              inset 0 1px 0 rgba(255,255,255,0.04);
   -webkit-tap-highlight-color: transparent;
-  border: none;
   outline: none;
 }
-.btn-share {
-  background: linear-gradient(135deg, var(--gold-dk), var(--gold));
-  color: var(--void);
-  font-weight: 700;
-  box-shadow: 0 4px 24px var(--gold-glow);
+.pbtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(200,169,110,0.22), rgba(200,169,110,0.08));
+  border-color: var(--gold);
+  box-shadow: 0 0 28px rgba(200,169,110,0.28),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+  transform: translateY(-1px);
 }
-.btn-share:hover  { box-shadow: 0 6px 32px rgba(200,169,110,0.4); transform: translateY(-1px); }
-.btn-share:active { transform: scale(0.97); }
+.pbtn:active:not(:disabled) { transform: scale(0.98); }
+.pbtn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.btn-redraw {
-  background: transparent;
-  border: 1px solid var(--border2);
-  color: var(--ink3);
+/* primary = 实心金色发光主按钮 */
+.pbtn-primary {
+  background: linear-gradient(135deg, var(--gold-dk), var(--gold) 55%, var(--gold-lt));
+  border-color: var(--gold-lt);
+  color: var(--void);
+  box-shadow: 0 4px 24px rgba(200,169,110,0.35),
+              inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.pbtn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--gold), var(--gold-lt) 55%, #FFE3A8);
+  box-shadow: 0 6px 32px rgba(200,169,110,0.55),
+              inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.pbtn-primary .pbtn-label,
+.pbtn-primary .pbtn-suffix,
+.pbtn-primary .pbtn-icon {
+  color: var(--void);
+  text-shadow: none;
+}
+
+.pbtn-particles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.85;
+}
+.pbtn-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
-  line-height: 1.2;
+  line-height: 1.25;
+  pointer-events: none;
 }
-.btn-redraw-line1 {
-  font-size: 14px;
-  letter-spacing: 0.12em;
-  color: var(--ink2);
-}
-.btn-redraw-line2 {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--ink4);
-}
-.btn-redraw:hover:not(:disabled)  { border-color: var(--border); color: var(--ink2); background: rgba(200,169,110,0.04); }
-.btn-redraw:active:not(:disabled) { transform: scale(0.97); }
-
-/* 我的签文册 — 固化入口 */
-.btn-archive {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border-radius: var(--r);
-  background: linear-gradient(135deg, rgba(200,169,110,0.12), rgba(200,169,110,0.04));
-  border: 1px solid var(--border2);
-  color: var(--gold-lt);
-  font-family: var(--serif);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 20px rgba(200,169,110,0.08);
-  -webkit-tap-highlight-color: transparent;
-}
-.btn-archive:hover {
-  background: linear-gradient(135deg, rgba(200,169,110,0.2), rgba(200,169,110,0.08));
-  border-color: var(--gold);
-  box-shadow: 0 0 28px rgba(200,169,110,0.25);
-  transform: translateY(-1px);
-}
-.btn-archive:active { transform: scale(0.98); }
-.archive-icon {
+.pbtn-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
   color: var(--gold);
   text-shadow: 0 0 8px var(--gold-glow);
+}
+.pbtn-label {
   font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
 }
-.archive-count {
+.pbtn-suffix {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
   color: var(--ink3);
-  letter-spacing: 0.1em;
-  padding: 3px 10px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  opacity: 0.85;
 }
+.pbtn-primary .pbtn-suffix { color: rgba(7,6,15,0.7); }
+
+@media (max-width: 390px) {
+  .pbtn { min-height: 54px; padding: 10px 12px; }
+  .pbtn-label { font-size: 15px; letter-spacing: 0.14em; }
+}
+
 
 /* ── FOOTER ──────────────────────────────── */
 .site-footer {

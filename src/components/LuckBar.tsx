@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface LuckBarProps {
   label: string;
   value: number;
   color: string;
+  icon?: string;
   delay?: number;
 }
 
-export function LuckBar({ label, value, color, delay = 0 }: LuckBarProps) {
+export function LuckBar({ label, value, color, icon, delay = 0 }: LuckBarProps) {
   const [filled, setFilled] = useState(0);
   const [visible, setVisible] = useState(false);
 
@@ -19,27 +20,46 @@ export function LuckBar({ label, value, color, delay = 0 }: LuckBarProps) {
 
   const gradeLabel = value >= 85 ? '极旺' : value >= 70 ? '旺' : value >= 55 ? '平' : '低';
 
+  // 10 段刻度
+  const segments = 10;
+  const filledSegs = Math.round((filled / 100) * segments);
+
   return (
     <div
-      className="luck-bar-row"
+      className="luck-bar-row-v2"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 0.5s ease, transform 0.5s ease',
       }}
     >
-      <span className="luck-label">{label}</span>
-      <div className="luck-track">
-        <div
-          className="luck-fill"
-          style={{
-            width: `${filled}%`,
-            background: color,
-            transition: 'width 1.4s cubic-bezier(0.16,1,0.3,1)',
-          }}
-        />
+      <div className="luck-bar-head">
+        <span className="luck-bar-label" style={{ color }}>
+          {icon && <span className="luck-bar-icon" style={{ filter: `drop-shadow(0 0 6px ${color})` }}>{icon}</span>}
+          {label}
+        </span>
+        <span className="luck-bar-grade" style={{
+          color,
+          textShadow: `0 0 8px ${color}80`,
+        }}>
+          {gradeLabel}
+          <span className="luck-bar-num" style={{ color }}>{value}</span>
+        </span>
       </div>
-      <span className="luck-grade" style={{ color }}>{gradeLabel}</span>
+      <div className="luck-bar-segments">
+        {Array.from({ length: segments }).map((_, i) => (
+          <span
+            key={i}
+            className="luck-seg"
+            style={{
+              background: i < filledSegs ? color : 'rgba(255,255,255,0.05)',
+              boxShadow: i < filledSegs ? `0 0 8px ${color}, 0 0 2px ${color}` : 'none',
+              opacity: i < filledSegs ? 0.9 : 1,
+              transitionDelay: `${i * 80}ms`,
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

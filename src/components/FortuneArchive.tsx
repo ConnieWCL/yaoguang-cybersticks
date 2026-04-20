@@ -86,6 +86,14 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
           50%     { box-shadow: 0 0 90px var(--g-color), 0 0 180px var(--g-color), 0 20px 60px rgba(0,0,0,0.7); }
         }
         @keyframes overlayFade { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes cellHintGlow {
+          0%,100% { box-shadow: 0 0 12px rgba(232,200,138,0.18), 0 4px 14px rgba(0,0,0,0.5); }
+          50%     { box-shadow: 0 0 22px rgba(232,200,138,0.35), 0 4px 14px rgba(0,0,0,0.5); }
+        }
+        @keyframes hintArrow {
+          0%,100% { transform: translateX(0); opacity: 0.55; }
+          50%     { transform: translateX(2px); opacity: 1; }
+        }
 
         .archive-grid {
           flex: 1;
@@ -93,16 +101,16 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
           padding: 20px 18px 32px;
           display: grid;
           grid-template-columns: repeat(8, minmax(0, 1fr));
-          gap: 14px;
+          gap: 18px;
           align-content: start;
           max-width: 1280px;
           width: 100%;
           margin: 0 auto;
         }
-        @media (max-width: 1100px) { .archive-grid { grid-template-columns: repeat(6, minmax(0,1fr)); gap: 14px; } }
-        @media (max-width: 768px)  { .archive-grid { grid-template-columns: repeat(5, minmax(0,1fr)); gap: 12px; padding: 18px 14px 28px; } }
-        @media (max-width: 540px)  { .archive-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; } }
-        @media (max-width: 380px)  { .archive-grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; } }
+        @media (max-width: 1100px) { .archive-grid { grid-template-columns: repeat(6, minmax(0,1fr)); gap: 16px; } }
+        @media (max-width: 768px)  { .archive-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; padding: 18px 14px 28px; } }
+        @media (max-width: 540px)  { .archive-grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; } }
+        @media (max-width: 380px)  { .archive-grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; } }
 
         .archive-cell {
           position: relative;
@@ -115,23 +123,55 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
           justify-content: center;
           gap: 6px;
           transition: transform 0.25s ease, box-shadow 0.25s ease;
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
         }
-        .archive-cell.has:hover { transform: translateY(-3px) scale(1.04); }
+        .archive-cell.has {
+          animation: cellHintGlow 2.6s ease-in-out infinite;
+          z-index: 2;
+        }
+        .archive-cell.is-today { z-index: 3; }
+        .archive-cell.has:hover {
+          transform: translateY(-4px) scale(1.05);
+          z-index: 5;
+        }
+        .archive-cell.has:active {
+          transform: translateY(-2px) scale(1.02);
+        }
+        .archive-cell.has::after {
+          content: '点击展开';
+          position: absolute;
+          bottom: 6px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-family: 'Share Tech Mono', monospace;
+          font-size: 9px;
+          letter-spacing: 0.12em;
+          color: rgba(232,200,138,0.7);
+          opacity: 0;
+          transition: opacity 0.25s ease;
+          pointer-events: none;
+        }
+        .archive-cell.has:hover::after { opacity: 1; }
+
         .cell-hex {
-          font-size: clamp(22px, 4vw, 32px);
+          font-size: clamp(28px, 5vw, 38px);
           line-height: 1;
           position: relative; z-index: 1;
+          pointer-events: none;
         }
         .cell-name {
           font-family: 'Noto Serif SC', serif;
-          font-size: clamp(11px, 1.6vw, 13px);
+          font-size: clamp(13px, 1.8vw, 14px);
           letter-spacing: 0.06em;
           position: relative; z-index: 1;
           font-weight: 600;
+          pointer-events: none;
         }
         @media (max-width: 540px) {
-          .cell-hex  { font-size: 30px; }
-          .cell-name { font-size: 13px; }
+          .cell-hex  { font-size: 36px; }
+          .cell-name { font-size: 14px; }
+          .archive-cell { gap: 8px; }
         }
       `}</style>
 
@@ -199,8 +239,17 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
           return (
             <div
               key={f.id}
-              className={`archive-cell ${has ? 'has' : ''}`}
+              className={`archive-cell ${has ? 'has' : ''} ${isToday ? 'is-today' : ''}`}
               onClick={() => has && setSelected(entry)}
+              onKeyDown={e => {
+                if (has && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  setSelected(entry);
+                }
+              }}
+              role={has ? 'button' : undefined}
+              tabIndex={has ? 0 : -1}
+              aria-label={has ? `查看 ${f.hexagramName}卦` : undefined}
               style={{
                 cursor: has ? 'pointer' : 'default',
                 border: isToday
@@ -215,9 +264,7 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
                     : 'rgba(255,255,255,0.02)',
                 boxShadow: isToday
                   ? `0 0 28px ${f.gradeColor}80, 0 0 50px ${f.gradeColor}40, 0 6px 24px rgba(0,0,0,0.6)`
-                  : has
-                    ? '0 0 16px rgba(232,200,138,0.22), 0 4px 16px rgba(0,0,0,0.5)'
-                    : 'none',
+                  : undefined,
                 transform: isToday ? 'scale(1.06)' : 'scale(1)',
               }}
             >
@@ -263,6 +310,7 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
                   background: f.gradeColor,
                   boxShadow: `0 0 8px ${f.gradeColor}`,
                   animation: 'archivePulse 2s ease-in-out infinite',
+                  pointerEvents: 'none',
                 }} />
               )}
             </div>
