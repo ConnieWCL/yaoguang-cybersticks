@@ -8,6 +8,7 @@ import type { Wuxing } from '@/lib/fortunes';
 import { ShareCard } from '@/components/ShareCard';
 import { FortuneArchive } from '@/components/FortuneArchive';
 import { useFortuneStorage } from '@/hooks/useFortuneStorage';
+import { ParticleButton } from '@/components/ParticleButton';
 
 type Phase = 'idle' | 'shaking' | 'revealing' | 'done';
 
