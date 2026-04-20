@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Fortune } from '@/lib/fortunes';
+import { ParticleButton } from '@/components/ParticleButton';
 
 interface ShareCardProps {
   fortune: Fortune;
