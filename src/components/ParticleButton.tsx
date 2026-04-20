@@ -103,9 +103,13 @@ export function ParticleButton({
     >
       <canvas ref={canvasRef} className="pbtn-particles" />
       <span className="pbtn-content">
-        {icon && <span className="pbtn-icon">{icon}</span>}
         <span className="pbtn-label">{children}</span>
-        {suffix && <span className="pbtn-suffix">{suffix}</span>}
+        {(suffix || icon) && (
+          <span className="pbtn-suffix">
+            {icon && <span className="pbtn-suffix-icon">{icon}</span>}
+            {suffix}
+          </span>
+        )}
       </span>
     </button>
   );
