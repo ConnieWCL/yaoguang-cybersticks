@@ -150,23 +150,24 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.restore();
     curY += 96;
 
+    // 副标题 — 与站点 subtitle 同款：衬线 + 暖白
     ctx.save();
-    ctx.fillStyle = 'rgba(126,184,160,0.78)';
-    ctx.font = '22px "Share Tech Mono", monospace';
+    ctx.fillStyle = 'rgba(232,224,200,0.78)';
+    ctx.font = '300 24px "Noto Serif SC", serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText('賽博問簽  ·  Cyber Oracle', W / 2, curY);
+    ctx.fillText('每天一根签，看看今天运势怎么说', W / 2, curY);
     ctx.restore();
-    curY += 52;
+    curY += 50;
 
-    // Date pill
-    const pillW = 300; const pillH = 40; const pillX = W / 2 - pillW / 2;
+    // Date pill — 与站点 date-pill 同款
+    const pillW = 320; const pillH = 44; const pillX = W / 2 - pillW / 2;
     ctx.save();
-    ctx.strokeStyle = 'rgba(200,169,110,0.32)'; ctx.lineWidth = 1;
-    ctx.fillStyle = 'rgba(200,169,110,0.05)';
-    ctx.beginPath(); ctx.roundRect(pillX, curY, pillW, pillH, 20);
+    ctx.strokeStyle = 'rgba(200,169,110,0.35)'; ctx.lineWidth = 1;
+    ctx.fillStyle = 'rgba(200,169,110,0.06)';
+    ctx.beginPath(); ctx.roundRect(pillX, curY, pillW, pillH, 22);
     ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#5C5480';
-    ctx.font = '20px "Share Tech Mono", monospace';
+    ctx.fillStyle = '#C8A96E';
+    ctx.font = '400 22px "Noto Serif SC", serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(dateStr, W / 2, curY + pillH / 2);
     ctx.restore();
@@ -175,33 +176,37 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     drawDivider(curY);
     curY += 36;
 
-    // Ghost number
+    // Ghost number — 编号水印
     ctx.save();
     ctx.font = '700 148px "Share Tech Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    ctx.fillStyle = fortune.gradeColor; ctx.globalAlpha = 0.07;
+    ctx.fillStyle = fortune.gradeColor; ctx.globalAlpha = 0.08;
     ctx.fillText(String(fortune.id).padStart(2, '0'), 44, curY - 20);
     ctx.restore();
 
+    // 卦象大字
     ctx.save();
-    ctx.font = '92px serif';
+    ctx.font = '92px "ZCOOL XiaoWei", "Noto Serif SC", serif';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    ctx.fillStyle = `${fortune.gradeColor}28`;
+    ctx.fillStyle = `${fortune.gradeColor}30`;
     ctx.fillText(fortune.hexagram, 52, curY);
     ctx.restore();
 
+    // 卦名 — 与站点 hero-title 同色（暖白衬线）
     ctx.save();
     ctx.font = '700 56px "ZCOOL XiaoWei", "Noto Serif SC", serif';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    ctx.fillStyle = '#EDE8FF';
+    ctx.fillStyle = '#F2E9D2';
+    ctx.shadowColor = 'rgba(200,169,110,0.25)'; ctx.shadowBlur = 10;
     ctx.fillText(fortune.hexagramName, 210, curY + 4);
     ctx.restore();
 
+    // 等级 badge
     const badgeW = 152; const badgeH = 48;
     const badgeX = 210; const badgeY = curY + 72;
     ctx.save();
-    ctx.strokeStyle = fortune.gradeColor; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.85;
-    ctx.fillStyle = fortune.gradeColor + '18';
+    ctx.strokeStyle = fortune.gradeColor; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.9;
+    ctx.fillStyle = fortune.gradeColor + '20';
     ctx.beginPath(); ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 24);
     ctx.fill(); ctx.stroke();
     ctx.fillStyle = fortune.gradeColor; ctx.globalAlpha = 1;
@@ -214,25 +219,25 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     drawDivider(curY);
     curY += 40;
 
-    // Poem
+    // 签诗 — 暖白衬线
     ctx.save();
-    ctx.fillStyle = '#8A6A30'; ctx.shadowColor = 'rgba(200,169,110,0.3)'; ctx.shadowBlur = 6;
+    ctx.fillStyle = '#C8A96E'; ctx.shadowColor = 'rgba(200,169,110,0.4)'; ctx.shadowBlur = 6;
     ctx.fillRect(58, curY, 3, fortune.poem.length * 66);
     ctx.restore();
     fortune.poem.forEach((line, i) => {
       ctx.save();
-      ctx.font = '300 30px "Noto Serif SC", serif';
+      ctx.font = '400 32px "ZCOOL XiaoWei", "Noto Serif SC", serif';
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#EDE8FF';
+      ctx.fillStyle = '#F2E9D2';
       ctx.fillText(line, 76, curY + 33 + i * 66);
       ctx.restore();
     });
     curY += fortune.poem.length * 66 + 52;
 
-    // Interpretation
+    // 解读 — 与站点 interpret 同款
     ctx.save();
-    ctx.font = '26px "Noto Serif SC", serif';
-    ctx.fillStyle = '#A89EC8';
+    ctx.font = '300 26px "Noto Serif SC", serif';
+    ctx.fillStyle = 'rgba(232,224,200,0.78)';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     const maxW = W - 116;
     let word = '';
