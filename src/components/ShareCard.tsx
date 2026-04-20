@@ -279,25 +279,28 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ];
     bars.forEach((bar) => {
       ctx.save();
-      ctx.font = '26px "Noto Serif SC", serif';
-      ctx.fillStyle = '#5C5480';
+      ctx.font = '600 26px "ZCOOL XiaoWei", "Noto Serif SC", serif';
+      ctx.fillStyle = '#F2E9D2';
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       ctx.fillText(bar.label, 58, curY + 14);
-      const trackX = 116; const trackW = W - 232; const trackH = 6;
-      ctx.fillStyle = '#211e38';
-      ctx.beginPath(); ctx.roundRect(trackX, curY + 10, trackW, trackH, 3); ctx.fill();
+      const trackX = 130; const trackW = W - 246; const trackH = 8;
+      ctx.fillStyle = 'rgba(200,169,110,0.12)';
+      ctx.beginPath(); ctx.roundRect(trackX, curY + 10, trackW, trackH, 4); ctx.fill();
       const fillW = (bar.value / 100) * trackW;
-      ctx.fillStyle = bar.color; ctx.shadowColor = bar.color; ctx.shadowBlur = 8;
-      ctx.beginPath(); ctx.roundRect(trackX, curY + 10, fillW, trackH, 3); ctx.fill();
+      const barGrad = ctx.createLinearGradient(trackX, 0, trackX + trackW, 0);
+      barGrad.addColorStop(0, bar.color + 'AA');
+      barGrad.addColorStop(1, bar.color);
+      ctx.fillStyle = barGrad; ctx.shadowColor = bar.color; ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.roundRect(trackX, curY + 10, fillW, trackH, 4); ctx.fill();
       ctx.restore();
       ctx.save();
       const grade = bar.value >= 85 ? '极旺' : bar.value >= 70 ? '旺' : bar.value >= 55 ? '平' : '低';
-      ctx.font = '22px "Share Tech Mono", monospace';
+      ctx.font = '600 22px "Noto Serif SC", serif';
       ctx.fillStyle = bar.color;
       ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
       ctx.fillText(grade, W - 58, curY + 14);
       ctx.restore();
-      curY += 48;
+      curY += 52;
     });
     curY += 32;
 
