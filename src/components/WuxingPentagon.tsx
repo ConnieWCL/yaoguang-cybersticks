@@ -81,34 +81,58 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           </linearGradient>
         </defs>
 
-        {/* 相生关系 — 单层细线，低调融入 */}
+        {/* 相生关系 — 弧形丝带 + 粒子链，柔和有呼吸感 */}
         {pts.map((p, i) => {
           const next = pts[(i + 1) % 5];
           const isActiveLine = lit && (i === todayIdx || (i + 1) % 5 === todayIdx);
+          // 控制点：取两点中点向中心方向偏移一点，做出向内微弧
+          const mx = (p.x + next.x) / 2;
+          const my = (p.y + next.y) / 2;
+          const towardCx = cx - mx;
+          const towardCy = cy - my;
+          const len = Math.hypot(towardCx, towardCy) || 1;
+          const bow = 18; // 弧度幅度
+          const ctrlX = mx + (towardCx / len) * bow;
+          const ctrlY = my + (towardCy / len) * bow;
+          const d = `M ${p.x} ${p.y} Q ${ctrlX} ${ctrlY} ${next.x} ${next.y}`;
           return (
             <g key={`line-${i}`} style={{ transition: 'opacity 0.6s ease' }}>
-              {/* 底层柔光 */}
-              <line
-                x1={p.x} y1={p.y} x2={next.x} y2={next.y}
+              {/* 底层柔光弧 */}
+              <path
+                d={d}
+                fill="none"
                 stroke="var(--gold)"
-                strokeWidth={isActiveLine ? 4 : 3}
+                strokeWidth={isActiveLine ? 6 : 4.5}
                 strokeLinecap="round"
-                opacity={isActiveLine ? 0.22 : 0.12}
-                style={{ filter: 'blur(2.5px)' }}
+                opacity={isActiveLine ? 0.28 : 0.14}
+                style={{ filter: 'blur(3px)' }}
               />
-              {/* 粒子链 — 密集圆点 */}
-              <line
-                x1={p.x} y1={p.y} x2={next.x} y2={next.y}
+              {/* 中层细弧 */}
+              <path
+                d={d}
+                fill="none"
                 stroke={isActiveLine ? 'var(--gold-lt)' : 'var(--gold)'}
-                strokeWidth={isActiveLine ? 2.2 : 1.6}
+                strokeWidth={isActiveLine ? 1.4 : 1}
                 strokeLinecap="round"
-                strokeDasharray="0.4 3.2"
-                opacity={isActiveLine ? 0.95 : 0.7}
+                opacity={isActiveLine ? 0.55 : 0.3}
+              />
+              {/* 粒子流光弧 */}
+              <path
+                d={d}
+                fill="none"
+                stroke={isActiveLine ? 'var(--gold-lt)' : 'var(--gold)'}
+                strokeWidth={isActiveLine ? 2.4 : 1.8}
+                strokeLinecap="round"
+                strokeDasharray="0.5 4"
+                opacity={isActiveLine ? 0.95 : 0.65}
               >
-                {isActiveLine && (
-                  <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="6s" repeatCount="indefinite" />
-                )}
-              </line>
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from="0" to="-45"
+                  dur={isActiveLine ? '5s' : '8s'}
+                  repeatCount="indefinite"
+                />
+              </path>
             </g>
           );
         })}
