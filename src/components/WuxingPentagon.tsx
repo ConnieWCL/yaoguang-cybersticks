@@ -86,15 +86,30 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           const next = pts[(i + 1) % 5];
           const isActiveLine = lit && (i === todayIdx || (i + 1) % 5 === todayIdx);
           return (
-            <line
-              key={`line-${i}`}
-              x1={p.x} y1={p.y} x2={next.x} y2={next.y}
-              stroke="var(--gold)"
-              strokeWidth={isActiveLine ? 1.2 : 0.8}
-              strokeLinecap="round"
-              opacity={isActiveLine ? 0.4 : 0.18}
-              style={{ transition: 'opacity 0.6s ease' }}
-            />
+            <g key={`line-${i}`} style={{ transition: 'opacity 0.6s ease' }}>
+              {/* 底层柔光 */}
+              <line
+                x1={p.x} y1={p.y} x2={next.x} y2={next.y}
+                stroke="var(--gold)"
+                strokeWidth={isActiveLine ? 4 : 3}
+                strokeLinecap="round"
+                opacity={isActiveLine ? 0.22 : 0.12}
+                style={{ filter: 'blur(2.5px)' }}
+              />
+              {/* 粒子链 — 密集圆点 */}
+              <line
+                x1={p.x} y1={p.y} x2={next.x} y2={next.y}
+                stroke={isActiveLine ? 'var(--gold-lt)' : 'var(--gold)'}
+                strokeWidth={isActiveLine ? 2.2 : 1.6}
+                strokeLinecap="round"
+                strokeDasharray="0.4 3.2"
+                opacity={isActiveLine ? 0.95 : 0.7}
+              >
+                {isActiveLine && (
+                  <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="6s" repeatCount="indefinite" />
+                )}
+              </line>
+            </g>
           );
         })}
 
@@ -138,22 +153,20 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
                 </circle>
               )}
 
-              {/* 文字 — 高对比，带描边/阴影确保可读 */}
+              {/* 文字 — 沉稳金色,today 同色系略亮,不刺眼 */}
               <text x={p.x} y={p.y + 1} textAnchor="middle" dominantBaseline="central"
-                fill="#ffffff"
+                fill={isActive ? '#FFF4D6' : 'rgba(245,239,224,0.92)'}
                 fontSize={isActive ? 22 : 18}
                 fontFamily="'ZCOOL XiaoWei', 'Noto Serif SC', serif"
-                fontWeight={isActive ? 800 : 700}
+                fontWeight={isActive ? 700 : 600}
                 opacity={isDim ? 0.85 : 1}
-                stroke="rgba(0,0,0,0.55)"
-                strokeWidth="0.6"
+                stroke="rgba(0,0,0,0.45)"
+                strokeWidth="0.5"
                 paintOrder="stroke"
                 style={{
                   transition: 'opacity 0.6s ease, font-size 0.6s ease',
                   letterSpacing: '0.04em',
-                  filter: isActive
-                    ? `drop-shadow(0 0 6px ${el.colorLight}) drop-shadow(0 1px 2px rgba(0,0,0,0.6))`
-                    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.55))',
+                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
                 }}>
                 {el.name}
               </text>
