@@ -58,19 +58,19 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           {/* 节点光球 — 中心微亮 → 外缘融入背景，低饱和、低不透明 */}
           {ELEMENTS.map((el, i) => (
             <radialGradient key={`grad-${i}`} id={`wx-grad-${i}`} cx="50%" cy="50%" r="60%">
-              <stop offset="0%"   stopColor={el.colorLight} stopOpacity="0.55" />
-              <stop offset="45%"  stopColor={el.color}      stopOpacity="0.32" />
-              <stop offset="80%"  stopColor={el.color}      stopOpacity="0.08" />
+              <stop offset="0%"   stopColor={el.colorLight} stopOpacity="1" />
+              <stop offset="35%"  stopColor={el.color}      stopOpacity="0.9" />
+              <stop offset="70%"  stopColor={el.color}      stopOpacity="0.35" />
               <stop offset="100%" stopColor={el.color}      stopOpacity="0" />
             </radialGradient>
           ))}
-          {/* today 节点 — 略亮一档，仍保持柔和 */}
+          {/* today 节点 — 中心白热，更明亮 */}
           {todayIdx >= 0 && (
             <radialGradient id="wx-grad-today" cx="50%" cy="50%" r="60%">
-              <stop offset="0%"   stopColor={ELEMENTS[todayIdx].colorLight} stopOpacity="0.85" />
-              <stop offset="40%"  stopColor={ELEMENTS[todayIdx].color}      stopOpacity="0.5" />
-              <stop offset="80%"  stopColor={ELEMENTS[todayIdx].color}      stopOpacity="0.12" />
-              <stop offset="100%" stopColor={ELEMENTS[todayIdx].color}      stopOpacity="0" />
+              <stop offset="0%"   stopColor="#ffffff"                          stopOpacity="0.95" />
+              <stop offset="25%"  stopColor={ELEMENTS[todayIdx].colorLight}    stopOpacity="1" />
+              <stop offset="60%"  stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0.75" />
+              <stop offset="100%" stopColor={ELEMENTS[todayIdx].color}         stopOpacity="0" />
             </radialGradient>
           )}
           {/* 标题渐变 */}
