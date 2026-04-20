@@ -138,14 +138,23 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
                 </circle>
               )}
 
-              {/* 文字 */}
+              {/* 文字 — 高对比，带描边/阴影确保可读 */}
               <text x={p.x} y={p.y + 1} textAnchor="middle" dominantBaseline="central"
-                fill={isActive ? el.colorLight : 'rgba(245,239,224,0.85)'}
-                fontSize={isActive ? 20 : 16}
+                fill="#ffffff"
+                fontSize={isActive ? 22 : 18}
                 fontFamily="'ZCOOL XiaoWei', 'Noto Serif SC', serif"
-                fontWeight={isActive ? 700 : 500}
-                opacity={isDim ? 0.5 : 1}
-                style={{ transition: 'opacity 0.6s ease, font-size 0.6s ease', letterSpacing: '0.04em' }}>
+                fontWeight={isActive ? 800 : 700}
+                opacity={isDim ? 0.85 : 1}
+                stroke="rgba(0,0,0,0.55)"
+                strokeWidth="0.6"
+                paintOrder="stroke"
+                style={{
+                  transition: 'opacity 0.6s ease, font-size 0.6s ease',
+                  letterSpacing: '0.04em',
+                  filter: isActive
+                    ? `drop-shadow(0 0 6px ${el.colorLight}) drop-shadow(0 1px 2px rgba(0,0,0,0.6))`
+                    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.55))',
+                }}>
                 {el.name}
               </text>
 
