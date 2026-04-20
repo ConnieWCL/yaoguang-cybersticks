@@ -20,10 +20,6 @@ export function LuckBar({ label, value, color, icon, delay = 0 }: LuckBarProps) 
 
   const gradeLabel = value >= 85 ? '极旺' : value >= 70 ? '旺' : value >= 55 ? '平' : '低';
 
-  // 10 段刻度
-  const segments = 10;
-  const filledSegs = Math.round((filled / 100) * segments);
-
   return (
     <div
       className="luck-bar-row-v2"
@@ -46,19 +42,17 @@ export function LuckBar({ label, value, color, icon, delay = 0 }: LuckBarProps) 
           <span className="luck-bar-num" style={{ color }}>{value}</span>
         </span>
       </div>
-      <div className="luck-bar-segments">
-        {Array.from({ length: segments }).map((_, i) => (
-          <span
-            key={i}
-            className="luck-seg"
-            style={{
-              background: i < filledSegs ? color : 'rgba(255,255,255,0.05)',
-              boxShadow: i < filledSegs ? `0 0 8px ${color}, 0 0 2px ${color}` : 'none',
-              opacity: i < filledSegs ? 0.9 : 1,
-              transitionDelay: `${i * 80}ms`,
-            }}
-          />
-        ))}
+      <div className="luck-bar-track">
+        <div
+          className="luck-bar-fill"
+          style={{
+            width: `${filled}%`,
+            background: `linear-gradient(90deg, ${color}55, ${color} 60%, ${color})`,
+            boxShadow: `0 0 10px ${color}, 0 0 18px ${color}80`,
+          }}
+        >
+          <span className="luck-bar-shine" />
+        </div>
       </div>
     </div>
   );
