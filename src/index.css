@@ -318,19 +318,24 @@ body {
   gap: 8px;
 }
 .banner-hexagram {
-  font-size: 24px;
-  color: var(--grade-color, var(--gold));
-  text-shadow: 0 0 14px currentColor;
+  font-size: 22px;
   font-family: 'ZCOOL XiaoWei', var(--serif);
+  background: linear-gradient(135deg, var(--gold-lt), var(--gold) 55%, var(--gold-dk));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px var(--gold-glow));
 }
 .banner-name {
   font-family: 'ZCOOL XiaoWei', var(--serif);
   font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: var(--grade-color, var(--gold));
-  text-shadow: 0 0 10px currentColor;
-  opacity: 0.95;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  background: linear-gradient(135deg, var(--gold-lt), var(--gold) 55%, var(--gold-dk));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px var(--gold-glow));
 }
 .banner-grade {
   font-family: 'ZCOOL XiaoWei', var(--serif);
@@ -562,11 +567,11 @@ body {
   text-shadow: 0 0 8px var(--gold-glow);
 }
 .lucky-val {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--gold-lt);
-  letter-spacing: 0.06em;
-  text-shadow: 0 0 10px rgba(200,169,110,0.3);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 8px rgba(200,169,110,0.25);
 }
 
 /* ═══════════════════════════════════════════════
