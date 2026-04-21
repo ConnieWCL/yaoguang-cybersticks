@@ -91,7 +91,10 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
           gap: 10px;
           align-content:start;
           max-width:1280px; width:100%; margin:0 auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
         }
+        .archive-grid::-webkit-scrollbar { display:none; width:0; height:0; }
         @media (max-width:1100px) { .archive-grid { grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; } }
         @media (max-width:768px)  { .archive-grid { grid-template-columns:repeat(5,minmax(0,1fr)); gap:9px; padding:16px 12px 28px; } }
         @media (max-width:540px)  { .archive-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; } }

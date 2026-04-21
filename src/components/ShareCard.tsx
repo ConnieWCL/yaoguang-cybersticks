@@ -202,12 +202,11 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     // ── 运势分项 ──
     ctx.save();
-    ctx.font='600 18px "Share Tech Mono",monospace';
-    ctx.fillStyle='rgba(200,169,110,0.45)';
+    ctx.font='600 22px "Noto Serif SC",serif';
+    ctx.fillStyle='rgba(200,169,110,0.55)';
     ctx.textAlign='left'; ctx.textBaseline='top';
-    ctx.letterSpacing='4px';
-    ctx.fillText('FORTUNE  INDEX', 58, Y); ctx.restore();
-    Y += 34;
+    ctx.fillText('运 势 分 项', 58, Y); ctx.restore();
+    Y += 38;
 
     const bars = [
       { label:'事业', value:fortune.career, color:'#C8A96E' },
@@ -237,25 +236,47 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       ctx.fillText(grade, W-58, Y+14); ctx.restore();
       Y += 50;
     });
-    Y += 24;
+    Y += 16;
 
-    divider(Y); Y += 28;
+    divider(Y); Y += 24;
 
-    // ── FOOTER: 只保留网址 ──
+    // ── FOOTER: 标语 + 网址（融入卡片底部，可长按识别）──
     ctx.save();
-    ctx.font='600 20px "Share Tech Mono",monospace';
-    const urlW = ctx.measureText(SITE_URL).width + 40;
-    const urlH = 44, urlX = W/2 - urlW/2;
-    ctx.fillStyle='rgba(200,169,110,0.08)';
-    ctx.strokeStyle='rgba(200,169,110,0.4)'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.roundRect(urlX, Y, urlW, urlH, 22); ctx.fill(); ctx.stroke();
-    ctx.fillStyle='#E8C88A';
-    ctx.shadowColor='rgba(200,169,110,0.4)'; ctx.shadowBlur=8;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(SITE_URL, W/2, Y+urlH/2); ctx.restore();
-    Y += urlH + 28;
+    ctx.font='400 22px "Noto Serif SC",serif';
+    ctx.fillStyle='rgba(232,224,200,0.7)';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText('一 爻 一 光   日 日 新 启', W/2, Y);
+    ctx.restore();
+    Y += 40;
 
-    ornament(Y+8);
+    // 网址：作为卡片正式信息呈现，不再悬浮
+    ctx.save();
+    ctx.font='600 26px "Share Tech Mono",monospace';
+    const urlMeasure = ctx.measureText(SITE_URL).width;
+    const urlW = urlMeasure + 56;
+    const urlH = 56, urlX = W/2 - urlW/2;
+    const urlBg = ctx.createLinearGradient(urlX, Y, urlX, Y+urlH);
+    urlBg.addColorStop(0, 'rgba(200,169,110,0.18)');
+    urlBg.addColorStop(1, 'rgba(200,169,110,0.08)');
+    ctx.fillStyle = urlBg;
+    ctx.strokeStyle='rgba(200,169,110,0.55)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.roundRect(urlX, Y, urlW, urlH, 28); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#E8C88A';
+    ctx.shadowColor='rgba(200,169,110,0.55)'; ctx.shadowBlur=10;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(SITE_URL, W/2, Y+urlH/2);
+    ctx.restore();
+    Y += urlH + 14;
+
+    ctx.save();
+    ctx.font='400 16px "Noto Serif SC",serif';
+    ctx.fillStyle='rgba(200,169,110,0.5)';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText('长 按 识 别 · 每 日 一 签', W/2, Y);
+    ctx.restore();
+    Y += 30;
+
+    ornament(Y);
 
     setImageUrl(canvas.toDataURL('image/png'));
     setIsGenerating(false);
@@ -348,17 +369,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
             </div>
           )}
 
-          {/* 网址文字行（可选中复制） */}
-          <p style={{
-            marginTop:'10px',
-            fontFamily:'Share Tech Mono,monospace',
-            fontSize:'11px', color:'rgba(200,169,110,0.5)',
-            letterSpacing:'0.08em', userSelect:'all', cursor:'text',
-          }}>
-            {SITE_URL_FULL}
-          </p>
-
-          <p style={{ marginTop:'6px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.3)', letterSpacing:'0.1em' }}>
+          <p style={{ marginTop:'14px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em' }}>
             点击空白处关闭
           </p>
         </>
