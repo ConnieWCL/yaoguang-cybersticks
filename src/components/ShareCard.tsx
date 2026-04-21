@@ -369,17 +369,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
             </div>
           )}
 
-          {/* 网址文字行（可选中复制） */}
-          <p style={{
-            marginTop:'10px',
-            fontFamily:'Share Tech Mono,monospace',
-            fontSize:'11px', color:'rgba(200,169,110,0.5)',
-            letterSpacing:'0.08em', userSelect:'all', cursor:'text',
-          }}>
-            {SITE_URL_FULL}
-          </p>
-
-          <p style={{ marginTop:'6px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.3)', letterSpacing:'0.1em' }}>
+          <p style={{ marginTop:'14px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em' }}>
             点击空白处关闭
           </p>
         </>
