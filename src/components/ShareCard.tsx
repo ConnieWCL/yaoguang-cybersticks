@@ -216,43 +216,54 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     divider(Y); Y += 28;
 
-    // ── 运势分项 ──
+    // ── 运势分项 — 2x2 紧凑网格设计 ──
     ctx.save();
-    ctx.font='600 22px "Noto Serif SC",serif';
-    ctx.fillStyle='rgba(200,169,110,0.55)';
-    ctx.textAlign='left'; ctx.textBaseline='top';
-    ctx.fillText('运 势 分 项', 58, Y); ctx.restore();
-    Y += 38;
+    ctx.font='400 16px "Noto Serif SC",serif';
+    ctx.fillStyle='rgba(200,169,110,0.45)';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText('运  ·  势  ·  分  ·  项', W/2, Y); ctx.restore();
+    Y += 32;
 
     const bars = [
-      { label:'事业', value:fortune.career, color:'#C8A96E' },
-      { label:'财运', value:fortune.wealth, color:'#E8A040' },
-      { label:'感情', value:fortune.love,   color:'#D4849A' },
-      { label:'健康', value:fortune.health, color:'#7EB8A0' },
+      { label:'事业', value:fortune.career, color:'#C8A96E', icon:'✦' },
+      { label:'财运', value:fortune.wealth, color:'#E8A040', icon:'❖' },
+      { label:'感情', value:fortune.love,   color:'#D4849A', icon:'❀' },
+      { label:'健康', value:fortune.health, color:'#7EB8A0', icon:'❉' },
     ];
-    bars.forEach(bar => {
+    // 2 列 × 2 行
+    const gridPadX = 70;
+    const cellGap  = 24;
+    const cellW    = (W - gridPadX*2 - cellGap) / 2;
+    const cellH    = 64;
+    bars.forEach((bar, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const cx = gridPadX + col * (cellW + cellGap);
+      const cy = Y + row * (cellH + 14);
+      // 图标 + 标签 + 等级
+      const grade = bar.value>=88?'极旺':bar.value>=72?'旺':bar.value>=55?'平':bar.value>=38?'低':'弱';
       ctx.save();
-      ctx.font='600 24px "Noto Serif SC",serif';
-      ctx.fillStyle='rgba(200,169,110,0.6)';
+      ctx.font='400 16px "Noto Serif SC",serif';
+      ctx.fillStyle=bar.color; ctx.globalAlpha=0.95;
+      ctx.shadowColor=bar.color+'80'; ctx.shadowBlur=8;
       ctx.textAlign='left'; ctx.textBaseline='middle';
-      ctx.fillText(bar.label, 58, Y+14);
-      const tX=116, tW=W-232, tH=6;
-      ctx.fillStyle='rgba(33,30,56,0.8)';
-      ctx.beginPath(); ctx.roundRect(tX,Y+10,tW,tH,3); ctx.fill();
-      const fW=(bar.value/100)*tW;
-      const bGrad=ctx.createLinearGradient(tX,0,tX+fW,0);
-      bGrad.addColorStop(0,bar.color+'AA'); bGrad.addColorStop(1,bar.color);
-      ctx.fillStyle=bGrad; ctx.shadowColor=bar.color; ctx.shadowBlur=10;
-      ctx.beginPath(); ctx.roundRect(tX,Y+10,fW,tH,4); ctx.fill();
+      ctx.fillText(bar.icon+' '+bar.label, cx, cy+10);
+      ctx.font='600 14px "Share Tech Mono",monospace';
+      ctx.textAlign='right'; ctx.shadowBlur=6;
+      ctx.fillText(grade, cx+cellW, cy+10);
       ctx.restore();
+      // 进度条
+      const barY = cy+28, barH = 5;
       ctx.save();
-      const grade = bar.value>=85?'极旺':bar.value>=70?'旺':bar.value>=55?'平':'低';
-      ctx.font='600 20px "Noto Serif SC",serif';
-      ctx.fillStyle=bar.color; ctx.textAlign='right'; ctx.textBaseline='middle';
-      ctx.fillText(grade, W-58, Y+14); ctx.restore();
-      Y += 50;
+      ctx.fillStyle='rgba(255,255,255,0.05)';
+      ctx.beginPath(); ctx.roundRect(cx, barY, cellW, barH, 3); ctx.fill();
+      const fW = (bar.value/100) * cellW;
+      const bGrad=ctx.createLinearGradient(cx, 0, cx+fW, 0);
+      bGrad.addColorStop(0, bar.color+'66'); bGrad.addColorStop(1, bar.color);
+      ctx.fillStyle=bGrad; ctx.shadowColor=bar.color; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.roundRect(cx, barY, fW, barH, 3); ctx.fill();
+      ctx.restore();
     });
-    Y += 16;
+    Y += 2 * (cellH + 14) - 14 + 12;
 
     divider(Y); Y += 24;
 
@@ -306,8 +317,9 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
         background:'rgba(7,6,15,0.93)',
         backdropFilter:'blur(12px)',
         display:'flex', flexDirection:'column',
-        alignItems:'center', justifyContent:'center',
-        padding:'20px',
+        alignItems:'center', justifyContent:'flex-start',
+        padding:'24px 16px',
+        overflowY:'auto',
         animation:'fadeIn 0.3s ease',
       }}
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
@@ -316,25 +328,34 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       <canvas ref={canvasRef} style={{ display:'none' }} />
 
       {isGenerating ? (
-        <div style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'18px', letterSpacing:'0.2em' }}>
+        <div style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'18px', letterSpacing:'0.2em', marginTop:'40vh' }}>
           卦象生成中…
         </div>
       ) : (
-        <>
-          {/* 预览图 */}
+        <div style={{
+          width:'100%',
+          maxWidth:'420px',
+          display:'flex',
+          flexDirection:'column',
+          alignItems:'stretch',
+          gap:'14px',
+        }}>
+          {/* 预览图 — 与下方按钮等宽 */}
           <div style={{
-            flex:1, maxHeight:'calc(100dvh - 200px)',
-            overflow:'hidden', borderRadius:'16px',
+            width:'100%',
+            borderRadius:'16px',
+            overflow:'hidden',
             boxShadow:`0 0 60px ${fortune.gradeColor}30, 0 0 120px ${fortune.gradeColor}15, 0 8px 48px rgba(0,0,0,0.6)`,
+            background:'#07060f',
           }}>
             <img src={imageUrl} alt="今日签卡片"
-              style={{ width:'100%', height:'100%', objectFit:'contain', display:'block', borderRadius:'16px' }} />
+              style={{ width:'100%', height:'auto', display:'block' }} />
           </div>
 
           {/* 微信/QQ 提示 */}
           {restricted ? (
             <div style={{
-              marginTop:'16px', width:'100%', maxWidth:'400px',
+              width:'100%',
               background:'rgba(200,169,110,0.08)', border:'1px solid rgba(200,169,110,0.3)',
               borderRadius:'12px', padding:'14px 16px', textAlign:'center',
             }}>
@@ -346,22 +367,20 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
               </p>
             </div>
           ) : (
-            <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginTop:'16px', width:'100%', maxWidth:'400px' }}>
-              {/* 合并保存/分享 */}
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px', width:'100%' }}>
               <ParticleButton variant="primary" onClick={handleSaveShare}>
                 {saveStatus==='saving'?'生成中…':saveStatus==='saved'?'已保存 ✓':'保存 / 分享签文'}
               </ParticleButton>
-              {/* 复制链接 */}
               <ParticleButton variant="secondary" onClick={handleCopyUrl} icon="🔗" suffix={SITE_URL}>
                 {saveStatus==='copied'?'已复制 ✓':'复制链接'}
               </ParticleButton>
             </div>
           )}
 
-          <p style={{ marginTop:'14px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em' }}>
+          <p style={{ marginTop:'4px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em', textAlign:'center' }}>
             点击空白处关闭
           </p>
-        </>
+        </div>
       )}
     </div>
   );
