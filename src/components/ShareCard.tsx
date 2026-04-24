@@ -216,43 +216,55 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     divider(Y); Y += 28;
 
-    // ── 运势分项 ──
+    // ── 运势分项 — 2x2 紧凑网格设计 ──
     ctx.save();
-    ctx.font='600 22px "Noto Serif SC",serif';
-    ctx.fillStyle='rgba(200,169,110,0.55)';
-    ctx.textAlign='left'; ctx.textBaseline='top';
-    ctx.fillText('运 势 分 项', 58, Y); ctx.restore();
-    Y += 38;
+    ctx.font='400 16px "Noto Serif SC",serif';
+    ctx.fillStyle='rgba(200,169,110,0.45)';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.letterSpacing = '0.3em';
+    ctx.fillText('运  势  分  项', W/2, Y); ctx.restore();
+    Y += 32;
 
     const bars = [
-      { label:'事业', value:fortune.career, color:'#C8A96E' },
-      { label:'财运', value:fortune.wealth, color:'#E8A040' },
-      { label:'感情', value:fortune.love,   color:'#D4849A' },
-      { label:'健康', value:fortune.health, color:'#7EB8A0' },
+      { label:'事业', value:fortune.career, color:'#C8A96E', icon:'✦' },
+      { label:'财运', value:fortune.wealth, color:'#E8A040', icon:'❖' },
+      { label:'感情', value:fortune.love,   color:'#D4849A', icon:'❀' },
+      { label:'健康', value:fortune.health, color:'#7EB8A0', icon:'❉' },
     ];
-    bars.forEach(bar => {
+    // 2 列 × 2 行
+    const gridPadX = 70;
+    const cellGap  = 24;
+    const cellW    = (W - gridPadX*2 - cellGap) / 2;
+    const cellH    = 64;
+    bars.forEach((bar, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const cx = gridPadX + col * (cellW + cellGap);
+      const cy = Y + row * (cellH + 14);
+      // 图标 + 标签 + 等级
+      const grade = bar.value>=88?'极旺':bar.value>=72?'旺':bar.value>=55?'平':bar.value>=38?'低':'弱';
       ctx.save();
-      ctx.font='600 24px "Noto Serif SC",serif';
-      ctx.fillStyle='rgba(200,169,110,0.6)';
+      ctx.font='400 16px "Noto Serif SC",serif';
+      ctx.fillStyle=bar.color; ctx.globalAlpha=0.95;
+      ctx.shadowColor=bar.color+'80'; ctx.shadowBlur=8;
       ctx.textAlign='left'; ctx.textBaseline='middle';
-      ctx.fillText(bar.label, 58, Y+14);
-      const tX=116, tW=W-232, tH=6;
-      ctx.fillStyle='rgba(33,30,56,0.8)';
-      ctx.beginPath(); ctx.roundRect(tX,Y+10,tW,tH,3); ctx.fill();
-      const fW=(bar.value/100)*tW;
-      const bGrad=ctx.createLinearGradient(tX,0,tX+fW,0);
-      bGrad.addColorStop(0,bar.color+'AA'); bGrad.addColorStop(1,bar.color);
-      ctx.fillStyle=bGrad; ctx.shadowColor=bar.color; ctx.shadowBlur=10;
-      ctx.beginPath(); ctx.roundRect(tX,Y+10,fW,tH,4); ctx.fill();
+      ctx.fillText(bar.icon+' '+bar.label, cx, cy+10);
+      ctx.font='600 14px "Share Tech Mono",monospace';
+      ctx.textAlign='right'; ctx.shadowBlur=6;
+      ctx.fillText(grade, cx+cellW, cy+10);
       ctx.restore();
+      // 进度条
+      const barY = cy+28, barH = 5;
       ctx.save();
-      const grade = bar.value>=85?'极旺':bar.value>=70?'旺':bar.value>=55?'平':'低';
-      ctx.font='600 20px "Noto Serif SC",serif';
-      ctx.fillStyle=bar.color; ctx.textAlign='right'; ctx.textBaseline='middle';
-      ctx.fillText(grade, W-58, Y+14); ctx.restore();
-      Y += 50;
+      ctx.fillStyle='rgba(255,255,255,0.05)';
+      ctx.beginPath(); ctx.roundRect(cx, barY, cellW, barH, 3); ctx.fill();
+      const fW = (bar.value/100) * cellW;
+      const bGrad=ctx.createLinearGradient(cx, 0, cx+fW, 0);
+      bGrad.addColorStop(0, bar.color+'66'); bGrad.addColorStop(1, bar.color);
+      ctx.fillStyle=bGrad; ctx.shadowColor=bar.color; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.roundRect(cx, barY, fW, barH, 3); ctx.fill();
+      ctx.restore();
     });
-    Y += 16;
+    Y += 2 * (cellH + 14) - 14 + 12;
 
     divider(Y); Y += 24;
 
