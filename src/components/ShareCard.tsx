@@ -218,11 +218,12 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     // ── 运势分项 — 2x2 紧凑网格设计 ──
     ctx.save();
-    ctx.font='400 16px "Noto Serif SC",serif';
-    ctx.fillStyle='rgba(200,169,110,0.45)';
+    ctx.font='600 26px "Noto Serif SC",serif';
+    ctx.fillStyle='#E8D9B0';
+    ctx.shadowColor='rgba(200,169,110,0.5)'; ctx.shadowBlur=12;
     ctx.textAlign='center'; ctx.textBaseline='top';
     ctx.fillText('运  ·  势  ·  分  ·  项', W/2, Y); ctx.restore();
-    Y += 32;
+    Y += 44;
 
     const bars = [
       { label:'事业', value:fortune.career, color:'#C8A96E', icon:'✦' },
@@ -265,16 +266,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     });
     Y += 2 * (cellH + 14) - 14 + 12;
 
-    divider(Y); Y += 24;
-
-    // ── FOOTER: slogan 小字 ──
-    ctx.save();
-    ctx.font='300 16px "Noto Serif SC",serif';
-    ctx.fillStyle='rgba(200,169,110,0.38)';
-    ctx.textAlign='center'; ctx.textBaseline='top';
-    ctx.fillText('一爻一光  日日新启', W/2, Y);
-    ctx.restore();
-    Y += 30;
+    divider(Y); Y += 28;
 
     ornament(Y);
 
@@ -317,39 +309,60 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
         background:'rgba(7,6,15,0.93)',
         backdropFilter:'blur(12px)',
         display:'flex', flexDirection:'column',
-        alignItems:'center', justifyContent:'flex-start',
-        padding:'24px 16px',
-        overflowY:'auto',
+        alignItems:'center', justifyContent:'center',
+        padding:'16px 16px',
+        overflow:'hidden',
         animation:'fadeIn 0.3s ease',
       }}
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
     >
-      <style>{`@keyframes fadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}`}</style>
+      <style>{`
+        @keyframes fadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+        .sharecard-modal{
+          width:100%;
+          max-width:380px;
+          max-height:100%;
+          display:flex;
+          flex-direction:column;
+          align-items:stretch;
+          gap:10px;
+        }
+        .sharecard-img-wrap{
+          width:100%;
+          flex:1 1 auto;
+          min-height:0;
+          border-radius:16px;
+          overflow:hidden;
+          background:#07060f;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+        }
+        .sharecard-img-wrap img{
+          max-width:100%;
+          max-height:100%;
+          width:auto;
+          height:auto;
+          display:block;
+          object-fit:contain;
+        }
+      `}</style>
       <canvas ref={canvasRef} style={{ display:'none' }} />
 
       {isGenerating ? (
-        <div style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'18px', letterSpacing:'0.2em', marginTop:'40vh' }}>
+        <div style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'18px', letterSpacing:'0.2em' }}>
           卦象生成中…
         </div>
       ) : (
-        <div style={{
-          width:'100%',
-          maxWidth:'420px',
-          display:'flex',
-          flexDirection:'column',
-          alignItems:'stretch',
-          gap:'14px',
-        }}>
-          {/* 预览图 — 与下方按钮等宽 */}
-          <div style={{
-            width:'100%',
-            borderRadius:'16px',
-            overflow:'hidden',
-            boxShadow:`0 0 60px ${fortune.gradeColor}30, 0 0 120px ${fortune.gradeColor}15, 0 8px 48px rgba(0,0,0,0.6)`,
-            background:'#07060f',
-          }}>
-            <img src={imageUrl} alt="今日签卡片"
-              style={{ width:'100%', height:'auto', display:'block' }} />
+        <div className="sharecard-modal">
+          {/* 预览图 — 自动适配高度 */}
+          <div
+            className="sharecard-img-wrap"
+            style={{
+              boxShadow:`0 0 60px ${fortune.gradeColor}30, 0 0 120px ${fortune.gradeColor}15, 0 8px 48px rgba(0,0,0,0.6)`,
+            }}
+          >
+            <img src={imageUrl} alt="今日签卡片" />
           </div>
 
           {/* 微信/QQ 提示 */}
@@ -357,17 +370,18 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
             <div style={{
               width:'100%',
               background:'rgba(200,169,110,0.08)', border:'1px solid rgba(200,169,110,0.3)',
-              borderRadius:'12px', padding:'14px 16px', textAlign:'center',
+              borderRadius:'12px', padding:'12px 14px', textAlign:'center',
+              flexShrink:0,
             }}>
-              <p style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'14px', lineHeight:'1.8', marginBottom:'8px' }}>
+              <p style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'13px', lineHeight:'1.7', marginBottom:'6px' }}>
                 长按上方图片保存到相册
               </p>
-              <p style={{ color:'#5C5480', fontFamily:'Share Tech Mono,monospace', fontSize:'11px', letterSpacing:'0.06em' }}>
+              <p style={{ color:'#5C5480', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', letterSpacing:'0.06em' }}>
                 微信/QQ浏览器限制 · 请在外部浏览器打开以使用完整功能
               </p>
             </div>
           ) : (
-            <div style={{ display:'flex', flexDirection:'column', gap:'10px', width:'100%' }}>
+            <div style={{ display:'flex', flexDirection:'column', gap:'8px', width:'100%', flexShrink:0 }}>
               <ParticleButton variant="primary" onClick={handleSaveShare}>
                 {saveStatus==='saving'?'生成中…':saveStatus==='saved'?'已保存 ✓':'保存 / 分享签文'}
               </ParticleButton>
@@ -377,7 +391,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
             </div>
           )}
 
-          <p style={{ marginTop:'4px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em', textAlign:'center' }}>
+          <p style={{ margin:0, fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em', textAlign:'center', flexShrink:0 }}>
             点击空白处关闭
           </p>
         </div>
