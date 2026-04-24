@@ -111,11 +111,15 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
           transition:transform 0.22s ease, box-shadow 0.22s ease;
           -webkit-tap-highlight-color:transparent;
           user-select:none;
+          z-index:1;
         }
-        .archive-cell.has { cursor:pointer; }
-        .archive-cell.has:hover { transform:translateY(-3px) scale(1.04); z-index:4; }
-        .archive-cell.has:active { transform:scale(1.01); }
+        .archive-cell.has { cursor:pointer; z-index:2; }
+        .archive-cell.has:hover { transform:translateY(-3px) scale(1.06); z-index:20; }
+        .archive-cell.has:focus-visible { z-index:20; outline:none; }
+        .archive-cell.has:active { transform:scale(1.01); z-index:20; }
+        /* 今日签：用阴影/光晕标记，不再用 scale 放大，避免遮挡邻居命中区 */
         .archive-cell.is-today { z-index:3; }
+        .archive-cell.is-today:hover { z-index:20; }
 
         .cell-hex {
           font-size: clamp(22px,4.5vw,32px);
@@ -216,7 +220,7 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
                   : has
                     ? '0 2px 10px rgba(0,0,0,0.4)'
                     : 'none',
-                transform: isToday ? 'scale(1.05)' : 'scale(1)',
+                transform: 'scale(1)',
               }}
             >
               {/* 粒子层 — 只今日签有 canvas，其他已集用 CSS glow */}
