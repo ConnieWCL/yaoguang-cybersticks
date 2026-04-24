@@ -369,41 +369,27 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
               style={{ width:'100%', height:'auto', display:'block' }} />
           </div>
 
-          {/* 微信/QQ 提示 */}
-         {/* 统一的按钮区域，不再区分 restricted */}
+          {/* 统一的按钮区域 */}
           <div style={{ display:'flex', flexDirection:'column', gap:'8px', width:'100%', flexShrink:0 }}>
-            {/* 这里的点击事件 handleSaveShare 会在微信内执行下载失败，正好触发提示 */}
             <ParticleButton variant="primary" onClick={handleSaveShare}>
               {saveStatus==='saving'?'生成中…':saveStatus==='saved'?'已保存 ✓':'保存 / 分享签文'}
             </ParticleButton>
-            
             <ParticleButton variant="secondary" onClick={handleCopyUrl} icon="🔗" suffix={SITE_URL}>
               {saveStatus==='copied'?'已复制 ✓':'复制链接'}
             </ParticleButton>
           </div>
 
-          {/* 只有在微信/QQ内显示这行柔和的提示，不再是警告，而是引导 */}
+          {/* 只有在微信/QQ内显示柔和的引导提示 */}
           {restricted && (
-            <p style={{ 
-              margin:'8px 0 0', 
-              fontFamily:'Noto Serif SC,serif', 
-              fontSize:'12px', 
-              color:'rgba(200,169,110,0.5)', 
-              textAlign:'center' 
+            <p style={{
+              margin:'8px 0 0',
+              fontFamily:'Noto Serif SC,serif',
+              fontSize:'12px',
+              color:'rgba(200,169,110,0.5)',
+              textAlign:'center'
             }}>
               温馨提示：微信内请长按图片手动保存或转发
             </p>
-          )}
-            </div>
-          ) : (
-            <div style={{ display:'flex', flexDirection:'column', gap:'8px', width:'100%', flexShrink:0 }}>
-              <ParticleButton variant="primary" onClick={handleSaveShare}>
-                {saveStatus==='saving'?'生成中…':saveStatus==='saved'?'已保存 ✓':'保存 / 分享签文'}
-              </ParticleButton>
-              <ParticleButton variant="secondary" onClick={handleCopyUrl} icon="🔗" suffix={SITE_URL}>
-                {saveStatus==='copied'?'已复制 ✓':'复制链接'}
-              </ParticleButton>
-            </div>
           )}
 
           <p style={{ margin:0, fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em', textAlign:'center', flexShrink:0 }}>
