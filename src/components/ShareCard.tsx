@@ -266,16 +266,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     });
     Y += 2 * (cellH + 14) - 14 + 12;
 
-    divider(Y); Y += 24;
-
-    // ── FOOTER: slogan 小字 ──
-    ctx.save();
-    ctx.font='300 16px "Noto Serif SC",serif';
-    ctx.fillStyle='rgba(200,169,110,0.38)';
-    ctx.textAlign='center'; ctx.textBaseline='top';
-    ctx.fillText('一爻一光  日日新启', W/2, Y);
-    ctx.restore();
-    Y += 30;
+    divider(Y); Y += 28;
 
     ornament(Y);
 
