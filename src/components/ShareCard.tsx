@@ -266,10 +266,6 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     });
     Y += 2 * (cellH + 14) - 14 + 12;
 
-    divider(Y); Y += 28;
-
-    ornament(Y);
-
     setImageUrl(canvas.toDataURL('image/png'));
     setIsGenerating(false);
   };
