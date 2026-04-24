@@ -220,7 +220,7 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
                   : has
                     ? '0 2px 10px rgba(0,0,0,0.4)'
                     : 'none',
-                transform: isToday ? 'scale(1.05)' : 'scale(1)',
+                transform: 'scale(1)',
               }}
             >
               {/* 粒子层 — 只今日签有 canvas，其他已集用 CSS glow */}
