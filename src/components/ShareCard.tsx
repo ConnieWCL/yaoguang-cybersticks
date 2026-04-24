@@ -218,11 +218,12 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     // ── 运势分项 — 2x2 紧凑网格设计 ──
     ctx.save();
-    ctx.font='400 16px "Noto Serif SC",serif';
-    ctx.fillStyle='rgba(200,169,110,0.45)';
+    ctx.font='600 26px "Noto Serif SC",serif';
+    ctx.fillStyle='#E8D9B0';
+    ctx.shadowColor='rgba(200,169,110,0.5)'; ctx.shadowBlur=12;
     ctx.textAlign='center'; ctx.textBaseline='top';
     ctx.fillText('运  ·  势  ·  分  ·  项', W/2, Y); ctx.restore();
-    Y += 32;
+    Y += 44;
 
     const bars = [
       { label:'事业', value:fortune.career, color:'#C8A96E', icon:'✦' },
