@@ -318,8 +318,9 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
         background:'rgba(7,6,15,0.93)',
         backdropFilter:'blur(12px)',
         display:'flex', flexDirection:'column',
-        alignItems:'center', justifyContent:'center',
-        padding:'20px',
+        alignItems:'center', justifyContent:'flex-start',
+        padding:'24px 16px',
+        overflowY:'auto',
         animation:'fadeIn 0.3s ease',
       }}
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
@@ -328,25 +329,34 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       <canvas ref={canvasRef} style={{ display:'none' }} />
 
       {isGenerating ? (
-        <div style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'18px', letterSpacing:'0.2em' }}>
+        <div style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'18px', letterSpacing:'0.2em', marginTop:'40vh' }}>
           卦象生成中…
         </div>
       ) : (
-        <>
-          {/* 预览图 */}
+        <div style={{
+          width:'100%',
+          maxWidth:'420px',
+          display:'flex',
+          flexDirection:'column',
+          alignItems:'stretch',
+          gap:'14px',
+        }}>
+          {/* 预览图 — 与下方按钮等宽 */}
           <div style={{
-            flex:1, maxHeight:'calc(100dvh - 200px)',
-            overflow:'hidden', borderRadius:'16px',
+            width:'100%',
+            borderRadius:'16px',
+            overflow:'hidden',
             boxShadow:`0 0 60px ${fortune.gradeColor}30, 0 0 120px ${fortune.gradeColor}15, 0 8px 48px rgba(0,0,0,0.6)`,
+            background:'#07060f',
           }}>
             <img src={imageUrl} alt="今日签卡片"
-              style={{ width:'100%', height:'100%', objectFit:'contain', display:'block', borderRadius:'16px' }} />
+              style={{ width:'100%', height:'auto', display:'block' }} />
           </div>
 
           {/* 微信/QQ 提示 */}
           {restricted ? (
             <div style={{
-              marginTop:'16px', width:'100%', maxWidth:'400px',
+              width:'100%',
               background:'rgba(200,169,110,0.08)', border:'1px solid rgba(200,169,110,0.3)',
               borderRadius:'12px', padding:'14px 16px', textAlign:'center',
             }}>
@@ -358,22 +368,20 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
               </p>
             </div>
           ) : (
-            <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginTop:'16px', width:'100%', maxWidth:'400px' }}>
-              {/* 合并保存/分享 */}
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px', width:'100%' }}>
               <ParticleButton variant="primary" onClick={handleSaveShare}>
                 {saveStatus==='saving'?'生成中…':saveStatus==='saved'?'已保存 ✓':'保存 / 分享签文'}
               </ParticleButton>
-              {/* 复制链接 */}
               <ParticleButton variant="secondary" onClick={handleCopyUrl} icon="🔗" suffix={SITE_URL}>
                 {saveStatus==='copied'?'已复制 ✓':'复制链接'}
               </ParticleButton>
             </div>
           )}
 
-          <p style={{ marginTop:'14px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em' }}>
+          <p style={{ marginTop:'4px', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', color:'rgba(200,169,110,0.35)', letterSpacing:'0.12em', textAlign:'center' }}>
             点击空白处关闭
           </p>
-        </>
+        </div>
       )}
     </div>
   );
