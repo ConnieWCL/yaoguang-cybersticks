@@ -221,8 +221,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.font='400 16px "Noto Serif SC",serif';
     ctx.fillStyle='rgba(200,169,110,0.45)';
     ctx.textAlign='center'; ctx.textBaseline='top';
-    ctx.letterSpacing = '0.3em';
-    ctx.fillText('运  势  分  项', W/2, Y); ctx.restore();
+    ctx.fillText('运  ·  势  ·  分  ·  项', W/2, Y); ctx.restore();
     Y += 32;
 
     const bars = [
