@@ -309,60 +309,39 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
         background:'rgba(7,6,15,0.93)',
         backdropFilter:'blur(12px)',
         display:'flex', flexDirection:'column',
-        alignItems:'center', justifyContent:'center',
-        padding:'16px 16px',
-        overflow:'hidden',
+        alignItems:'center', justifyContent:'flex-start',
+        padding:'24px 16px',
+        overflowY:'auto',
         animation:'fadeIn 0.3s ease',
       }}
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
     >
-      <style>{`
-        @keyframes fadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
-        .sharecard-modal{
-          width:100%;
-          max-width:380px;
-          max-height:100%;
-          display:flex;
-          flex-direction:column;
-          align-items:stretch;
-          gap:10px;
-        }
-        .sharecard-img-wrap{
-          width:100%;
-          flex:1 1 auto;
-          min-height:0;
-          border-radius:16px;
-          overflow:hidden;
-          background:#07060f;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-        }
-        .sharecard-img-wrap img{
-          max-width:100%;
-          max-height:100%;
-          width:auto;
-          height:auto;
-          display:block;
-          object-fit:contain;
-        }
-      `}</style>
+      <style>{`@keyframes fadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}`}</style>
       <canvas ref={canvasRef} style={{ display:'none' }} />
 
       {isGenerating ? (
-        <div style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'18px', letterSpacing:'0.2em' }}>
+        <div style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'18px', letterSpacing:'0.2em', marginTop:'40vh' }}>
           卦象生成中…
         </div>
       ) : (
-        <div className="sharecard-modal">
-          {/* 预览图 — 自动适配高度 */}
-          <div
-            className="sharecard-img-wrap"
-            style={{
-              boxShadow:`0 0 60px ${fortune.gradeColor}30, 0 0 120px ${fortune.gradeColor}15, 0 8px 48px rgba(0,0,0,0.6)`,
-            }}
-          >
-            <img src={imageUrl} alt="今日签卡片" />
+        <div style={{
+          width:'100%',
+          maxWidth:'420px',
+          display:'flex',
+          flexDirection:'column',
+          alignItems:'stretch',
+          gap:'14px',
+        }}>
+          {/* 预览图 — 与下方按钮等宽 */}
+          <div style={{
+            width:'100%',
+            borderRadius:'16px',
+            overflow:'hidden',
+            boxShadow:`0 0 60px ${fortune.gradeColor}30, 0 0 120px ${fortune.gradeColor}15, 0 8px 48px rgba(0,0,0,0.6)`,
+            background:'#07060f',
+          }}>
+            <img src={imageUrl} alt="今日签卡片"
+              style={{ width:'100%', height:'auto', display:'block' }} />
           </div>
 
           {/* 微信/QQ 提示 */}
