@@ -272,7 +272,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       const qrSize = 90;    // 二维码显示尺寸
       const padding = 50;   // 距离边缘的留白
       const qrX = W - qrSize - padding;
-      const qrY = H - qrSize - padding;
+      const qrY = padding + 20;        // 修改：改为靠近顶部
 
       // 1. 画一个微弱的底层阴影，确保二维码在深色背景中也有呼吸感
       ctx.save();
@@ -370,19 +370,30 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
           </div>
 
           {/* 微信/QQ 提示 */}
-          {restricted ? (
-            <div style={{
-              width:'100%',
-              background:'rgba(200,169,110,0.08)', border:'1px solid rgba(200,169,110,0.3)',
-              borderRadius:'12px', padding:'12px 14px', textAlign:'center',
-              flexShrink:0,
+         {/* 统一的按钮区域，不再区分 restricted */}
+          <div style={{ display:'flex', flexDirection:'column', gap:'8px', width:'100%', flexShrink:0 }}>
+            {/* 这里的点击事件 handleSaveShare 会在微信内执行下载失败，正好触发提示 */}
+            <ParticleButton variant="primary" onClick={handleSaveShare}>
+              {saveStatus==='saving'?'生成中…':saveStatus==='saved'?'已保存 ✓':'保存 / 分享签文'}
+            </ParticleButton>
+            
+            <ParticleButton variant="secondary" onClick={handleCopyUrl} icon="🔗" suffix={SITE_URL}>
+              {saveStatus==='copied'?'已复制 ✓':'复制链接'}
+            </ParticleButton>
+          </div>
+
+          {/* 只有在微信/QQ内显示这行柔和的提示，不再是警告，而是引导 */}
+          {restricted && (
+            <p style={{ 
+              margin:'8px 0 0', 
+              fontFamily:'Noto Serif SC,serif', 
+              fontSize:'12px', 
+              color:'rgba(200,169,110,0.5)', 
+              textAlign:'center' 
             }}>
-              <p style={{ color:'#C8A96E', fontFamily:'Noto Serif SC,serif', fontSize:'13px', lineHeight:'1.7', marginBottom:'6px' }}>
-                长按上方图片保存到相册
-              </p>
-              <p style={{ color:'#5C5480', fontFamily:'Share Tech Mono,monospace', fontSize:'10px', letterSpacing:'0.06em' }}>
-                微信/QQ浏览器限制 · 请在外部浏览器打开以使用完整功能
-              </p>
+              温馨提示：微信内请长按图片手动保存或转发
+            </p>
+          )}
             </div>
           ) : (
             <div style={{ display:'flex', flexDirection:'column', gap:'8px', width:'100%', flexShrink:0 }}>
