@@ -2,63 +2,39 @@ import { useEffect, useState } from 'react';
 
 interface LuckBarProps {
   label: string;
-  value: number;
+  value: number;       // 0-100
   color: string;
   icon?: string;
   delay?: number;
 }
 
-// 把数值映射成 0-5 格的符文点数
-function toSegments(value: number): number {
-  if (value >= 88) return 5;
-  if (value >= 72) return 4;
-  if (value >= 55) return 3;
-  if (value >= 38) return 2;
-  return 1;
+function gradeOf(value: number): string {
+  if (value >= 88) return '极旺';
+  if (value >= 72) return '旺';
+  if (value >= 55) return '平';
+  if (value >= 38) return '低';
+  return '弱';
 }
 
-const GRADE_LABELS = ['', '低', '低', '平', '旺', '极旺'];
-const TOTAL = 5;
-
 export function LuckBar({ label, value, color, icon, delay = 0 }: LuckBarProps) {
-  const [lit,     setLit]     = useState(0);
   const [visible, setVisible] = useState(false);
-  const segments = toSegments(value);
+  const [filled,  setFilled]  = useState(0);
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), delay);
-    // 逐格点亮动效
-    let count = 0;
-    const interval = setInterval(() => {
-      count++;
-      setLit(count);
-      if (count >= segments) clearInterval(interval);
-    }, 120);
-    const t2 = setTimeout(() => {}, delay + 100); // trigger after delay
-    const t3 = setTimeout(() => {
-      // restart after delay
-      setLit(0);
-      let c = 0;
-      const iv = setInterval(() => {
-        c++;
-        setLit(c);
-        if (c >= segments) clearInterval(iv);
-      }, 110);
-    }, delay + 80);
+    // 从 0 平滑流到目标值
+    const t2 = setTimeout(() => setFilled(value), delay + 60);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [value, delay]);
 
-    return () => {
-      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
-    };
-  }, [value, delay, segments]);
-
-  const grade = GRADE_LABELS[segments] || '平';
+  const grade = gradeOf(value);
 
   return (
     <div
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(6px)',
-        transition: 'opacity 0.45s ease, transform 0.45s ease',
+        transition: 'opacity 0.5s ease, transform 0.5s ease',
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
@@ -67,72 +43,61 @@ export function LuckBar({ label, value, color, icon, delay = 0 }: LuckBarProps) 
     >
       {/* 标签 */}
       <div style={{
-        width: '38px',
+        width: '50px',
         display: 'flex',
         alignItems: 'center',
-        gap: '4px',
+        gap: '5px',
         flexShrink: 0,
       }}>
         {icon && (
           <span style={{
             fontSize: '12px',
-            filter: `drop-shadow(0 0 5px ${color})`,
+            color: color,
+            filter: `drop-shadow(0 0 5px ${color}80)`,
             lineHeight: 1,
           }}>{icon}</span>
         )}
         <span style={{
           fontFamily: "'Noto Serif SC', serif",
           fontSize: '13px',
-          color: 'rgba(200,169,110,0.7)',
+          color: color,
+          opacity: 0.85,
           letterSpacing: '0.05em',
           fontWeight: 500,
+          textShadow: `0 0 6px ${color}40`,
         }}>{label}</span>
       </div>
 
-      {/* 符文方块组 */}
+      {/* 进度条 */}
       <div style={{
         flex: 1,
-        display: 'flex',
-        gap: '5px',
-        alignItems: 'center',
+        height: '8px',
+        borderRadius: '4px',
+        background: 'rgba(255,255,255,0.05)',
+        border: '0.5px solid rgba(255,255,255,0.06)',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
-        {Array.from({ length: TOTAL }, (_, i) => {
-          const isLit = i < lit;
-          const isToday = i === segments - 1 && lit >= segments; // 最后一格特效
-          return (
-            <div
-              key={i}
-              style={{
-                flex: 1,
-                height: '6px',
-                borderRadius: '2px',
-                background: isLit
-                  ? `linear-gradient(90deg, ${color}88, ${color})`
-                  : 'rgba(255,255,255,0.06)',
-                boxShadow: isLit
-                  ? `0 0 8px ${color}90, 0 0 16px ${color}40`
-                  : 'none',
-                border: isLit
-                  ? `0.5px solid ${color}60`
-                  : '0.5px solid rgba(255,255,255,0.08)',
-                transition: `background 0.2s ease ${i * 0.08}s, box-shadow 0.2s ease ${i * 0.08}s`,
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              {/* 光泽扫过效果 — 仅点亮格 */}
-              {isLit && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0, left: '-100%',
-                  width: '60%', height: '100%',
-                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)',
-                  animation: `shimmer 2.5s ease-in-out ${i * 0.15 + delay * 0.001}s infinite`,
-                }} />
-              )}
-            </div>
-          );
-        })}
+        {/* 填充层 — 从 0 流到 value */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0,
+          height: '100%',
+          width: `${filled}%`,
+          background: `linear-gradient(90deg, ${color}55, ${color})`,
+          boxShadow: `0 0 10px ${color}80, 0 0 20px ${color}40`,
+          borderRadius: '4px',
+          transition: `width 1.1s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+        }}>
+          {/* 流动光泽 */}
+          <div style={{
+            position: 'absolute',
+            top: 0, left: '-40%',
+            width: '40%', height: '100%',
+            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent)',
+            animation: `lb-shimmer 2.4s ease-in-out ${delay + 600}ms infinite`,
+          }} />
+        </div>
       </div>
 
       {/* 等级文字 */}
@@ -140,11 +105,11 @@ export function LuckBar({ label, value, color, icon, delay = 0 }: LuckBarProps) 
         fontFamily: 'Share Tech Mono, monospace',
         fontSize: '11px',
         color: color,
-        opacity: lit >= segments ? 1 : 0,
-        transition: 'opacity 0.4s ease',
+        opacity: filled > 0 ? 1 : 0,
+        transition: `opacity 0.5s ease ${delay + 800}ms`,
         letterSpacing: '0.06em',
         textShadow: `0 0 8px ${color}60`,
-        width: '24px',
+        width: '28px',
         textAlign: 'right',
         flexShrink: 0,
       }}>
@@ -152,10 +117,10 @@ export function LuckBar({ label, value, color, icon, delay = 0 }: LuckBarProps) 
       </span>
 
       <style>{`
-        @keyframes shimmer {
-          0%   { left: -60%; opacity: 0; }
-          20%  { opacity: 1; }
-          60%  { left: 110%; opacity: 0; }
+        @keyframes lb-shimmer {
+          0%   { left: -40%; opacity: 0; }
+          15%  { opacity: 1; }
+          85%  { opacity: 1; }
           100% { left: 110%; opacity: 0; }
         }
       `}</style>
