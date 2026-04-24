@@ -268,19 +268,31 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
             padding:'24px', animation:'overlayFade 0.25s ease', cursor:'pointer',
           }}
         >
-          <div
+         <div
             onClick={e => e.stopPropagation()}
             style={{
-              ['--glow-base' as string]: `0 0 60px ${selected.gradeColor}50, 0 0 120px ${selected.gradeColor}28, 0 20px 60px rgba(0,0,0,0.7)`,
-              ['--glow-pulse' as string]: `0 0 90px ${selected.gradeColor}70, 0 0 180px ${selected.gradeColor}40, 0 20px 60px rgba(0,0,0,0.7)`,
+              // 1. 优化发光：让光晕更柔和、扩散范围更大
+              ['--glow-base' as string]: `0 0 50px ${selected.gradeColor}30, 0 0 100px ${selected.gradeColor}15, 0 20px 60px rgba(0,0,0,0.8)`,
+              ['--glow-pulse' as string]: `0 0 70px ${selected.gradeColor}50, 0 0 140px ${selected.gradeColor}25, 0 20px 60px rgba(0,0,0,0.8)`,
               position:'relative',
-              width:'min(340px,86vw)', aspectRatio:'3/4.2',
-              borderRadius:'18px',
-              border:`2px solid ${selected.gradeColor}`,
-              background:`radial-gradient(circle at 50% 25%, ${selected.gradeColor}28 0%, #15102a 55%, #07060f 100%)`,
+              width:'min(340px,86vw)', 
+              aspectRatio:'3/4.2',
+              borderRadius:'24px', // 稍微圆润一点更有高级感
+              
+              // 2. 边框柔和化：降低边框本身的不透明度，靠外发光撑起质感
+              border:`1.5px solid ${selected.gradeColor}60`, 
+              
+              // 3. 核心视觉：深色遮罩 + 强力毛玻璃
+              // 我们把背景调暗到 rgba(7, 6, 15, 0.75)，并配合 blur
+              background:`linear-gradient(180deg, ${selected.gradeColor}15 0%, rgba(7, 6, 15, 0.8) 40%, rgba(7, 6, 15, 0.9) 100%)`,
+              backdropFilter:'blur(25px)',
+              WebkitBackdropFilter:'blur(25px)', 
+              
               padding:'36px 24px 28px',
-              display:'flex', flexDirection:'column',
-              alignItems:'center', justifyContent:'space-between',
+              display:'flex', 
+              flexDirection:'column',
+              alignItems:'center', 
+              justifyContent:'space-between',
               animation:'cardZoomIn 0.5s cubic-bezier(0.34,1.56,0.64,1), cardGlow 3s ease-in-out infinite 0.5s',
               cursor:'default',
             } as React.CSSProperties}
