@@ -269,30 +269,36 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 // —— 新增：在图片右下角叠加二维码 ——
     const qrCanvas = document.getElementById('qr-code-source')?.querySelector('canvas');
     if (qrCanvas) {
-      const qrSize = 90;    // 二维码显示尺寸
-      const padding = 50;   // 距离边缘的留白
+      const qrSize = 85;    // 二维码显示尺寸
+      const padding = 45;   // 距离边缘的留白
       const qrX = W - qrSize - padding;
-      const qrY = padding + 20;        // 修改：改为靠近顶部
+      const qrY = padding + 15;        // 修改：改为靠近顶部
 
       // 1. 画一个微弱的底层阴影，确保二维码在深色背景中也有呼吸感
       ctx.save();
-      ctx.shadowColor = fortune.gradeColor;
-      ctx.shadowBlur = 20;
       ctx.fillStyle = 'rgba(7, 6, 15, 0.8)';
       ctx.beginPath();
-      ctx.roundRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 8);
+      ctx.roundRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, 4);
       ctx.fill();
+
+      // 2. 加一个极细的、半透明金色的边框，像印章的边框一样
+      ctx.strokeStyle = 'rgba(200, 169, 110, 0.2)'; 
+      ctx.lineWidth = 1;
+      ctx.stroke();
       ctx.restore();
 
-      // 2. 将隐藏的二维码 Canvas 画到主卡片上
-      ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
-
-      // 3. 装饰性文字：扫码引导
+      // 3. 画二维码（因为背景已经是透明的金色，所以它会很自然）
       ctx.save();
-      ctx.fillStyle = 'rgba(200, 169, 110, 0.4)';
-      ctx.font = '14px "Share Tech Mono", monospace';
+      ctx.globalAlpha = 0.8; // 让二维码稍微透明一点点，融入背景
+      ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+      ctx.restore();
+
+      // 4. 装饰文字：改为垂直靠右，或者极细字体
+      ctx.save();
+      ctx.fillStyle = 'rgba(200, 169, 110, 0.3)';
+      ctx.font = '10px "Share Tech Mono", monospace';
       ctx.textAlign = 'right';
-      ctx.fillText('SCAN TO DRAW', W - padding, H - padding + 18);
+      ctx.fillText('VERIFIED ORACLE', W - padding, qrY + qrSize + 14);
       ctx.restore();
     }
     setImageUrl(canvas.toDataURL('image/png'));
