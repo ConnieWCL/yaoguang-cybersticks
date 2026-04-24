@@ -1,3 +1,4 @@
+import { QRCodeCanvas } from 'qrcode.react';
 import { useEffect, useRef, useState } from 'react';
 import type { Fortune } from '@/lib/fortunes';
 import { ParticleButton } from '@/components/ParticleButton';
@@ -265,7 +266,35 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       ctx.restore();
     });
     Y += 2 * (cellH + 14) - 14 + 12;
+// —— 新增：在图片右下角叠加二维码 ——
+    const qrCanvas = document.getElementById('qr-code-source')?.querySelector('canvas');
+    if (qrCanvas) {
+      const qrSize = 90;    // 二维码显示尺寸
+      const padding = 50;   // 距离边缘的留白
+      const qrX = W - qrSize - padding;
+      const qrY = H - qrSize - padding;
 
+      // 1. 画一个微弱的底层阴影，确保二维码在深色背景中也有呼吸感
+      ctx.save();
+      ctx.shadowColor = fortune.gradeColor;
+      ctx.shadowBlur = 20;
+      ctx.fillStyle = 'rgba(7, 6, 15, 0.8)';
+      ctx.beginPath();
+      ctx.roundRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 8);
+      ctx.fill();
+      ctx.restore();
+
+      // 2. 将隐藏的二维码 Canvas 画到主卡片上
+      ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+
+      // 3. 装饰性文字：扫码引导
+      ctx.save();
+      ctx.fillStyle = 'rgba(200, 169, 110, 0.4)';
+      ctx.font = '14px "Share Tech Mono", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText('SCAN TO DRAW', W - padding, H - padding + 18);
+      ctx.restore();
+    }
     setImageUrl(canvas.toDataURL('image/png'));
     setIsGenerating(false);
   };
@@ -371,6 +400,16 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
           </p>
         </div>
       )}
+      {/* 隐藏的二维码，仅供 Canvas 抓取 */}
+      <div id="qr-code-source" style={{ display: 'none' }}>
+        <QRCodeCanvas
+          value={SITE_URL_FULL}
+          size={200}
+          fgColor="#C8A96E"    // 赛博金色
+          bgColor="transparent" // 透明背景
+          level="H"            // 高容错率
+        />
+      </div>
     </div>
   );
 }
