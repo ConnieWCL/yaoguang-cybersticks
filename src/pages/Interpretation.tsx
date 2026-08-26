@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { loadUser, getFortune, type PageFortune } from '@/lib/fortunes';
 import { getInterpretation, WUXING_RING, type Interpretation } from '@/lib/interpretation';
 import { ArrowLeft, Stamp } from 'lucide-react';
+import { Seo } from '@/components/Seo';
 
 /* ── Wu Xing Ring SVG ── */
 const WuxingRing = ({ userWX, todayWX }: { userWX: string; todayWX: string }) => {
