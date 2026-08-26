@@ -3,7 +3,7 @@
 import { writeFileSync } from "fs"
 import { resolve } from "path"
 
-const BASE_URL = "https://yaoguang-cyberoracle.lovable.app"
+const BASE_URL = "https://cyberfortune.vercel.app"
 
 interface SitemapEntry {
   path: string
