@@ -115,7 +115,7 @@ export default function Index() {
               <div className="orn-diamond" />
               <div className="orn-line" />
             </div>
-            <h1 className="site-title">爻光</h1>
+            <h1 className="site-title">爻光<span className="sr-only"> — 赛博黄历每日一签</span></h1>
             <p className="site-subtitle">每天一根签，看看今天运势怎么说</p>
             <div className="date-pill">{dateStr}</div>
           </header>

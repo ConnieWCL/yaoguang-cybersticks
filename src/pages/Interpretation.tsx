@@ -104,7 +104,7 @@ const ZhushaLine = () => (
 
 /* ── Section Title ── */
 const SectionTitle = ({ children }: { children: string }) => (
-  <p className="text-[#C9A86C] text-xs tracking-[0.3em] font-serif text-center mb-4 md:mb-6">{children}</p>
+  <h2 className="text-[#C9A86C] text-xs tracking-[0.3em] font-serif text-center mb-4 md:mb-6">{children}</h2>
 );
 
 /* ── Main Page ── */
