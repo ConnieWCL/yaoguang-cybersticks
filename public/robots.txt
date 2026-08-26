@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://yaoguang-cyberoracle.lovable.app/sitemap.xml
+Sitemap: https://cyberfortune.vercel.app/sitemap.xml

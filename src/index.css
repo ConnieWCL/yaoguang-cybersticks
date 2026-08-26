@@ -45,6 +45,19 @@
 /* ── BASE ────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Preserve semantic text without letting it affect layout. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html {
   font-size: 16px;
   scroll-behavior: smooth;
@@ -82,7 +95,7 @@ body {
 
 .site-header {
   text-align: center;
-  padding: 0 0 20px;
+  padding: 0 0 16px;
 }
 
 /* ── HEADER ──────────────────────────────── */
@@ -93,7 +106,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 .orn-line {
   flex: 1;
@@ -116,28 +129,30 @@ body {
 
 .site-title {
   font-family: 'ZCOOL XiaoWei', var(--serif);
-  font-size: clamp(52px, 16vw, 80px);
+  font-size: clamp(48px, 12vw, 60px);
   font-weight: 900;
-  letter-spacing: 0.22em;
-  line-height: 1;
+  letter-spacing: 0.16em;
+  line-height: 1.05;
+  padding-left: 0.16em;
   background: linear-gradient(155deg, var(--gold-lt) 0%, var(--gold) 40%, var(--gold-dk) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 2px 24px rgba(200,169,110,0.35));
+  filter: drop-shadow(0 2px 18px rgba(200,169,110,0.3));
   animation: title-breathe 5s ease-in-out infinite;
 }
 @keyframes title-breathe {
-  0%, 100% { filter: drop-shadow(0 2px 24px rgba(200,169,110,0.35)); }
-  50%       { filter: drop-shadow(0 2px 40px rgba(200,169,110,0.6)); }
+  0%, 100% { filter: drop-shadow(0 2px 18px rgba(200,169,110,0.3)); }
+  50%       { filter: drop-shadow(0 2px 30px rgba(200,169,110,0.5)); }
 }
 
 .site-subtitle {
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.18em;
   color: var(--jade);
-  margin-top: 8px;
+  margin-top: 10px;
+  line-height: 1.6;
   opacity: 0.75;
 }
 
