@@ -180,7 +180,7 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
             }}>{count} / 64 已集齐</div>
           </div>
         </div>
-        <button onClick={onClose} aria-label="关闭" style={{
+        <button onClick={onClose} style={{
           width:34, height:34, borderRadius:'50%',
           background:'transparent', border:'1px solid rgba(200,169,110,0.25)',
           color:'#5C5480', fontSize:'13px', cursor:'pointer',
@@ -289,7 +289,7 @@ export function FortuneArchive({ archive, todayFortuneId, onClose }: Props) {
               cursor:'default',
             } as React.CSSProperties}
           >
-            <button onClick={() => setSelected(null)} aria-label="关闭" style={{
+            <button onClick={() => setSelected(null)} style={{
               position:'absolute', top:10, right:10,
               width:28, height:28, borderRadius:'50%',
               background:'rgba(0,0,0,0.4)', border:`1px solid ${selected.gradeColor}60`,

@@ -12,5 +12,3 @@ Allow: /
 
 User-agent: *
 Allow: /
-
-Sitemap: https://yaoguang-cyberoracle.lovable.app/sitemap.xml

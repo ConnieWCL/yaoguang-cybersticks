@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
 import { InkCanvas } from '@/components/InkCanvas';
-import { Seo } from '@/components/Seo';
 import { LuckBar } from '@/components/LuckBar';
 import { useSound } from '@/hooks/useSound';
 import { getTodayFortune, getRandomFortune, type Fortune } from '@/lib/fortunes';
@@ -94,11 +93,6 @@ export default function Index() {
 
   return (
     <>
-      <Seo
-        title="爻光 · 赛博黄历每日一签"
-        description="爻光是一款赛博风格的每日抽签黄历：一日一爻，查看今日卦象、宜忌、运势分项与幸运元素。"
-        path="/"
-      />
       <InkCanvas />
 
       <div style={{
@@ -121,7 +115,7 @@ export default function Index() {
               <div className="orn-diamond" />
               <div className="orn-line" />
             </div>
-            <h1 className="site-title">爻光<span className="sr-only"> — 赛博黄历每日一签</span></h1>
+            <h1 className="site-title">爻光</h1>
             <p className="site-subtitle">每天一根签，看看今天运势怎么说</p>
             <div className="date-pill">{dateStr}</div>
           </header>

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { loadUser, getFortune, type PageFortune } from '@/lib/fortunes';
 import { ArrowLeft, Stamp } from 'lucide-react';
 import WuxingPentagon from '@/components/WuxingPentagon';
-import { Seo } from '@/components/Seo';
 
 const HISTORY_KEY = 'yaoguang_history';
 
@@ -46,12 +45,6 @@ const FortunePage = () => {
 
   return (
     <div className="min-h-screen bg-background paper-texture animate-page-enter">
-      <Seo
-        title="今日爻象 · 爻光每日运势"
-        description="查看今日爻象：卦象等级、宜忌事项、事业感情健康运势与幸运色、幸运数字与方位。"
-        path="/fortune"
-      />
-      <h1 className="sr-only">今日爻象</h1>
       <div className="relative z-10 w-full max-w-[480px] md:max-w-[800px] mx-auto px-4 md:px-12 py-6 stagger-children">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-6">
