@@ -136,6 +136,11 @@ const InterpretationPage = () => {
 
   return (
     <div className="min-h-screen bg-[#1A1A1A] animate-page-enter">
+      <Seo
+        title="签文详解 · 爻光解签"
+        description="爻光深度解签：结合生辰与今日爻象，解读天机盘、五行流转、行动指引与签解全文。"
+        path="/interpretation"
+      />
       <div className="w-full max-w-[480px] md:max-w-[800px] mx-auto px-4 md:px-12 py-6">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-6">
