@@ -13,8 +13,8 @@ function isWechat(): boolean { return /MicroMessenger/i.test(navigator.userAgent
 function isQQBrowser(): boolean { return /QQBrowser/i.test(navigator.userAgent) || /MQQBrowser/i.test(navigator.userAgent); }
 function isRestrictedBrowser(): boolean { return isWechat() || isQQBrowser(); }
 
-const SITE_URL      = 'yaoguang-cyberoracle.lovable.app';
-const SITE_URL_FULL = 'https://yaoguang-cyberoracle.lovable.app';
+const SITE_URL      = 'cyberfortune.vercel.app';
+const SITE_URL_FULL = 'https://cyberfortune.vercel.app';
 
 export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
