@@ -87,6 +87,8 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
         {pts.map((p, i) => {
           const next = pts[(i + 1) % 5];
           const isActiveLine = lit && (i === todayIdx || (i + 1) % 5 === todayIdx);
+          const isHoverLine = hovered !== null && (i === hovered || (i + 1) % 5 === hovered);
+          const lineActive = isActiveLine || isHoverLine;
           // 控制点：取两点中点向中心方向偏移一点，做出向内微弧
           const mx = (p.x + next.x) / 2;
           const my = (p.y + next.y) / 2;
@@ -104,34 +106,34 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
                 d={d}
                 fill="none"
                 stroke="var(--gold)"
-                strokeWidth={isActiveLine ? 6 : 4.5}
+                strokeWidth={lineActive ? 7 : 4.5}
                 strokeLinecap="round"
-                opacity={isActiveLine ? 0.28 : 0.14}
-                style={{ filter: 'blur(3px)' }}
+                opacity={lineActive ? 0.34 : 0.14}
+                style={{ filter: 'blur(4px)' }}
               />
               {/* 中层细弧 */}
               <path
                 d={d}
                 fill="none"
-                stroke={isActiveLine ? 'var(--gold-lt)' : 'var(--gold)'}
-                strokeWidth={isActiveLine ? 1.4 : 1}
+                stroke={lineActive ? 'var(--gold-lt)' : 'var(--gold)'}
+                strokeWidth={lineActive ? 1.8 : 1}
                 strokeLinecap="round"
-                opacity={isActiveLine ? 0.55 : 0.3}
+                opacity={lineActive ? 0.65 : 0.3}
               />
               {/* 粒子流光弧 */}
               <path
                 d={d}
                 fill="none"
-                stroke={isActiveLine ? 'var(--gold-lt)' : 'var(--gold)'}
-                strokeWidth={isActiveLine ? 2.4 : 1.8}
+                stroke={lineActive ? 'var(--gold-lt)' : 'var(--gold)'}
+                strokeWidth={lineActive ? 2.8 : 1.8}
                 strokeLinecap="round"
                 strokeDasharray="0.5 4"
-                opacity={isActiveLine ? 0.95 : 0.65}
+                opacity={lineActive ? 1 : 0.65}
               >
                 <animate
                   attributeName="stroke-dashoffset"
                   from="0" to="-45"
-                  dur={isActiveLine ? '5s' : '8s'}
+                  dur={lineActive ? '4s' : '8s'}
                   repeatCount="indefinite"
                 />
               </path>
