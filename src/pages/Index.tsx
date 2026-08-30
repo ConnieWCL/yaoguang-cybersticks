@@ -273,7 +273,7 @@ export default function Index() {
 
               <div className="action-row">
                 <ParticleButton
-                  variant="primary"
+                  variant="secondary"
                   onClick={handleShare}
                 >
                   分享签文
