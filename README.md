@@ -48,3 +48,14 @@ src/
 ## 扩展卦象
 在 `src/data/fortunes.ts` 的 `FORTUNES` 数组中继续添加对象，
 字段格式参照现有 8 条，`id` 对应易经卦序（1-64）。
+
+## Supabase 配置
+
+未配置 Supabase 时，应用仍会以游客模式使用浏览器本地存储。要启用账号、跨设备签文记录和私有头像：
+
+1. 将 `supabase/migrations` 中的 SQL 迁移应用到 Supabase 项目。
+2. 复制 `.env.example` 为 `.env.local`。
+3. 填入项目的 `VITE_SUPABASE_URL` 和 `VITE_SUPABASE_PUBLISHABLE_KEY`。
+4. 在 Vercel 的 Preview 与 Production 环境添加相同的两个变量。
+
+不要把 Supabase secret 或 service-role key 放进任何 `VITE_` 变量。浏览器端访问由 Row Level Security 保护。

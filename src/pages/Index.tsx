@@ -9,6 +9,7 @@ import { ShareCard } from '@/components/ShareCard';
 import { FortuneArchive } from '@/components/FortuneArchive';
 import { useFortuneStorage } from '@/hooks/useFortuneStorage';
 import { ParticleButton } from '@/components/ParticleButton';
+import { UserStatus } from '@/components/UserStatus';
 
 type Phase = 'idle' | 'shaking' | 'revealing' | 'done';
 
@@ -84,7 +85,7 @@ export default function Index() {
         }, 400);
       }, 600);
     }, 700);
-  }, [phase, fortune, playShake, playChime, playReveal]);
+  }, [phase, fortune, playShake, playChime, playReveal, recordFortune, todayLocked]);
 
   const handleShare = useCallback(() => {
     if (!fortune) return;
@@ -107,6 +108,7 @@ export default function Index() {
       }}>
         <div style={{ width: '100%', maxWidth: '480px' }}>
 
+          <UserStatus />
 
           {/* ── HEADER ── */}
           <header className="site-header">
