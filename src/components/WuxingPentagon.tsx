@@ -24,6 +24,8 @@ function getPentagonPoints(cx: number, cy: number, r: number) {
 const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
   const [visible, setVisible] = useState(false);
   const [lit, setLit] = useState(false);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
 
   const todayIdx = ELEMENTS.findIndex(e => e.name === todayWuxing);
 
@@ -85,6 +87,8 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
         {pts.map((p, i) => {
           const next = pts[(i + 1) % 5];
           const isActiveLine = lit && (i === todayIdx || (i + 1) % 5 === todayIdx);
+          const isHoverLine = hovered !== null && (i === hovered || (i + 1) % 5 === hovered);
+          const lineActive = isActiveLine || isHoverLine;
           // 控制点：取两点中点向中心方向偏移一点，做出向内微弧
           const mx = (p.x + next.x) / 2;
           const my = (p.y + next.y) / 2;
@@ -102,34 +106,34 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
                 d={d}
                 fill="none"
                 stroke="var(--gold)"
-                strokeWidth={isActiveLine ? 6 : 4.5}
+                strokeWidth={lineActive ? 7 : 4.5}
                 strokeLinecap="round"
-                opacity={isActiveLine ? 0.28 : 0.14}
-                style={{ filter: 'blur(3px)' }}
+                opacity={lineActive ? 0.34 : 0.14}
+                style={{ filter: 'blur(4px)' }}
               />
               {/* 中层细弧 */}
               <path
                 d={d}
                 fill="none"
-                stroke={isActiveLine ? 'var(--gold-lt)' : 'var(--gold)'}
-                strokeWidth={isActiveLine ? 1.4 : 1}
+                stroke={lineActive ? 'var(--gold-lt)' : 'var(--gold)'}
+                strokeWidth={lineActive ? 1.8 : 1}
                 strokeLinecap="round"
-                opacity={isActiveLine ? 0.55 : 0.3}
+                opacity={lineActive ? 0.65 : 0.3}
               />
               {/* 粒子流光弧 */}
               <path
                 d={d}
                 fill="none"
-                stroke={isActiveLine ? 'var(--gold-lt)' : 'var(--gold)'}
-                strokeWidth={isActiveLine ? 2.4 : 1.8}
+                stroke={lineActive ? 'var(--gold-lt)' : 'var(--gold)'}
+                strokeWidth={lineActive ? 2.8 : 1.8}
                 strokeLinecap="round"
                 strokeDasharray="0.5 4"
-                opacity={isActiveLine ? 0.95 : 0.65}
+                opacity={lineActive ? 1 : 0.65}
               >
                 <animate
                   attributeName="stroke-dashoffset"
                   from="0" to="-45"
-                  dur={isActiveLine ? '5s' : '8s'}
+                  dur={lineActive ? '4s' : '8s'}
                   repeatCount="indefinite"
                 />
               </path>
@@ -152,55 +156,69 @@ const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
           WU XING
         </text>
 
-        {/* 节点 — 纯光晕光球，无反光、无硬边 */}
+        {/* 节点 — 纯光晕光球，无反光、无硬边，支持 hover/点击高亮 */}
         {ELEMENTS.map((el, i) => {
           const p = pts[i];
-          const isActive = lit && i === todayIdx;
-          const isDim = lit && i !== todayIdx;
-          const auraR = isActive ? nodeR + 18 : nodeR + 10;
+          const isToday = lit && i === todayIdx;
+          const isHovered = hovered === i || selected === i;
+          const isDim = lit && !isToday && !isHovered;
+          const auraR = isToday ? nodeR + 20 : isHovered ? nodeR + 26 : nodeR + 10;
 
           return (
-            <g key={el.name}>
+            <g
+              key={el.name}
+              style={{
+                cursor: 'pointer',
+                transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease',
+                transformOrigin: `${p.x}px ${p.y}px`,
+                transform: isHovered ? 'scale(1.18)' : 'scale(1)',
+              }}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              onClick={() => setSelected(prev => prev === i ? null : i)}
+            >
               {/* 柔光晕 */}
               <circle cx={p.x} cy={p.y} r={auraR}
-                fill={isActive ? 'url(#wx-grad-today)' : `url(#wx-grad-${i})`}
-                opacity={isActive ? 1 : isDim ? 0.45 : 0.7}
-                style={{ transition: 'opacity 0.7s ease' }}
+                fill={isToday ? 'url(#wx-grad-today)' : `url(#wx-grad-${i})`}
+                opacity={isToday ? 1 : isHovered ? 1 : isDim ? 0.45 : 0.7}
+                style={{ transition: 'opacity 0.35s ease, r 0.35s ease' }}
               />
 
-              {/* today — 一道极细的呼吸光环，融入背景 */}
-              {isActive && (
+              {/* today / hover 呼吸光环 */}
+              {(isToday || isHovered) && (
                 <circle cx={p.x} cy={p.y} r={nodeR + 14} fill="none"
-                  stroke={el.colorLight} strokeWidth="0.5" opacity="0.3">
-                  <animate attributeName="r" values={`${nodeR + 12};${nodeR + 20};${nodeR + 12}`} dur="3.5s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.4;0.05;0.4" dur="3.5s" repeatCount="indefinite" />
+                  stroke={isHovered ? 'var(--gold-lt)' : el.colorLight} strokeWidth="0.6" opacity={isHovered ? 0.45 : 0.3}>
+                  <animate attributeName="r" values={`${nodeR + 12};${nodeR + 22};${nodeR + 12}`} dur={isHovered ? '2.6s' : '3.5s'} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values={isHovered ? '0.5;0.1;0.5' : '0.4;0.05;0.4'} dur={isHovered ? '2.6s' : '3.5s'} repeatCount="indefinite" />
                 </circle>
               )}
 
-              {/* 文字 — 沉稳金色,today 同色系略亮,不刺眼 */}
+              {/* 文字 — 沉稳金色,today/hover 同色系略亮,不刺眼 */}
               <text x={p.x} y={p.y + 1} textAnchor="middle" dominantBaseline="central"
-                fill={isActive ? '#FFF4D6' : 'rgba(245,239,224,0.92)'}
-                fontSize={isActive ? 22 : 18}
+                fill={isToday || isHovered ? '#FFF4D6' : 'rgba(245,239,224,0.92)'}
+                fontSize={isToday ? 23 : isHovered ? 25 : 18}
                 fontFamily="'ZCOOL XiaoWei', 'Noto Serif SC', serif"
-                fontWeight={isActive ? 700 : 600}
+                fontWeight={isToday || isHovered ? 700 : 600}
                 opacity={isDim ? 0.85 : 1}
                 stroke="rgba(0,0,0,0.45)"
                 strokeWidth="0.5"
                 paintOrder="stroke"
                 style={{
-                  transition: 'opacity 0.6s ease, font-size 0.6s ease',
+                  transition: 'opacity 0.35s ease, font-size 0.35s ease',
                   letterSpacing: '0.04em',
-                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
+                  filter: isHovered
+                    ? 'drop-shadow(0 0 8px rgba(255,244,214,0.75))'
+                    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
                 }}>
                 {el.name}
               </text>
 
-              {/* 今日旺气 标签 */}
-              {isActive && (
-                <text x={p.x} y={p.y + nodeR + 14} textAnchor="middle" dominantBaseline="central"
-                  fill={el.colorLight} fontSize="9" fontFamily="'Noto Serif SC', serif"
-                  opacity="0.7" letterSpacing="3">
-                  今日旺气
+              {/* 今日旺气 / 选中 标签 */}
+              {(isToday || isHovered) && (
+                <text x={p.x} y={p.y + nodeR + 16} textAnchor="middle" dominantBaseline="central"
+                  fill={isHovered ? 'var(--gold-lt)' : el.colorLight} fontSize="9" fontFamily="'Noto Serif SC', serif"
+                  opacity={isHovered ? 0.9 : 0.7} letterSpacing="3">
+                  {isHovered ? '气运流转' : '今日旺气'}
                 </text>
               )}
             </g>
