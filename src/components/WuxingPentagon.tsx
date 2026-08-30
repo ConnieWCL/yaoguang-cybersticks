@@ -24,6 +24,8 @@ function getPentagonPoints(cx: number, cy: number, r: number) {
 const WuxingPentagon = ({ todayWuxing }: WuxingPentagonProps) => {
   const [visible, setVisible] = useState(false);
   const [lit, setLit] = useState(false);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
 
   const todayIdx = ELEMENTS.findIndex(e => e.name === todayWuxing);
 
