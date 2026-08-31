@@ -1,29 +1,35 @@
-# Design QA — authenticated fortune flow
+# Design QA — homepage readability refinement
 
-## Sources compared
+## Visual truth and implementation
 
-- Current production entry: `outputs/login-redesign/01-current-home.png`
-- Existing product language at 1280×720: `outputs/login-redesign/03-reference-1280.png`
-- New mandatory auth gate: `outputs/login-redesign/02-new-auth.png`
-- New user space: `outputs/login-redesign/04-user-space.png`
+- Source visual truth: `outputs/readability-audit/01-before-home.png`
+- Revised desktop implementation: `outputs/readability-audit/02-after-home.png`
+- Revised mobile implementation: `outputs/readability-audit/03-after-mobile.png`
+- Desktop viewport/CSS size: 1280×720, device pixel ratio 2
+- Mobile viewport/CSS size: 390×844, no horizontal overflow
+- State: authenticated, idle, three draws remaining; representative local-only user
 
-## Verification state
+## Full-view comparison
 
-- Viewport: 1280×720 desktop
-- State: unauthenticated auth gate; authenticated user-space preview with representative data
-- Full-view comparison: completed in the same inspection pass
-- Interaction checks: login/register tab switch, account entry, user-space dialog semantics, archive entry, profile controls
+The before and after desktop captures were opened together in one comparison pass. The revised screen keeps the same ink-black background, gold display title, circular fortune vessel, serif/mono typography, ornament, and narrow ritual composition. The readable content area grows from 480px to 540px, and secondary information is promoted from low-contrast microcopy to readable supporting copy.
 
-## Findings and fixes
+## Focused checks
 
-- P1: Native file-upload control escaped the visual system in the profile card. Fixed by keeping the semantic label and fully hiding the native file input.
-- No remaining P0/P1/P2 visual regressions were found.
-- Auth and user-space screens retain the product’s ink-black, muted-gold, jade, serif, ornament, spacing, and narrow-column language.
-- Login is now the only route into the product; user-space and archive access are presented as part of the same ritual rather than an injected utility button.
+- Typography: subtitle 11→14px; vessel hint 10→13px; idle prompt 13→15px; draw count 10→13px; account name 11→14px; fortune poem 14→16px; interpretation 13→15px.
+- Spacing: larger account control, 176px fortune vessel, wider 540px content column, and calmer vertical gaps.
+- Colors: homepage copy now uses a three-level hierarchy—gold primary, `ink2` secondary, `ink3` tertiary. Jade and rose remain reserved for meaningful fortune/account states.
+- Assets: no assets were replaced or approximated; existing ornament and icon sources remain intact.
+- Copy: no additional decorative labels were introduced; existing information was consolidated into clearer hierarchy.
 
-## Evidence limits
+## Comparison history
 
-- Visual QA uses a local-only representative user for the authenticated screen; production authentication and storage policies are separately verified by build/database checks.
-- A real email-confirmation round trip requires an end-user inbox and is not simulated.
+1. P1 — supporting text was 8–11px and used very dim foreground tokens on the near-black background. This made the account entry, subtitle, action hint, remaining count, and footer difficult to read.
+2. Fix — raised small text to 12–15px, increased optical weight/contrast, reduced letter spacing, enlarged the central interaction, and standardized homepage copy colors.
+3. Post-fix evidence — `02-after-home.png` and `03-after-mobile.png`; desktop and 390px mobile are readable without changing the visual language or introducing overflow.
+
+## Runtime checks
+
+- Primary controls remain exposed with the same labels and semantics.
+- No browser console errors. Existing React Router v7 future-flag development warnings are unrelated to this change.
 
 final result: passed

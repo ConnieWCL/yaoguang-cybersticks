@@ -105,17 +105,8 @@ export default function Index() {
     <>
       <InkCanvas />
 
-      <div style={{
-        position: 'relative',
-        zIndex: 2,
-        minHeight: '100dvh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '48px 20px 80px',
-      }}>
-        <div style={{ width: '100%', maxWidth: '480px' }}>
+      <div className="home-page">
+        <div className="home-column">
 
           <div className="account-ribbon">
             <button type="button" onClick={() => setShowUserSpace(true)} aria-label="打开我的命册">
@@ -176,23 +167,11 @@ export default function Index() {
             )}
             {storageError && <p className="storage-error" role="status">{storageError}</p>}
             {/* 今日剩余次数 */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              marginTop: '4px',
-            }}>
+            <div className="attempt-status">
               {[0,1,2].map(i => (
-                <div key={i} style={{
-                  width: '6px', height: '6px', borderRadius: '50%',
-                  background: i < attemptsLeft ? 'var(--gold)' : 'rgba(200,169,110,0.15)',
-                  boxShadow: i < attemptsLeft ? '0 0 6px var(--gold-glow)' : 'none',
-                  transition: 'all 0.3s ease',
-                }} />
+                <span key={i} className={i < attemptsLeft ? 'attempt-dot is-active' : 'attempt-dot'} />
               ))}
-              <span style={{
-                fontFamily: 'Share Tech Mono, monospace',
-                fontSize: '10px', color: 'var(--ink4)',
-                letterSpacing: '0.1em', marginLeft: '4px',
-              }}>
+              <span className="attempt-copy">
                 {todayLocked ? '今日已定签' : `今日剩余 ${attemptsLeft} 次`}
               </span>
             </div>
