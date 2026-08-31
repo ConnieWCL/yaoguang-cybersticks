@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { BookOpen, Loader2, LogOut, Upload, X } from 'lucide-react';
+import { BookOpen, HardDrive, Loader2, LogIn, LogOut, Upload, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -14,7 +14,7 @@ interface UserSpaceProps {
 }
 
 export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClose, onOpenArchive, previewUser }: UserSpaceProps) {
-  const { user, signOut } = useAuth();
+  const { user, isGuest, exitGuest, signOut } = useAuth();
   const currentUser = user ?? previewUser;
   const [displayName, setDisplayName] = useState(previewUser?.user_metadata.display_name ?? '');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -33,10 +33,10 @@ export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClos
       });
   }, [currentUser, open, previewUser]);
 
-  if (!open || !currentUser) return null;
+  if (!open || (!currentUser && !isGuest)) return null;
 
   async function saveProfile() {
-    if (!supabase) return;
+    if (!supabase || !currentUser || isGuest) return;
     setBusy(true);
     const { error } = await supabase.from('profiles').upsert({
       id: currentUser.id,
@@ -49,7 +49,7 @@ export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClos
 
   async function uploadAvatar(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    if (!file || !supabase) return;
+    if (!file || !supabase || !currentUser || isGuest) return;
     if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) {
       setMessage('请选择不超过 2MB 的 PNG、JPG 或 WebP 图片。');
       return;
@@ -73,15 +73,15 @@ export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClos
     setMessage('头像已收入命册。');
   }
 
-  const initials = (displayName || currentUser.email || '爻').slice(0, 1).toUpperCase();
+  const initials = isGuest ? '游' : (displayName || currentUser?.email || '爻').slice(0, 1).toUpperCase();
 
   return (
     <div className="user-space" role="dialog" aria-modal="true" aria-labelledby="user-space-title">
       <div className="user-space-shell">
         <header className="user-space-header">
           <div>
-            <p>云端私人空间</p>
-            <h2 id="user-space-title">我的命册</h2>
+            <p>{isGuest ? 'LOCAL FORTUNE ARCHIVE' : '云端私人空间'}</p>
+            <h2 id="user-space-title">{isGuest ? '本机命册' : '我的命册'}</h2>
           </div>
           <button type="button" onClick={onClose} aria-label="关闭我的命册"><X aria-hidden="true" /></button>
         </header>
@@ -91,13 +91,18 @@ export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClos
             {avatarUrl ? <img src={avatarUrl} alt="用户头像" /> : initials}
           </div>
           <div className="user-profile-copy">
-            <strong>{displayName || '未题名命册'}</strong>
-            <span>{currentUser.email}</span>
-            <label htmlFor="user-space-avatar"><Upload aria-hidden="true" /> 更换头像</label>
+            <strong>{isGuest ? '游客命册' : displayName || '未题名命册'}</strong>
+            <span>{isGuest ? '仅保存在当前设备与浏览器' : currentUser?.email}</span>
+            {!isGuest && <><label htmlFor="user-space-avatar"><Upload aria-hidden="true" /> 更换头像</label>
             <input id="user-space-avatar" className="sr-only" style={{ display: 'none' }} type="file" accept="image/png,image/jpeg,image/webp,image/gif"
-              onChange={uploadAvatar} disabled={busy} />
+              onChange={uploadAvatar} disabled={busy} /></>}
           </div>
         </section>
+
+        {isGuest && <section className="guest-storage-note">
+          <HardDrive aria-hidden="true" />
+          <div><strong>本机记忆已开启</strong><p>不换设备和浏览器时会一直保留；无痕模式、清理网站数据或卸载浏览器会使记录丢失。</p></div>
+        </section>}
 
         <section className="user-stats" aria-label="命册统计">
           <div><strong>{archiveCount}</strong><span>已集卦象</span></div>
@@ -111,7 +116,7 @@ export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClos
           <em>{archiveCount} / 64</em>
         </button>
 
-        <section className="profile-form" aria-label="命册资料">
+        {!isGuest && <section className="profile-form" aria-label="命册资料">
           <label htmlFor="user-display-name">命册称呼</label>
           <div>
             <input id="user-display-name" value={displayName} maxLength={60}
@@ -121,9 +126,11 @@ export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClos
             </button>
           </div>
           {message && <p role="status">{message}</p>}
-        </section>
+        </section>}
 
-        {!previewUser && <button type="button" className="signout-button" onClick={async () => { await signOut(); onClose(); }}>
+        {isGuest ? <button type="button" className="signout-button guest-login-button" onClick={() => { exitGuest(); onClose(); }}>
+          <LogIn aria-hidden="true" />返回账号登录
+        </button> : !previewUser && <button type="button" className="signout-button" onClick={async () => { await signOut(); onClose(); }}>
           <LogOut aria-hidden="true" />退出当前命册
         </button>}
       </div>

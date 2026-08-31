@@ -43,7 +43,7 @@ export default function Index() {
   const [stickRaised, setStickRaised] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const { enabled: soundEnabled, toggleSound, playShake, playChime, playReveal } = useSound();
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const { archive, attemptsLeft, todayLocked, recordFortune, totalDraws, error: storageError } = useFortuneStorage();
   const [showArchive, setShowArchive] = useState(false);
   const [showUserSpace, setShowUserSpace] = useState(isUserSpacePreview);
@@ -117,7 +117,7 @@ export default function Index() {
             <div className="account-ribbon">
               <button type="button" onClick={() => setShowUserSpace(true)} aria-label="打开我的命册">
                 <span><UserRound aria-hidden="true" /></span>
-                <span><small>云端命册</small><strong>{user?.user_metadata?.display_name || user?.email?.split('@')[0] || '我的命册'}</strong></span>
+                <span><small>{isGuest ? '本机命册' : '云端命册'}</small><strong>{isGuest ? '游客体验' : user?.user_metadata?.display_name || user?.email?.split('@')[0] || '我的命册'}</strong></span>
                 <em>{Object.keys(archive).length}/64</em>
               </button>
             </div>

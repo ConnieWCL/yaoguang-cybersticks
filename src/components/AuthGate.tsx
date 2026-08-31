@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { BookOpen, Loader2, LockKeyhole, MailCheck, RotateCcw, Sparkles } from 'lucide-react';
+import { BookOpen, HardDrive, Loader2, LockKeyhole, MailCheck, RotateCcw, Sparkles } from 'lucide-react';
 import { InkCanvas } from '@/components/InkCanvas';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -13,6 +13,7 @@ function authMessage(message: string) {
 }
 
 function AuthScreen() {
+  const { enterGuest } = useAuth();
   const isOtpPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
     && new URLSearchParams(window.location.search).get('design-preview') === 'otp';
   const emailOtpEnabled = import.meta.env.VITE_SUPABASE_EMAIL_OTP === 'true';
@@ -31,6 +32,13 @@ function AuthScreen() {
     if (!supabase) return;
     setBusy(true);
     setMessage(null);
+
+    if (mode === 'signup') {
+      setMessageTone('error');
+      setMessage('邮件服务正在修复，暂不发送新的验证信。你可以先用游客模式体验，已有账号仍可正常登录。');
+      setBusy(false);
+      return;
+    }
 
     const result = mode === 'signin'
       ? await supabase.auth.signInWithPassword({ email: email.trim(), password })
@@ -170,7 +178,17 @@ function AuthScreen() {
             </button>
           </form>}
 
-          <p className="auth-note">登录后才可抽签；签文、次数与收集进度都会跟随账号。</p>
+          {!pendingEmail && (
+            <div className="guest-entry">
+              <div className="guest-divider"><span>或</span></div>
+              <button type="button" className="guest-button" onClick={enterGuest}>
+                <HardDrive aria-hidden="true" />
+                <span><strong>以游客身份体验</strong><small>免注册 · 签文仅保存在当前浏览器</small></span>
+              </button>
+            </div>
+          )}
+
+          <p className="auth-note">云端账号可跨设备同步；游客数据不会上传，清除浏览器数据后无法恢复。</p>
         </section>
       </main>
     </div>
@@ -190,7 +208,7 @@ function AuthLoading() {
 }
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  const { user, loading, configured } = useAuth();
+  const { user, isGuest, loading, configured } = useAuth();
   const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
     && new URLSearchParams(window.location.search).get('design-preview') === 'user-space';
 
@@ -198,6 +216,6 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   if (!configured) {
     return <div className="auth-config-error">云端命册尚未配置，请联系站点管理员。</div>;
   }
-  if (!user && !isLocalPreview) return <AuthScreen />;
+  if (!user && !isGuest && !isLocalPreview) return <AuthScreen />;
   return <>{children}</>;
 }

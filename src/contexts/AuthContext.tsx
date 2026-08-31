@@ -7,13 +7,19 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   configured: boolean;
+  isGuest: boolean;
+  enterGuest: () => void;
+  exitGuest: () => void;
   signOut: () => Promise<void>;
 }
+
+const GUEST_KEY = 'yaoguang_guest_mode_v1';
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
+  const [isGuest, setIsGuest] = useState(() => localStorage.getItem(GUEST_KEY) === 'true');
   const [loading, setLoading] = useState(isSupabaseConfigured);
 
   useEffect(() => {
@@ -45,12 +51,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user: session?.user ?? null,
     loading,
     configured: isSupabaseConfigured,
+    isGuest,
+    enterGuest: () => {
+      localStorage.setItem(GUEST_KEY, 'true');
+      setIsGuest(true);
+    },
+    exitGuest: () => {
+      localStorage.removeItem(GUEST_KEY);
+      setIsGuest(false);
+    },
     signOut: async () => {
       if (!supabase) return;
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     },
-  }), [loading, session]);
+  }), [isGuest, loading, session]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

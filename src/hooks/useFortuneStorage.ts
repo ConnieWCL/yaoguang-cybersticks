@@ -73,7 +73,7 @@ interface TodayData {
 }
 
 export function useFortuneStorage() {
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const [archive, setArchive] = useState<Record<number, ArchiveEntry>>({});
   const [attemptsUsed, setUsed] = useState(0);
   const [syncing, setSyncing] = useState(false);
@@ -155,8 +155,39 @@ export function useFortuneStorage() {
   const todayLocked = attemptsLeft <= 0;
 
   const recordFortune = useCallback(async (fortune: FortuneSnapshot): Promise<boolean> => {
+    if (isGuest) {
+      if (usedRef.current >= MAX_ATTEMPTS) {
+        setError('今日三签已定，可以进入签文册回看收藏。');
+        return false;
+      }
+      const today = todayStr();
+      const newUsed = usedRef.current + 1;
+      usedRef.current = newUsed;
+      setArchive((current) => {
+        const existing = current[fortune.id];
+        const next = {
+          ...current,
+          [fortune.id]: {
+            fortuneId: fortune.id,
+            hexagramName: fortune.hexagramName,
+            gradeLabel: fortune.gradeLabel,
+            gradeColor: fortune.gradeColor,
+            hexagram: fortune.hexagram,
+            dailyTip: fortune.dailyTip,
+            dates: existing ? [...new Set([...existing.dates, today])] : [today],
+          },
+        };
+        saveRaw(ARCHIVE_KEY, next);
+        return next;
+      });
+      saveRaw(TODAY_KEY, { date: today, attemptsUsed: newUsed, lastFortuneId: fortune.id } satisfies TodayData);
+      setUsed(newUsed);
+      setTotalDraws((current) => current + 1);
+      return true;
+    }
+
     if (!user || !supabase) {
-      setError('请先登录命册后再抽签。');
+      setError('请先登录命册，或选择游客体验。');
       return false;
     }
 
@@ -212,7 +243,7 @@ export function useFortuneStorage() {
     setUsed(newUsed);
     setTotalDraws(current => current + 1);
     return true;
-  }, [user]);
+  }, [isGuest, user]);
 
   return { archive, attemptsLeft, todayLocked, recordFortune, syncing, totalDraws, error };
 }
