@@ -16,6 +16,7 @@ export function InkCanvas() {
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -44,7 +45,7 @@ export function InkCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Spawn
-      if (frame % 4 === 0) spawnParticle();
+      if (!reducedMotion && frame % 4 === 0) spawnParticle();
       frame++;
 
       // Draw particles
@@ -77,7 +78,7 @@ export function InkCanvas() {
         ctx.stroke();
       }
 
-      animRef.current = requestAnimationFrame(draw);
+      if (!reducedMotion) animRef.current = requestAnimationFrame(draw);
     };
 
     animRef.current = requestAnimationFrame(draw);

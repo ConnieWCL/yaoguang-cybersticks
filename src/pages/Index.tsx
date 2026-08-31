@@ -9,7 +9,7 @@ import { ShareCard } from '@/components/ShareCard';
 import { FortuneArchive } from '@/components/FortuneArchive';
 import { useFortuneStorage } from '@/hooks/useFortuneStorage';
 import { ParticleButton } from '@/components/ParticleButton';
-import { UserRound } from 'lucide-react';
+import { UserRound, Volume2, VolumeX } from 'lucide-react';
 import { UserSpace } from '@/components/UserSpace';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -42,7 +42,7 @@ export default function Index() {
   const [cardVisible, setCardVisible] = useState(false);
   const [stickRaised, setStickRaised] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const { playShake, playChime, playReveal } = useSound();
+  const { enabled: soundEnabled, toggleSound, playShake, playChime, playReveal } = useSound();
   const { user } = useAuth();
   const { archive, attemptsLeft, todayLocked, recordFortune, totalDraws, error: storageError } = useFortuneStorage();
   const [showArchive, setShowArchive] = useState(false);
@@ -108,12 +108,19 @@ export default function Index() {
       <div className="home-page">
         <div className="home-column">
 
-          <div className="account-ribbon">
-            <button type="button" onClick={() => setShowUserSpace(true)} aria-label="打开我的命册">
-              <span><UserRound aria-hidden="true" /></span>
-              <span><small>云端命册</small><strong>{user?.user_metadata?.display_name || user?.email?.split('@')[0] || '我的命册'}</strong></span>
-              <em>{Object.keys(archive).length}/64</em>
+          <div className="home-utilities">
+            <button type="button" className="sound-toggle" onClick={toggleSound}
+              aria-label={soundEnabled ? '关闭抽签音效' : '开启抽签音效'} aria-pressed={soundEnabled}>
+              {soundEnabled ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+              <span>{soundEnabled ? '有声' : '静音'}</span>
             </button>
+            <div className="account-ribbon">
+              <button type="button" onClick={() => setShowUserSpace(true)} aria-label="打开我的命册">
+                <span><UserRound aria-hidden="true" /></span>
+                <span><small>云端命册</small><strong>{user?.user_metadata?.display_name || user?.email?.split('@')[0] || '我的命册'}</strong></span>
+                <em>{Object.keys(archive).length}/64</em>
+              </button>
+            </div>
           </div>
 
           {/* ── HEADER ── */}

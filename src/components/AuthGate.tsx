@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { BookOpen, Loader2, LockKeyhole, Sparkles } from 'lucide-react';
+import { BookOpen, Loader2, LockKeyhole, MailCheck, RotateCcw, Sparkles } from 'lucide-react';
 import { InkCanvas } from '@/components/InkCanvas';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -13,11 +13,16 @@ function authMessage(message: string) {
 }
 
 function AuthScreen() {
+  const isOtpPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+    && new URLSearchParams(window.location.search).get('design-preview') === 'otp';
+  const emailOtpEnabled = import.meta.env.VITE_SUPABASE_EMAIL_OTP === 'true';
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(isOtpPreview ? 'connie@example.com' : null);
+  const [otp, setOtp] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<'error' | 'success'>('error');
 
@@ -47,8 +52,36 @@ function AuthScreen() {
 
     if (mode === 'signup' && !result.data.session) {
       setMessageTone('success');
-      setMessage('验证信已经寄出。完成邮箱验证后，回到这里登录即可开启命册。');
+      if (emailOtpEnabled) {
+        setPendingEmail(email.trim());
+        setMessage('六位验证码已经寄出，请在下方完成入册。');
+      } else {
+        setMessage('验证信已经寄出。完成邮箱验证后，回到这里登录即可开启命册。');
+      }
     }
+  }
+
+  async function handleVerify(event: FormEvent) {
+    event.preventDefault();
+    if (!supabase || !pendingEmail || otp.length !== 6) return;
+    setBusy(true);
+    setMessage(null);
+    const { error } = await supabase.auth.verifyOtp({ email: pendingEmail, token: otp, type: 'signup' });
+    setBusy(false);
+    if (error) {
+      setMessageTone('error');
+      setMessage('验证码无效或已经过期，请重新获取。');
+    }
+  }
+
+  async function resendCode() {
+    if (!supabase || !pendingEmail) return;
+    setBusy(true);
+    const { error } = await supabase.auth.resend({ type: 'signup', email: pendingEmail,
+      options: { emailRedirectTo: window.location.origin } });
+    setBusy(false);
+    setMessageTone(error ? 'error' : 'success');
+    setMessage(error ? authMessage(error.message) : '新的验证码已经寄出。');
   }
 
   return (
@@ -68,7 +101,7 @@ function AuthScreen() {
 
         <section className="auth-card" aria-label="登录或注册">
           <div className="auth-seal" aria-hidden="true">命</div>
-          <div className="auth-tabs" role="tablist" aria-label="账号方式">
+          <div className="auth-tabs" role="tablist" aria-label="账号方式" hidden={Boolean(pendingEmail)}>
             <button type="button" role="tab" aria-selected={mode === 'signin'}
               className={mode === 'signin' ? 'is-active' : ''}
               onClick={() => { setMode('signin'); setMessage(null); }}>
@@ -81,13 +114,33 @@ function AuthScreen() {
             </button>
           </div>
 
-          <div className="auth-benefits" aria-label="登录权益">
+          <div className="auth-benefits" aria-label="登录权益" hidden={Boolean(pendingEmail)}>
             <span><LockKeyhole aria-hidden="true" /> 私人保存</span>
             <span><Sparkles aria-hidden="true" /> 跨端同步</span>
             <span><BookOpen aria-hidden="true" /> 64 卦收集</span>
           </div>
 
-          <form onSubmit={handleSubmit} className="auth-form">
+          {pendingEmail ? (
+            <form onSubmit={handleVerify} className="auth-form otp-form">
+              <div className="otp-heading">
+                <span><MailCheck aria-hidden="true" /></span>
+                <div><strong>验明命册</strong><small>验证码已发送至 {pendingEmail}</small></div>
+              </div>
+              <label>
+                <span>六位验证码</span>
+                <input className="otp-input" value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                  inputMode="numeric" autoComplete="one-time-code" required minLength={6} maxLength={6} placeholder="000000" autoFocus />
+              </label>
+              {message && <p className={`auth-message ${messageTone}`} role="status">{message}</p>}
+              <button type="submit" className="auth-submit" disabled={busy || otp.length !== 6}>
+                {busy && <Loader2 className="auth-spinner" aria-hidden="true" />}{busy ? '正在验明…' : '确认入册'}
+              </button>
+              <div className="otp-actions">
+                <button type="button" onClick={resendCode} disabled={busy}><RotateCcw aria-hidden="true" />重新发送</button>
+                <button type="button" onClick={() => { setPendingEmail(null); setOtp(''); setMessage(null); }}>返回注册</button>
+              </div>
+            </form>
+          ) : <form onSubmit={handleSubmit} className="auth-form">
             {mode === 'signup' && (
               <label>
                 <span>命册称呼</span>
@@ -115,7 +168,7 @@ function AuthScreen() {
               {busy && <Loader2 className="auth-spinner" aria-hidden="true" />}
               {busy ? '正在开启…' : mode === 'signin' ? '开启我的命册' : '建立云端命册'}
             </button>
-          </form>
+          </form>}
 
           <p className="auth-note">登录后才可抽签；签文、次数与收集进度都会跟随账号。</p>
         </section>
