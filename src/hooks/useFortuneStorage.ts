@@ -22,6 +22,7 @@ interface FortuneSnapshot {
 }
 
 interface FortuneDrawRow {
+  id?: number;
   fortune_id: number;
   drawn_on: string;
   snapshot: Omit<FortuneSnapshot, 'id'>;
@@ -76,6 +77,8 @@ export function useFortuneStorage() {
   const [archive, setArchive] = useState<Record<number, ArchiveEntry>>({});
   const [attemptsUsed, setUsed] = useState(0);
   const [syncing, setSyncing] = useState(false);
+  const [totalDraws, setTotalDraws] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const usedRef = useRef(0);
 
   const loadGuestState = useCallback(() => {
@@ -84,6 +87,7 @@ export function useFortuneStorage() {
     const used = today.date === todayStr() ? today.attemptsUsed : 0;
     setArchive(savedArchive);
     setUsed(used);
+    setTotalDraws(Object.values(savedArchive).reduce((sum, entry) => sum + entry.dates.length, 0));
     usedRef.current = used;
   }, []);
 
@@ -96,6 +100,7 @@ export function useFortuneStorage() {
 
     async function loadCloudState() {
       setSyncing(true);
+      setError(null);
       const localArchive = loadRaw<Record<number, ArchiveEntry>>(ARCHIVE_KEY, {});
       const localRows = Object.values(localArchive).flatMap((entry) => entry.dates.map((date) => ({
         user_id: user.id,
@@ -126,6 +131,7 @@ export function useFortuneStorage() {
       if (!active) return;
       if (error) {
         loadGuestState();
+        setError('云端命册暂时无法读取，请检查网络后重试。');
         setSyncing(false);
         return;
       }
@@ -135,6 +141,7 @@ export function useFortuneStorage() {
       const used = rows.filter((row) => row.drawn_on === todayStr()).length;
       setArchive(cloudArchive);
       setUsed(used);
+      setTotalDraws(rows.length);
       usedRef.current = used;
       saveRaw(ARCHIVE_KEY, cloudArchive);
       setSyncing(false);
@@ -147,8 +154,39 @@ export function useFortuneStorage() {
   const attemptsLeft = Math.max(0, MAX_ATTEMPTS - attemptsUsed);
   const todayLocked = attemptsLeft <= 0;
 
-  const recordFortune = useCallback((fortune: FortuneSnapshot) => {
+  const recordFortune = useCallback(async (fortune: FortuneSnapshot): Promise<boolean> => {
+    if (!user || !supabase) {
+      setError('请先登录命册后再抽签。');
+      return false;
+    }
+
     const today = todayStr();
+    setError(null);
+    const { data, error: insertError } = await supabase.rpc('record_fortune_draw', {
+      p_source_key: crypto.randomUUID(),
+      p_fortune_id: fortune.id,
+      p_snapshot: {
+        hexagramName: fortune.hexagramName,
+        gradeLabel: fortune.gradeLabel,
+        gradeColor: fortune.gradeColor,
+        hexagram: fortune.hexagram,
+        dailyTip: fortune.dailyTip,
+      },
+    });
+
+    if (insertError) {
+      if (insertError.message.includes('daily_limit_reached')) {
+        usedRef.current = MAX_ATTEMPTS;
+        setUsed(MAX_ATTEMPTS);
+        setError('今日三签已定，可以进入签文册回看收藏。');
+      } else {
+        setError('这次签文没有保存成功，请稍后再试。');
+      }
+      return false;
+    }
+
+    const savedRow = (Array.isArray(data) ? data[0] : data) as FortuneDrawRow | null;
+    const savedDate = savedRow?.drawn_on ?? today;
     const newUsed = usedRef.current + 1;
     usedRef.current = newUsed;
 
@@ -163,7 +201,7 @@ export function useFortuneStorage() {
           gradeColor: fortune.gradeColor,
           hexagram: fortune.hexagram,
           dailyTip: fortune.dailyTip,
-          dates: existing ? [...new Set([...existing.dates, today])] : [today],
+          dates: existing ? [...new Set([...existing.dates, savedDate])] : [savedDate],
         },
       };
       saveRaw(ARCHIVE_KEY, next);
@@ -172,23 +210,9 @@ export function useFortuneStorage() {
 
     saveRaw(TODAY_KEY, { date: today, attemptsUsed: newUsed, lastFortuneId: fortune.id } satisfies TodayData);
     setUsed(newUsed);
-
-    if (user && supabase) {
-      void supabase.from('fortune_draws').insert({
-        user_id: user.id,
-        source_key: crypto.randomUUID(),
-        fortune_id: fortune.id,
-        drawn_on: today,
-        snapshot: {
-          hexagramName: fortune.hexagramName,
-          gradeLabel: fortune.gradeLabel,
-          gradeColor: fortune.gradeColor,
-          hexagram: fortune.hexagram,
-          dailyTip: fortune.dailyTip,
-        },
-      });
-    }
+    setTotalDraws(current => current + 1);
+    return true;
   }, [user]);
 
-  return { archive, attemptsLeft, todayLocked, recordFortune, syncing };
+  return { archive, attemptsLeft, todayLocked, recordFortune, syncing, totalDraws, error };
 }

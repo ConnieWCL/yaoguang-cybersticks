@@ -9,7 +9,9 @@ import { ShareCard } from '@/components/ShareCard';
 import { FortuneArchive } from '@/components/FortuneArchive';
 import { useFortuneStorage } from '@/hooks/useFortuneStorage';
 import { ParticleButton } from '@/components/ParticleButton';
-import { UserStatus } from '@/components/UserStatus';
+import { UserRound } from 'lucide-react';
+import { UserSpace } from '@/components/UserSpace';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Phase = 'idle' | 'shaking' | 'revealing' | 'done';
 
@@ -33,14 +35,18 @@ function getTodayWuxing(): Wuxing {
 }
 
 export default function Index() {
+  const isUserSpacePreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+    && new URLSearchParams(window.location.search).get('design-preview') === 'user-space';
   const [phase, setPhase] = useState<Phase>('idle');
   const [fortune, setFortune] = useState<Fortune | null>(null);
   const [cardVisible, setCardVisible] = useState(false);
   const [stickRaised, setStickRaised] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const { playShake, playChime, playReveal } = useSound();
-  const { archive, attemptsLeft, todayLocked, recordFortune } = useFortuneStorage();
+  const { user } = useAuth();
+  const { archive, attemptsLeft, todayLocked, recordFortune, totalDraws, error: storageError } = useFortuneStorage();
   const [showArchive, setShowArchive] = useState(false);
+  const [showUserSpace, setShowUserSpace] = useState(isUserSpacePreview);
   const shakeCount = useRef(0);
 
   const today = new Date();
@@ -49,7 +55,7 @@ export default function Index() {
 
 
 
-  const handleShake = useCallback(() => {
+  const handleShake = useCallback(async () => {
     if (phase !== 'idle' && phase !== 'done') return;
     // 用完次数后：只回到当前已显示的最新签，不再重新抽，不重置次数
     if (todayLocked) {
@@ -68,23 +74,26 @@ export default function Index() {
 
     playShake();
 
-    setTimeout(() => {
-      setStickRaised(true);
-      playChime();
+    await new Promise(resolve => window.setTimeout(resolve, 700));
+    setStickRaised(true);
+    playChime();
 
-      setTimeout(() => {
-        const drawn = shakeCount.current === 1 ? getTodayFortune() : getRandomFortune(fortune?.id);
-        setFortune(drawn);
-        setPhase('revealing');
-        playReveal();
+    await new Promise(resolve => window.setTimeout(resolve, 600));
+    const drawn = shakeCount.current === 1 ? getTodayFortune() : getRandomFortune(fortune?.id);
+    setFortune(drawn);
+    setPhase('revealing');
+    playReveal();
 
-        setTimeout(() => {
-          setCardVisible(true);
-          setPhase('done');
-          if (drawn) recordFortune(drawn);
-        }, 400);
-      }, 600);
-    }, 700);
+    const saved = await recordFortune(drawn);
+    if (!saved) {
+      setFortune(null);
+      setStickRaised(false);
+      setPhase('idle');
+      return;
+    }
+    await new Promise(resolve => window.setTimeout(resolve, 400));
+    setCardVisible(true);
+    setPhase('done');
   }, [phase, fortune, playShake, playChime, playReveal, recordFortune, todayLocked]);
 
   const handleShare = useCallback(() => {
@@ -108,7 +117,13 @@ export default function Index() {
       }}>
         <div style={{ width: '100%', maxWidth: '480px' }}>
 
-          <UserStatus />
+          <div className="account-ribbon">
+            <button type="button" onClick={() => setShowUserSpace(true)} aria-label="打开我的命册">
+              <span><UserRound aria-hidden="true" /></span>
+              <span><small>云端命册</small><strong>{user?.user_metadata?.display_name || user?.email?.split('@')[0] || '我的命册'}</strong></span>
+              <em>{Object.keys(archive).length}/64</em>
+            </button>
+          </div>
 
           {/* ── HEADER ── */}
           <header className="site-header">
@@ -159,6 +174,7 @@ export default function Index() {
             {phase === 'idle' && (
               <p className="idle-prompt">静心三息，轻触签筒</p>
             )}
+            {storageError && <p className="storage-error" role="status">{storageError}</p>}
             {/* 今日剩余次数 */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: '6px',
@@ -180,6 +196,11 @@ export default function Index() {
                 {todayLocked ? '今日已定签' : `今日剩余 ${attemptsLeft} 次`}
               </span>
             </div>
+            {todayLocked && (
+              <button type="button" className="locked-archive-link" onClick={() => setShowArchive(true)}>
+                今日三签已定 · 查看我的签文册
+              </button>
+            )}
           </section>
 
           {/* ── FORTUNE CARD ── */}
@@ -322,6 +343,16 @@ export default function Index() {
           onClose={() => setShowArchive(false)}
         />
       )}
+
+      <UserSpace
+        open={showUserSpace}
+        archiveCount={Object.keys(archive).length}
+        totalDraws={totalDraws}
+        attemptsLeft={attemptsLeft}
+        onClose={() => setShowUserSpace(false)}
+        onOpenArchive={() => { setShowUserSpace(false); setShowArchive(true); }}
+        previewUser={isUserSpacePreview ? { id: 'design-preview', email: 'connie@example.com', user_metadata: { display_name: 'Connie' } } : undefined}
+      />
 
       {/* ── SHARE CARD ── */}
       {showShare && fortune && (
