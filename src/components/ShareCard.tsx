@@ -18,6 +18,7 @@ const SITE_URL_FULL = 'https://cyberfortune.hiconnie.com/';
 
 export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const [imageUrl,    setImageUrl]    = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(true);
   const [saveStatus,  setSaveStatus]  = useState<'idle'|'saving'|'saved'|'copied'>('idle');
@@ -34,23 +35,30 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     canvas.height = H;
 
     // 背景
-    ctx.fillStyle = '#07060f';
+    ctx.fillStyle = '#090716';
     ctx.fillRect(0, 0, W, H);
 
-    // 径向渐变背景光晕（呼应签文册卡片的 radial-gradient）
-    const bgGlow = ctx.createRadialGradient(W/2, H*0.35, 0, W/2, H*0.35, W*0.7);
-    bgGlow.addColorStop(0, `${fortune.gradeColor}18`);
-    bgGlow.addColorStop(1, 'transparent');
+    // 分层径向光场：和签文册详情卡一致，不再是纯黑底。
+    const bgGlow = ctx.createRadialGradient(W/2, H*0.42, 0, W/2, H*0.42, W*0.78);
+    bgGlow.addColorStop(0, `${fortune.gradeColor}32`);
+    bgGlow.addColorStop(0.45, `${fortune.gradeColor}13`);
+    bgGlow.addColorStop(1, 'rgba(9,7,22,0)');
     ctx.fillStyle = bgGlow;
     ctx.fillRect(0, 0, W, H);
 
+    const footerGlow = ctx.createRadialGradient(W*0.78, H, 0, W*0.78, H, W*0.56);
+    footerGlow.addColorStop(0, `${fortune.gradeColor}24`);
+    footerGlow.addColorStop(1, 'rgba(9,7,22,0)');
+    ctx.fillStyle = footerGlow;
+    ctx.fillRect(0, H*0.72, W, H*0.28);
+
     // 外发光边框（多层）
     [
-      { spread:0,  blur:80, alpha:0.07 },
-      { spread:6,  blur:48, alpha:0.14 },
-      { spread:12, blur:24, alpha:0.22 },
-      { spread:18, blur:8,  alpha:0.38 },
-      { spread:21, blur:3,  alpha:0.55 },
+      { spread:0,  blur:96, alpha:0.12 },
+      { spread:6,  blur:56, alpha:0.20 },
+      { spread:12, blur:28, alpha:0.30 },
+      { spread:18, blur:10, alpha:0.46 },
+      { spread:21, blur:3,  alpha:0.68 },
     ].forEach(({ spread, blur, alpha }) => {
       ctx.save();
       ctx.shadowColor = `${fortune.gradeColor}${Math.round(alpha*255).toString(16).padStart(2,'0')}`;
@@ -71,12 +79,14 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     // 星点
     ctx.save();
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 170; i++) {
       const x = 30 + Math.random()*(W-60);
       const y = 30 + Math.random()*(H-60);
-      const r = Math.random()*1.3;
+      const r = Math.random()*1.45;
       ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(200,180,120,${Math.random()*0.4+0.06})`;
+      ctx.fillStyle = Math.random() > 0.42
+        ? `${fortune.gradeColor}${Math.floor(Math.random()*80+24).toString(16).padStart(2,'0')}`
+        : `rgba(232,200,138,${Math.random()*0.34+0.05})`;
       ctx.fill();
     }
     ctx.restore();
@@ -264,20 +274,29 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       ctx.restore();
     });
     Y += 2 * (cellH + 14) - 14 + 12;
-    // 高对比度二维码：保留足够静区，确保社交平台压缩后仍易于扫描。
+
+    // ── 底部邀请签名：二维码融入原生暗金设计 ──
+    const footerY = 1088;
+    divider(footerY);
+    ctx.save();
+    ctx.fillStyle = `${fortune.gradeColor}18`;
+    ctx.fillRect(30, footerY + 1, W - 60, H - footerY - 30);
+    ctx.restore();
+
     const qrCanvas = document.getElementById('qr-code-source')?.querySelector('canvas');
     if (qrCanvas) {
-      const qrSize = 80;
-      const padding = 48;
-      const qrX = W - qrSize - padding;
-      const qrY = padding + 10;
+      const qrSize = 78;
+      const qrX = W - qrSize - 54;
+      const qrY = footerY + 18;
 
       ctx.save();
-      ctx.fillStyle = '#CFC19F';
-      ctx.strokeStyle = 'rgba(200,169,110,0.5)';
+      ctx.fillStyle = '#C5A96A';
+      ctx.strokeStyle = `${fortune.gradeColor}A8`;
       ctx.lineWidth = 1;
+      ctx.shadowColor = fortune.gradeColor;
+      ctx.shadowBlur = 14;
       ctx.beginPath();
-      ctx.roundRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 30, 7);
+      ctx.roundRect(qrX - 7, qrY - 7, qrSize + 14, qrSize + 14, 6);
       ctx.fill();
       ctx.stroke();
       ctx.restore();
@@ -285,28 +304,74 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
 
       ctx.save();
-      ctx.fillStyle = '#40371F';
-      ctx.font = '600 11px "Noto Serif SC", serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('扫码起卦', qrX + qrSize / 2, qrY + qrSize + 10);
+      ctx.fillStyle = fortune.gradeColor;
+      ctx.font = '500 16px "Noto Serif SC", serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText('扫码抽取你的今日签', 70, footerY + 28);
+      ctx.fillStyle = 'rgba(232,224,200,0.58)';
+      ctx.font = '500 15px "Share Tech Mono", monospace';
+      ctx.fillText(SITE_URL, 70, footerY + 58);
       ctx.restore();
     }
-
-    // 底部传播提示：独立于内容区，缩略图中仍能识别品牌与行动。
-    ctx.save();
-    ctx.fillStyle = 'rgba(200,169,110,0.72)';
-    ctx.font = '500 15px "Noto Serif SC", serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('保存分享 · 邀朋友抽取自己的今日签', W / 2, H - 48);
-    ctx.restore();
 
     setImageUrl(canvas.toDataURL('image/png'));
     setIsGenerating(false);
   }, [dateStr, fortune]);
 
   useEffect(() => { void generateCard(); }, [generateCard]);
+
+  useEffect(() => {
+    if (isGenerating) return;
+    const canvas = particleCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrame = 0;
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(rect.width * dpr));
+      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+
+    const particles = Array.from({ length: 34 }, () => ({
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random() - 0.5) * 0.00012,
+      vy: -(Math.random() * 0.00022 + 0.00008),
+      radius: Math.random() * 1.4 + 0.35,
+      alpha: Math.random() * 0.55 + 0.16,
+      phase: Math.random() * Math.PI * 2,
+    }));
+
+    const draw = (time: number) => {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach((particle) => {
+        particle.x += particle.vx * 16;
+        particle.y += particle.vy * 16;
+        if (particle.y < -0.03) { particle.y = 1.03; particle.x = Math.random(); }
+        if (particle.x < -0.03) particle.x = 1.03;
+        if (particle.x > 1.03) particle.x = -0.03;
+        const pulse = 0.55 + Math.sin(time * 0.0014 + particle.phase) * 0.35;
+        ctx.beginPath();
+        ctx.arc(particle.x * width, particle.y * height, particle.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${fortune.gradeColor}${Math.round(particle.alpha * pulse * 255).toString(16).padStart(2, '0')}`;
+        ctx.fill();
+      });
+      animationFrame = requestAnimationFrame(draw);
+    };
+    animationFrame = requestAnimationFrame(draw);
+    window.addEventListener('resize', resize);
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener('resize', resize);
+    };
+  }, [fortune.gradeColor, isGenerating]);
 
   const handleCopyUrl = async () => {
     try {
@@ -350,7 +415,21 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       }}
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
     >
-      <style>{`@keyframes fadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}`}</style>
+      <style>{`
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes shareCardPop{
+          0%{opacity:0;transform:scale(.72) rotate(-2deg);filter:blur(10px)}
+          62%{opacity:1;transform:scale(1.035) rotate(.45deg);filter:blur(0)}
+          100%{opacity:1;transform:scale(1) rotate(0);filter:blur(0)}
+        }
+        @keyframes shareCardGlow{
+          0%,100%{box-shadow:0 0 34px var(--share-glow-soft),0 0 86px var(--share-glow-faint),0 10px 52px rgba(0,0,0,.68)}
+          50%{box-shadow:0 0 58px var(--share-glow),0 0 132px var(--share-glow-soft),0 14px 66px rgba(0,0,0,.72)}
+        }
+        .share-card-frame{position:relative;animation:shareCardPop .72s cubic-bezier(.2,.82,.25,1) both,shareCardGlow 3.2s ease-in-out .72s infinite}
+        .share-card-particles{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;opacity:.8}
+        @media(prefers-reduced-motion:reduce){.share-card-frame{animation:none}.share-card-particles{display:none}}
+      `}</style>
       <canvas ref={canvasRef} style={{ display:'none' }} />
 
       {isGenerating ? (
@@ -367,7 +446,10 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
           gap:'14px',
         }}>
           {/* 预览图 — 与下方按钮等宽 */}
-          <div style={{
+          <div className="share-card-frame" style={{
+            ['--share-glow' as string]: `${fortune.gradeColor}70`,
+            ['--share-glow-soft' as string]: `${fortune.gradeColor}42`,
+            ['--share-glow-faint' as string]: `${fortune.gradeColor}24`,
             width:'100%',
             borderRadius:'16px',
             overflow:'hidden',
@@ -376,6 +458,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
           }}>
             <img src={imageUrl} alt="今日签卡片"
               style={{ width:'100%', height:'auto', display:'block' }} />
+            <canvas ref={particleCanvasRef} className="share-card-particles" aria-hidden="true" />
           </div>
 
           {/* 统一的按钮区域 */}
@@ -411,10 +494,10 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
         <QRCodeCanvas
           value={SITE_URL_FULL}
           size={200}
-          fgColor="#151228"
-          bgColor="#CFC19F"
+          fgColor="#120D22"
+          bgColor="#C5A96A"
           level="H"
-          marginSize={2}
+          marginSize={3}
         />
       </div>
     </div>
