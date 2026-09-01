@@ -77,16 +77,17 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.beginPath(); ctx.roundRect(22, 22, W-44, H-44, 14); ctx.stroke();
     ctx.restore();
 
-    // 星点
+    // 与主页一致的柔和粒子背景：只保留漂浮光点，不绘制任何纵向网格或光束。
     ctx.save();
-    for (let i = 0; i < 170; i++) {
+    for (let i = 0; i < 145; i++) {
       const x = 30 + Math.random()*(W-60);
       const y = 30 + Math.random()*(H-60);
-      const r = Math.random()*1.45;
+      const r = Math.random()*1.8 + 0.35;
+      const alpha = Math.random()*0.22 + 0.04;
       ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
-      ctx.fillStyle = Math.random() > 0.42
-        ? `${fortune.gradeColor}${Math.floor(Math.random()*80+24).toString(16).padStart(2,'0')}`
-        : `rgba(232,200,138,${Math.random()*0.34+0.05})`;
+      ctx.fillStyle = `rgba(180,160,100,${alpha})`;
+      ctx.shadowColor = fortune.gradeColor;
+      ctx.shadowBlur = r > 1.35 ? 7 : 0;
       ctx.fill();
     }
     ctx.restore();
@@ -285,19 +286,15 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     const qrCanvas = document.getElementById('qr-code-source')?.querySelector('canvas');
     if (qrCanvas) {
-      const qrSize = 78;
-      const qrX = W - qrSize - 54;
-      const qrY = footerY + 18;
+      const qrSize = 68;
+      const qrX = W - qrSize - 64;
+      const qrY = footerY + 16;
 
       ctx.save();
-      ctx.fillStyle = '#C5A96A';
-      ctx.strokeStyle = `${fortune.gradeColor}A8`;
+      ctx.strokeStyle = `${fortune.gradeColor}58`;
       ctx.lineWidth = 1;
-      ctx.shadowColor = fortune.gradeColor;
-      ctx.shadowBlur = 14;
       ctx.beginPath();
-      ctx.roundRect(qrX - 7, qrY - 7, qrSize + 14, qrSize + 14, 6);
-      ctx.fill();
+      ctx.roundRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 5);
       ctx.stroke();
       ctx.restore();
 
@@ -338,31 +335,53 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     };
     resize();
 
-    const particles = Array.from({ length: 34 }, () => ({
-      x: Math.random(), y: Math.random(),
-      vx: (Math.random() - 0.5) * 0.00012,
-      vy: -(Math.random() * 0.00022 + 0.00008),
-      radius: Math.random() * 1.4 + 0.35,
-      alpha: Math.random() * 0.55 + 0.16,
-      phase: Math.random() * Math.PI * 2,
-    }));
+    type PreviewParticle = {
+      x: number; y: number; vx: number; vy: number;
+      radius: number; alpha: number; decay: number; life: number; phase: number;
+    };
+    const particles: PreviewParticle[] = [];
+    const spawnParticle = (fromBottom = true) => {
+      particles.push({
+        x: Math.random(),
+        y: fromBottom ? 1.02 : Math.random(),
+        vx: (Math.random() - 0.5) * 0.00018,
+        vy: -(Math.random() * 0.00025 + 0.0001),
+        radius: Math.random() * 1.35 + 0.35,
+        alpha: Math.random() * 0.34 + 0.08,
+        decay: Math.random() * 0.00022 + 0.0001,
+        life: fromBottom ? 1 : Math.random() * 0.7 + 0.3,
+        phase: Math.random() * Math.PI * 2,
+      });
+    };
+    for (let i = 0; i < 26; i++) spawnParticle(false);
+    let lastTime = 0;
+    let spawnAccumulator = 0;
 
     const draw = (time: number) => {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
+      const delta = Math.min(32, lastTime ? time - lastTime : 16);
+      lastTime = time;
       ctx.clearRect(0, 0, width, height);
-      particles.forEach((particle) => {
-        particle.x += particle.vx * 16;
-        particle.y += particle.vy * 16;
-        if (particle.y < -0.03) { particle.y = 1.03; particle.x = Math.random(); }
-        if (particle.x < -0.03) particle.x = 1.03;
-        if (particle.x > 1.03) particle.x = -0.03;
-        const pulse = 0.55 + Math.sin(time * 0.0014 + particle.phase) * 0.35;
+      spawnAccumulator += delta;
+      if (spawnAccumulator >= 120 && particles.length < 42) {
+        spawnParticle(true);
+        spawnAccumulator = 0;
+      }
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+        particle.x += (particle.vx + Math.sin(time * 0.001 + particle.y * 10 + particle.phase) * 0.00008) * delta;
+        particle.y += particle.vy * delta;
+        particle.life -= particle.decay * delta;
+        if (particle.life <= 0 || particle.y < -0.04) {
+          particles.splice(i, 1);
+          continue;
+        }
         ctx.beginPath();
         ctx.arc(particle.x * width, particle.y * height, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `${fortune.gradeColor}${Math.round(particle.alpha * pulse * 255).toString(16).padStart(2, '0')}`;
+        ctx.fillStyle = `rgba(180,160,100,${particle.alpha * particle.life})`;
         ctx.fill();
-      });
+      }
       animationFrame = requestAnimationFrame(draw);
     };
     animationFrame = requestAnimationFrame(draw);
@@ -494,8 +513,8 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
         <QRCodeCanvas
           value={SITE_URL_FULL}
           size={200}
-          fgColor="#120D22"
-          bgColor="#C5A96A"
+          fgColor={fortune.gradeColor}
+          bgColor="#0B0818"
           level="H"
           marginSize={3}
         />

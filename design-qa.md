@@ -1,52 +1,47 @@
-**Design QA — 分享签文动态预览 / 静态导出**
+**Design QA — 分享签文粒子与二维码修正**
 
-- Source visual truth: `/Users/connie/.codex/generated_images/01a05388-7c01-7d00-9aa8-f1d0f4135f5d/exec-83b9915f-8403-4de2-9803-dc11f8d0efcc.png`
-- Implementation screenshot: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/implementation.png`
-- Focused implementation screenshot: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/implementation-card.png`
-- Combined comparison: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/comparison.png`
-- Viewport: 1280 × 720 CSS px; device screenshot output 1280 px wide (density 1)
-- Source pixels: 992 × 1586; implementation export: 750 × 1200; rendered preview: 420 × 672 CSS px
-- Normalization: both portrait cards were fit proportionally into equal-width columns in the combined comparison; no density-based mismatch was filed.
-- State: share modal open, first fortune fixture, post-entry animation state, floating-particle layer active.
+- Source visual truth: user-directed change applied to the previous rendered state at `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/implementation.png`
+- Implementation screenshot: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/revised-no-lines.png`
+- Combined comparison: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/revised-comparison.png`
+- Viewport: 1280 × 720 CSS px, density 1
+- Source and implementation pixels: both 1280 px wide full-page captures; share-card preview is 420 × 672 CSS px; exported image remains 750 × 1200 px.
+- State: share modal open, first fortune fixture, post-entry animation, live particle layer active.
 
 **Findings**
 
 - No actionable P0/P1/P2 findings remain.
-- Typography: the implementation preserves the product's existing Chinese serif + mono hierarchy. Display title, divination label, body copy, metrics, URL and CTA remain distinguishable at the rendered preview size.
-- Spacing/layout: the portrait ratio, central fortune hierarchy and bottom invitation signature match the selected direction. The QR code is anchored in the footer rather than floating over the main reading.
-- Colors/tokens: the card now uses the fortune grade color for its layered border glow, background light field, particles and QR frame. The background is deep violet-black instead of flat black.
-- Image quality/assets: export remains a native 750 × 1200 PNG. The QR uses dark modules on a muted-gold quiet zone for scanning reliability while still matching the card palette. No placeholder or approximate third-party assets were introduced.
-- Copy/content: the invitation and `cyberfortune.hiconnie.com` URL are retained in the footer; the share controls use the current custom domain.
-- Motion: the preview uses a spring-like pop entrance, a 3.2-second breathing glow, and continuously drifting grade-color particles. `prefers-reduced-motion` disables these effects.
+- Typography: unchanged from the approved share-card direction; Chinese serif and mono URL hierarchy remain intact.
+- Spacing/layout: QR image and its subtle outline now end at y=1177, inside the card's inner frame bottom at y=1178. It no longer crosses or visually interrupts the inner border.
+- Colors/tokens: the QR yellow panel was removed. Gold modules now sit on the same deep-violet field as the card, with a low-opacity grade-color outline.
+- Image quality/assets: generated PNG remains 750 × 1200. QR quiet zone is preserved through a three-module deep-violet background rather than a contrasting yellow tile.
+- Copy/content: invitation text and `cyberfortune.hiconnie.com` remain unchanged.
+- Motion: the preview now uses the homepage particle model—particles spawn from the bottom, drift upward with sinusoidal lateral movement, fade over their lifetime, and draw no grid lines, vertical beams, or trails.
 
 **Comparison History**
 
-1. Initial comparison found the QR treatment visually integrated but too low-contrast for dependable scanning (P2). Fix: changed to deep-plum modules on a muted-gold quiet zone, kept the grade-color glow frame, and increased the QR quiet zone to three modules.
-2. Post-fix evidence: implementation screenshot and focused crop above; QR remains part of the footer signature, while the foreground/background relationship now follows conventional high-contrast QR polarity. No remaining P0/P1/P2 mismatch was found.
+1. P2 — the previous QR tile used a yellow background and extended too close to/across the inner bottom frame. Fix: reduced QR from 78 to 68 px, moved it inward and upward, removed the fill and glow, and kept only a subtle internal outline.
+2. P2 — the previous share overlay movement could read as directional vertical motion rather than the homepage's organic particles. Fix: replaced persistent particles with the homepage spawn/drift/fade model and explicitly removed all line drawing.
+3. Post-fix comparison: the revised capture shows the QR contained within the footer and the yellow panel removed; the particle canvas covers the entire 420 × 672 card and reports no console errors.
 
 **Focused Region Evidence**
 
-- Focused crop covers the entire animated preview because the full card is only 420 × 672 CSS px; separate sub-crops would reduce legibility rather than improve comparison.
+- The QR/footer region is visible in the full card at the same viewport. Coordinate verification supplements the screenshot because the footer is small at the 420 px preview width: QR outline bottom 1177 px versus inner-frame bottom 1178 px in the 750 × 1200 export coordinate system.
 
 **Primary Interactions Tested**
 
 - Share modal renders from the local preview route.
-- 750 × 1200 PNG source is generated and displayed.
-- Pop and glow animations are attached; particle canvas resolves to the full card bounds.
-- Save/share and copy-link controls render and remain enabled.
-- Console checked: no application errors; only existing React Router future-version warnings.
-
-**Residual Test Gap / Follow-up Polish**
-
-- The in-app browser kept its 1280 × 720 viewport when a temporary mobile override was requested, so this pass relies on the existing `min(calc(100vw - 32px), 420px)` responsive sizing for narrow screens. This is a P3 verification gap, not an observed defect.
+- 750 × 1200 PNG is generated and displayed.
+- Particle canvas resolves exactly to the 420 × 672 preview bounds.
+- Pop and breathing-glow animations remain active.
+- No horizontal overflow and no browser console errors.
 
 **Implementation Checklist**
 
-- [x] Grade-color glow border and violet-black particle background
-- [x] Pop entrance and breathing edge animation
-- [x] Reduced-motion fallback
-- [x] Footer invitation signature with current custom domain
-- [x] High-contrast, integrated QR treatment
-- [x] Static PNG export preserved
+- [x] Remove all vertical/grid line drawing from share-card motion
+- [x] Match homepage particle spawn/drift/fade behavior
+- [x] Keep static export populated with soft particle points
+- [x] Move QR completely inside inner card frame
+- [x] Remove yellow QR background
+- [x] Preserve reduced-motion fallback and static PNG export
 
 final result: passed
