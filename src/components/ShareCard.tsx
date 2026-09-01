@@ -267,19 +267,17 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     // 高对比度二维码：保留足够静区，确保社交平台压缩后仍易于扫描。
     const qrCanvas = document.getElementById('qr-code-source')?.querySelector('canvas');
     if (qrCanvas) {
-      const qrSize = 112;
-      const padding = 44;
+      const qrSize = 80;
+      const padding = 48;
       const qrX = W - qrSize - padding;
-      const qrY = padding + 12;
+      const qrY = padding + 10;
 
       ctx.save();
-      ctx.shadowColor = fortune.gradeColor;
-      ctx.shadowBlur = 24;
-      ctx.fillStyle = '#F3E9D2';
-      ctx.strokeStyle = `${fortune.gradeColor}99`;
-      ctx.lineWidth = 1.5;
+      ctx.fillStyle = '#CFC19F';
+      ctx.strokeStyle = 'rgba(200,169,110,0.5)';
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.roundRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 38, 10);
+      ctx.roundRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 30, 7);
       ctx.fill();
       ctx.stroke();
       ctx.restore();
@@ -287,11 +285,11 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
 
       ctx.save();
-      ctx.fillStyle = '#514426';
-      ctx.font = '600 13px "Noto Serif SC", serif';
+      ctx.fillStyle = '#40371F';
+      ctx.font = '600 11px "Noto Serif SC", serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('扫码抽取今日签', qrX + qrSize / 2, qrY + qrSize + 13);
+      ctx.fillText('扫码起卦', qrX + qrSize / 2, qrY + qrSize + 10);
       ctx.restore();
     }
 
@@ -414,9 +412,9 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
           value={SITE_URL_FULL}
           size={200}
           fgColor="#151228"
-          bgColor="#F3E9D2"
+          bgColor="#CFC19F"
           level="H"
-          marginSize={3}
+          marginSize={2}
         />
       </div>
     </div>
