@@ -1,5 +1,5 @@
 import { QRCodeCanvas } from 'qrcode.react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Fortune } from '@/lib/fortunes';
 import { ParticleButton } from '@/components/ParticleButton';
 
@@ -13,8 +13,8 @@ function isWechat(): boolean { return /MicroMessenger/i.test(navigator.userAgent
 function isQQBrowser(): boolean { return /QQBrowser/i.test(navigator.userAgent) || /MQQBrowser/i.test(navigator.userAgent); }
 function isRestrictedBrowser(): boolean { return isWechat() || isQQBrowser(); }
 
-const SITE_URL      = 'yaoguang-cyberoracle.lovable.app';
-const SITE_URL_FULL = 'https://yaoguang-cyberoracle.lovable.app';
+const SITE_URL = 'cyberfortune.hiconnie.com';
+const SITE_URL_FULL = 'https://cyberfortune.hiconnie.com/';
 
 export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,9 +23,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
   const [saveStatus,  setSaveStatus]  = useState<'idle'|'saving'|'saved'|'copied'>('idle');
   const restricted = isRestrictedBrowser();
 
-  useEffect(() => { generateCard(); }, []);
-
-  const generateCard = async () => {
+  const generateCard = useCallback(async () => {
     const canvas = canvasRef.current!;
     const ctx    = canvas.getContext('2d')!;
 
@@ -266,38 +264,51 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       ctx.restore();
     });
     Y += 2 * (cellH + 14) - 14 + 12;
-// —— 新增：在图片右下角叠加二维码 ——
+    // 高对比度二维码：保留足够静区，确保社交平台压缩后仍易于扫描。
     const qrCanvas = document.getElementById('qr-code-source')?.querySelector('canvas');
     if (qrCanvas) {
-      const qrSize = 90;    // 二维码显示尺寸
-      const padding = 50;   // 距离边缘的留白
+      const qrSize = 112;
+      const padding = 44;
       const qrX = W - qrSize - padding;
-      const qrY = padding + 20;        // 修改：改为靠近顶部
+      const qrY = padding + 12;
 
-      // 1. 画一个微弱的底层阴影，确保二维码在深色背景中也有呼吸感
       ctx.save();
       ctx.shadowColor = fortune.gradeColor;
-      ctx.shadowBlur = 20;
-      ctx.fillStyle = 'rgba(7, 6, 15, 0.8)';
+      ctx.shadowBlur = 24;
+      ctx.fillStyle = '#F3E9D2';
+      ctx.strokeStyle = `${fortune.gradeColor}99`;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 8);
+      ctx.roundRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 38, 10);
       ctx.fill();
+      ctx.stroke();
       ctx.restore();
 
-      // 2. 将隐藏的二维码 Canvas 画到主卡片上
       ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
 
-      // 3. 装饰性文字：扫码引导
       ctx.save();
-      ctx.fillStyle = 'rgba(200, 169, 110, 0.4)';
-      ctx.font = '14px "Share Tech Mono", monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText('SCAN TO DRAW', W - padding, H - padding + 18);
+      ctx.fillStyle = '#514426';
+      ctx.font = '600 13px "Noto Serif SC", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('扫码抽取今日签', qrX + qrSize / 2, qrY + qrSize + 13);
       ctx.restore();
     }
+
+    // 底部传播提示：独立于内容区，缩略图中仍能识别品牌与行动。
+    ctx.save();
+    ctx.fillStyle = 'rgba(200,169,110,0.72)';
+    ctx.font = '500 15px "Noto Serif SC", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('保存分享 · 邀朋友抽取自己的今日签', W / 2, H - 48);
+    ctx.restore();
+
     setImageUrl(canvas.toDataURL('image/png'));
     setIsGenerating(false);
-  };
+  }, [dateStr, fortune]);
+
+  useEffect(() => { void generateCard(); }, [generateCard]);
 
   const handleCopyUrl = async () => {
     try {
@@ -402,9 +413,10 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
         <QRCodeCanvas
           value={SITE_URL_FULL}
           size={200}
-          fgColor="#C8A96E"    // 赛博金色
-          bgColor="transparent" // 透明背景
-          level="H"            // 高容错率
+          fgColor="#151228"
+          bgColor="#F3E9D2"
+          level="H"
+          marginSize={3}
         />
       </div>
     </div>

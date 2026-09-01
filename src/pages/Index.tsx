@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { InkCanvas } from '@/components/InkCanvas';
 import { LuckBar } from '@/components/LuckBar';
 import { useSound } from '@/hooks/useSound';
-import { getTodayFortune, getRandomFortune, type Fortune } from '@/lib/fortunes';
+import { FORTUNES, getTodayFortune, getRandomFortune, type Fortune } from '@/lib/fortunes';
 import WuxingPentagon from '@/components/WuxingPentagon';
 import type { Wuxing } from '@/lib/fortunes';
 import { ShareCard } from '@/components/ShareCard';
@@ -35,13 +35,16 @@ function getTodayWuxing(): Wuxing {
 }
 
 export default function Index() {
-  const isUserSpacePreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-    && new URLSearchParams(window.location.search).get('design-preview') === 'user-space';
-  const [phase, setPhase] = useState<Phase>('idle');
-  const [fortune, setFortune] = useState<Fortune | null>(null);
+  const designPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+    ? new URLSearchParams(window.location.search).get('design-preview')
+    : null;
+  const isUserSpacePreview = designPreview === 'user-space';
+  const isSharePreview = designPreview === 'share-card';
+  const [phase, setPhase] = useState<Phase>(isSharePreview ? 'done' : 'idle');
+  const [fortune, setFortune] = useState<Fortune | null>(isSharePreview ? FORTUNES[0] : null);
   const [cardVisible, setCardVisible] = useState(false);
   const [stickRaised, setStickRaised] = useState(false);
-  const [showShare, setShowShare] = useState(false);
+  const [showShare, setShowShare] = useState(isSharePreview);
   const { enabled: soundEnabled, toggleSound, playShake, playChime, playReveal } = useSound();
   const { user, isGuest } = useAuth();
   const { archive, attemptsLeft, todayLocked, recordFortune, totalDraws, error: storageError } = useFortuneStorage();

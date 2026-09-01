@@ -215,7 +215,7 @@ function AuthLoading() {
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const { user, isGuest, loading, configured } = useAuth();
   const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-    && new URLSearchParams(window.location.search).get('design-preview') === 'user-space';
+    && ['user-space', 'share-card'].includes(new URLSearchParams(window.location.search).get('design-preview') ?? '');
   if (loading) return <AuthLoading />;
   if (!configured) return <div className="auth-config-error">云端命册尚未配置，请联系站点管理员。</div>;
   if (!user && !isGuest && !isLocalPreview) return <AuthScreen />;
