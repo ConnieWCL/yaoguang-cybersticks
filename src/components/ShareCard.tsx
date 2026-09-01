@@ -52,29 +52,11 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.fillStyle = footerGlow;
     ctx.fillRect(0, H*0.72, W, H*0.28);
 
-    // 外发光边框（多层）
-    [
-      { spread:0,  blur:96, alpha:0.12 },
-      { spread:6,  blur:56, alpha:0.20 },
-      { spread:12, blur:28, alpha:0.30 },
-      { spread:18, blur:10, alpha:0.46 },
-      { spread:21, blur:3,  alpha:0.68 },
-    ].forEach(({ spread, blur, alpha }) => {
-      ctx.save();
-      ctx.shadowColor = `${fortune.gradeColor}${Math.round(alpha*255).toString(16).padStart(2,'0')}`;
-      ctx.shadowBlur  = blur;
-      ctx.strokeStyle = `rgba(200,169,110,${alpha * 0.7})`;
-      ctx.lineWidth   = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(spread, spread, W-spread*2, H-spread*2, 20);
-      ctx.stroke();
-      ctx.restore();
-    });
-    // 清晰内框线
+    // 单层内框：删除会形成纵向射线的多层外发光边框。
     ctx.save();
-    ctx.strokeStyle = `${fortune.gradeColor}70`;
+    ctx.strokeStyle = `${fortune.gradeColor}48`;
     ctx.lineWidth   = 1;
-    ctx.beginPath(); ctx.roundRect(22, 22, W-44, H-44, 14); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(26, 26, W-52, H-52, 14); ctx.stroke();
     ctx.restore();
 
     // 与主页一致的柔和粒子背景：只保留漂浮光点，不绘制任何纵向网格或光束。
@@ -286,17 +268,9 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
 
     const qrCanvas = document.getElementById('qr-code-source')?.querySelector('canvas');
     if (qrCanvas) {
-      const qrSize = 68;
-      const qrX = W - qrSize - 64;
-      const qrY = footerY + 16;
-
-      ctx.save();
-      ctx.strokeStyle = `${fortune.gradeColor}58`;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 5);
-      ctx.stroke();
-      ctx.restore();
+      const qrSize = 62;
+      const qrX = W - qrSize - 76;
+      const qrY = footerY + 14;
 
       ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
 
@@ -441,11 +415,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
           62%{opacity:1;transform:scale(1.035) rotate(.45deg);filter:blur(0)}
           100%{opacity:1;transform:scale(1) rotate(0);filter:blur(0)}
         }
-        @keyframes shareCardGlow{
-          0%,100%{box-shadow:0 0 34px var(--share-glow-soft),0 0 86px var(--share-glow-faint),0 10px 52px rgba(0,0,0,.68)}
-          50%{box-shadow:0 0 58px var(--share-glow),0 0 132px var(--share-glow-soft),0 14px 66px rgba(0,0,0,.72)}
-        }
-        .share-card-frame{position:relative;animation:shareCardPop .72s cubic-bezier(.2,.82,.25,1) both,shareCardGlow 3.2s ease-in-out .72s infinite}
+        .share-card-frame{position:relative;animation:shareCardPop .72s cubic-bezier(.2,.82,.25,1) both}
         .share-card-particles{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;opacity:.8}
         @media(prefers-reduced-motion:reduce){.share-card-frame{animation:none}.share-card-particles{display:none}}
       `}</style>
@@ -466,13 +436,10 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
         }}>
           {/* 预览图 — 与下方按钮等宽 */}
           <div className="share-card-frame" style={{
-            ['--share-glow' as string]: `${fortune.gradeColor}70`,
-            ['--share-glow-soft' as string]: `${fortune.gradeColor}42`,
-            ['--share-glow-faint' as string]: `${fortune.gradeColor}24`,
             width:'100%',
             borderRadius:'16px',
             overflow:'hidden',
-            boxShadow:`0 0 60px ${fortune.gradeColor}30, 0 0 120px ${fortune.gradeColor}15, 0 8px 48px rgba(0,0,0,0.6)`,
+            boxShadow:'0 10px 48px rgba(0,0,0,0.68)',
             background:'#07060f',
           }}>
             <img src={imageUrl} alt="今日签卡片"
