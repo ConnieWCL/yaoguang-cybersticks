@@ -45,4 +45,12 @@
 - [x] Remove yellow QR background
 - [x] Preserve reduced-motion fallback and static PNG export
 
+**Long-copy layout regression check**
+
+- Root cause: `dailyTip` could wrap to two lines while the footer remained fixed at y=1088, allowing the second metrics row to enter the footer.
+- Fix: measure the wrapped tip before drawing; two-line tips use a compact vertical rhythm across the hero, title, badge and copy sections while the footer keeps a protected zone.
+- Evidence: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/tongren-layout-fixed.png`
+- Automated browser pass: all 64 fortunes generated successfully; 64/64 reported `layoutSafe=true`; maximum metrics content bottom was y=1072, above the protected footer threshold y=1076. The previously failing 同人卦 ended at y=1071.
+- Console errors: none.
+
 final result: passed

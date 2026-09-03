@@ -35,13 +35,14 @@ function getTodayWuxing(): Wuxing {
 }
 
 export default function Index() {
-  const designPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-    ? new URLSearchParams(window.location.search).get('design-preview')
-    : null;
+  const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const previewParams = isLocalPreview ? new URLSearchParams(window.location.search) : null;
+  const designPreview = previewParams?.get('design-preview') ?? null;
   const isUserSpacePreview = designPreview === 'user-space';
   const isSharePreview = designPreview === 'share-card';
+  const previewFortuneIndex = Math.min(63, Math.max(0, Number(previewParams?.get('fortune') ?? 0)));
   const [phase, setPhase] = useState<Phase>(isSharePreview ? 'done' : 'idle');
-  const [fortune, setFortune] = useState<Fortune | null>(isSharePreview ? FORTUNES[0] : null);
+  const [fortune, setFortune] = useState<Fortune | null>(isSharePreview ? FORTUNES[previewFortuneIndex] : null);
   const [cardVisible, setCardVisible] = useState(false);
   const [stickRaised, setStickRaised] = useState(false);
   const [showShare, setShowShare] = useState(isSharePreview);

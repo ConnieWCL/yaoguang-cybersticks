@@ -31,6 +31,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     // ── 竖版卡片尺寸，参考签文册卡片美学 ──
     const W = 750;
     const H = 1200;
+    const FOOTER_Y = 1088;
     canvas.width  = W;
     canvas.height = H;
 
@@ -51,6 +52,25 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     footerGlow.addColorStop(1, 'rgba(9,7,22,0)');
     ctx.fillStyle = footerGlow;
     ctx.fillRect(0, H*0.72, W, H*0.28);
+
+    // 先测量正文，再决定是否启用紧凑布局；避免长签文把运势区推入页脚。
+    ctx.save();
+    ctx.font = '400 32px "Noto Serif SC",serif';
+    const tipMaxW = W - 120;
+    const tipLines: string[] = [];
+    let measuredTipLine = '';
+    for (let i = 0; i < fortune.dailyTip.length; i++) {
+      const test = measuredTipLine + fortune.dailyTip[i];
+      if (ctx.measureText(test).width > tipMaxW && measuredTipLine) {
+        tipLines.push(measuredTipLine);
+        measuredTipLine = fortune.dailyTip[i];
+      } else {
+        measuredTipLine = test;
+      }
+    }
+    if (measuredTipLine) tipLines.push(measuredTipLine);
+    ctx.restore();
+    const compactLayout = tipLines.length > 1;
 
     // 单层内框：删除会形成纵向射线的多层外发光边框。
     ctx.save();
@@ -160,7 +180,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.shadowColor=fortune.gradeColor; ctx.shadowBlur=60;
     ctx.globalAlpha=0.9;
     ctx.fillText(fortune.hexagram, W/2, Y+120); ctx.restore();
-    Y += 255;
+    Y += compactLayout ? 232 : 255;
 
     // 卦名 + 等级
     ctx.save();
@@ -169,7 +189,7 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.fillStyle='#F2E9D2';
     ctx.shadowColor=`${fortune.gradeColor}60`; ctx.shadowBlur=12;
     ctx.fillText(fortune.hexagramName+'卦', W/2, Y); ctx.restore();
-    Y += 72;
+    Y += compactLayout ? 64 : 72;
 
     // 等级 badge 居中
     const bW=160, bH=48, bX=W/2-bW/2;
@@ -181,9 +201,9 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.font='700 24px "Noto Serif SC",serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(fortune.gradeLabel, W/2, Y+bH/2); ctx.restore();
-    Y += bH+36;
+    Y += bH + (compactLayout ? 30 : 36);
 
-    divider(Y); Y += 32;
+    divider(Y); Y += compactLayout ? 28 : 32;
 
     // ── 白话指引（大字，核心内容）──
     ctx.save();
@@ -191,20 +211,10 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
     ctx.fillStyle='#EDE8FF';
     ctx.textAlign='center'; ctx.textBaseline='top';
     ctx.shadowColor='rgba(200,169,110,0.2)'; ctx.shadowBlur=8;
-    // 自动换行
-    const tipWords = fortune.dailyTip;
-    const tipMaxW  = W - 120;
-    let tipLine='', tipY=Y;
-    for (let i=0; i<tipWords.length; i++) {
-      const test = tipLine + tipWords[i];
-      if (ctx.measureText(test).width > tipMaxW && i>0) {
-        ctx.fillText(tipLine, W/2, tipY);
-        tipLine=tipWords[i]; tipY+=48;
-      } else { tipLine=test; }
-    }
-    ctx.fillText(tipLine, W/2, tipY);
+    const tipLineHeight = compactLayout ? 44 : 48;
+    tipLines.forEach((line, index) => ctx.fillText(line, W/2, Y + index * tipLineHeight));
     ctx.restore();
-    Y = tipY + 56;
+    Y += Math.max(1, tipLines.length) * tipLineHeight + (compactLayout ? 8 : 8);
 
     divider(Y); Y += 28;
 
@@ -256,10 +266,13 @@ export function ShareCard({ fortune, dateStr, onClose }: ShareCardProps) {
       ctx.beginPath(); ctx.roundRect(cx, barY, fW, barH, 3); ctx.fill();
       ctx.restore();
     });
+    const barsVisualBottom = Y + (cellH + 14) + 33;
+    canvas.dataset.layoutSafe = String(barsVisualBottom <= FOOTER_Y - 12);
+    canvas.dataset.contentBottom = String(barsVisualBottom);
     Y += 2 * (cellH + 14) - 14 + 12;
 
     // ── 底部邀请签名：二维码融入原生暗金设计 ──
-    const footerY = 1088;
+    const footerY = FOOTER_Y;
     divider(footerY);
     ctx.save();
     ctx.fillStyle = `${fortune.gradeColor}18`;
