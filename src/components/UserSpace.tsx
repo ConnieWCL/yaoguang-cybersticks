@@ -14,7 +14,7 @@ interface UserSpaceProps {
 }
 
 export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClose, onOpenArchive, previewUser }: UserSpaceProps) {
-  const { user, isGuest, exitGuest, signOut } = useAuth();
+  const { user, isGuest, exitGuest, requestAuth, signOut } = useAuth();
   const currentUser = user ?? previewUser;
   const [displayName, setDisplayName] = useState(previewUser?.user_metadata.display_name ?? '');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -128,7 +128,7 @@ export function UserSpace({ open, archiveCount, totalDraws, attemptsLeft, onClos
           {message && <p role="status">{message}</p>}
         </section>}
 
-        {isGuest ? <button type="button" className="signout-button guest-login-button" onClick={() => { exitGuest(); onClose(); }}>
+        {isGuest ? <button type="button" className="signout-button guest-login-button" onClick={() => { exitGuest(); onClose(); requestAuth(); }}>
           <LogIn aria-hidden="true" />返回账号登录
         </button> : !previewUser && <button type="button" className="signout-button" onClick={async () => { await signOut(); onClose(); }}>
           <LogOut aria-hidden="true" />退出当前命册

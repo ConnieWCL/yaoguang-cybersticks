@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { InkCanvas } from '@/components/InkCanvas';
 import { LuckBar } from '@/components/LuckBar';
 import { useSound } from '@/hooks/useSound';
@@ -47,10 +47,11 @@ export default function Index() {
   const [stickRaised, setStickRaised] = useState(false);
   const [showShare, setShowShare] = useState(isSharePreview);
   const { enabled: soundEnabled, toggleSound, playShake, playChime, playReveal } = useSound();
-  const { user, isGuest } = useAuth();
+  const { user, isGuest, authPromptOpen, requestAuth } = useAuth();
   const { archive, attemptsLeft, todayLocked, recordFortune, totalDraws, error: storageError } = useFortuneStorage();
   const [showArchive, setShowArchive] = useState(false);
   const [showUserSpace, setShowUserSpace] = useState(isUserSpacePreview);
+  const [resumeDrawAfterAuth, setResumeDrawAfterAuth] = useState(false);
   const shakeCount = useRef(0);
 
   const today = new Date();
@@ -59,7 +60,7 @@ export default function Index() {
 
 
 
-  const handleShake = useCallback(async () => {
+  const performShake = useCallback(async () => {
     if (phase !== 'idle' && phase !== 'done') return;
     // 用完次数后：只回到当前已显示的最新签，不再重新抽，不重置次数
     if (todayLocked) {
@@ -100,6 +101,33 @@ export default function Index() {
     setPhase('done');
   }, [phase, fortune, playShake, playChime, playReveal, recordFortune, todayLocked]);
 
+  const handleShake = useCallback(() => {
+    if (!user && !isGuest) {
+      setResumeDrawAfterAuth(true);
+      requestAuth();
+      return;
+    }
+    void performShake();
+  }, [isGuest, performShake, requestAuth, user]);
+
+  useEffect(() => {
+    if (!resumeDrawAfterAuth || (!user && !isGuest)) return;
+    setResumeDrawAfterAuth(false);
+    void performShake();
+  }, [isGuest, performShake, resumeDrawAfterAuth, user]);
+
+  useEffect(() => {
+    if (!authPromptOpen && !user && !isGuest) setResumeDrawAfterAuth(false);
+  }, [authPromptOpen, isGuest, user]);
+
+  const handleAccountOpen = useCallback(() => {
+    if (!user && !isGuest) {
+      requestAuth();
+      return;
+    }
+    setShowUserSpace(true);
+  }, [isGuest, requestAuth, user]);
+
   const handleShare = useCallback(() => {
     if (!fortune) return;
     setShowShare(true);
@@ -119,9 +147,9 @@ export default function Index() {
               <span>{soundEnabled ? '有声' : '静音'}</span>
             </button>
             <div className="account-ribbon">
-              <button type="button" onClick={() => setShowUserSpace(true)} aria-label="打开我的命册">
+              <button type="button" onClick={handleAccountOpen} aria-label={user || isGuest ? '打开我的命册' : '登录或开始游客体验'}>
                 <span><UserRound aria-hidden="true" /></span>
-                <span><small>{isGuest ? '本机命册' : '云端命册'}</small><strong>{isGuest ? '游客体验' : user?.user_metadata?.display_name || user?.email?.split('@')[0] || '我的命册'}</strong></span>
+                <span><small>{isGuest ? '本机命册' : user ? '云端命册' : '保存今日签文'}</small><strong>{isGuest ? '游客体验' : user?.user_metadata?.display_name || user?.email?.split('@')[0] || '登录 / 游客体验'}</strong></span>
                 <em>{Object.keys(archive).length}/64</em>
               </button>
             </div>

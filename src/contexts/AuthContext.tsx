@@ -8,6 +8,9 @@ interface AuthContextValue {
   loading: boolean;
   configured: boolean;
   isGuest: boolean;
+  authPromptOpen: boolean;
+  requestAuth: () => void;
+  closeAuthPrompt: () => void;
   enterGuest: () => void;
   exitGuest: () => void;
   signOut: () => Promise<void>;
@@ -20,6 +23,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isGuest, setIsGuest] = useState(() => localStorage.getItem(GUEST_KEY) === 'true');
+  const [authPromptOpen, setAuthPromptOpen] = useState(false);
   const [loading, setLoading] = useState(isSupabaseConfigured);
 
   useEffect(() => {
@@ -37,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
+      if (nextSession) setAuthPromptOpen(false);
       setLoading(false);
     });
 
@@ -52,9 +57,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     configured: isSupabaseConfigured,
     isGuest,
+    authPromptOpen,
+    requestAuth: () => setAuthPromptOpen(true),
+    closeAuthPrompt: () => setAuthPromptOpen(false),
     enterGuest: () => {
       localStorage.setItem(GUEST_KEY, 'true');
       setIsGuest(true);
+      setAuthPromptOpen(false);
     },
     exitGuest: () => {
       localStorage.removeItem(GUEST_KEY);
@@ -65,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     },
-  }), [isGuest, loading, session]);
+  }), [authPromptOpen, isGuest, loading, session]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

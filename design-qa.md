@@ -1,56 +1,56 @@
-**Design QA — 分享签文粒子与二维码修正**
+# Progressive Auth Entry — Design QA
 
-- Source visual truth: user-directed change applied to the previous rendered state at `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/implementation.png`
-- Implementation screenshot: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/final-no-rays-no-qr-frame.png`
-- Combined comparison: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/revised-comparison.png`
-- Viewport: 1280 × 720 CSS px, density 1
-- Source and implementation pixels: both 1280 px wide full-page captures; share-card preview is 420 × 672 CSS px; exported image remains 750 × 1200 px.
-- State: share modal open, first fortune fixture, post-entry animation, live particle layer active.
+## Evidence
 
-**Findings**
+- Source visual truth: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/outputs/login-redesign/02-new-auth.png`
+- Desktop implementation: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/outputs/onboarding-redesign/01-desktop-entry-chooser.png`
+- Mobile implementation: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/outputs/onboarding-redesign/02-mobile-account-form.png`
+- Combined comparison: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/outputs/onboarding-redesign/03-desktop-comparison.png`
+- Desktop viewport and pixels: 1280 × 720 CSS px / 1280 × 720 image px.
+- Mobile viewport and pixels: 390 × 844 CSS px / 390 × 844 image px.
+- Density normalization: desktop source and implementation are both 1280 × 720 and were compared at native size.
+- State: unauthenticated visitor; chooser open after clicking the fortune vessel; mobile account form open after choosing username/password.
 
-- No actionable P0/P1/P2 findings remain.
-- Typography: unchanged from the approved share-card direction; Chinese serif and mono URL hierarchy remain intact.
-- Spacing/layout: the QR is reduced to 62 px, moved farther inward and upward, and has no surrounding outline. Its bottom edge is y=1164, safely above the single inner-frame bottom at y=1174.
-- Colors/tokens: the QR yellow panel and external outline were both removed. Gold modules now sit directly on the same deep-violet field as the card.
-- Image quality/assets: generated PNG remains 750 × 1200. QR quiet zone is preserved through a three-module deep-violet background rather than a contrasting yellow tile.
-- Copy/content: invitation text and `cyberfortune.hiconnie.com` remain unchanged.
-- Motion: the multilevel edge glow and breathing edge animation are removed. Only the entrance pop and the homepage particle model remain—particles spawn from the bottom, drift upward with sinusoidal lateral movement, fade over their lifetime, and draw no grid lines, vertical beams, or trails.
+## Findings
 
-**Comparison History**
+- No actionable P0/P1/P2 differences remain.
+- Fonts and typography: existing Noto Serif SC and Share Tech Mono hierarchy, weights, letter spacing, and muted helper-copy treatment are preserved.
+- Spacing and layout rhythm: the 460 px desktop card, seal overlap, internal rhythm, and mobile bottom-sheet treatment align with the existing auth language. No clipped controls or horizontal overflow was observed.
+- Colors and visual tokens: gold, jade, purple-black surfaces, translucent borders, glow, and backdrop blur reuse the current site tokens and retain clear state distinction.
+- Image and asset fidelity: no new raster or decorative assets were needed. Existing icon-library glyphs are used consistently; no placeholder imagery was introduced.
+- Copy and content: the chooser clearly explains cross-device account storage versus browser-local guest storage and promises automatic continuation after selection.
 
-1. P2 — the previous QR tile used a yellow background and extended too close to/across the inner bottom frame. Fix: reduced QR to 62 px, moved it farther inward and upward, and removed the surrounding frame entirely.
-2. P2 — the repeated outer strokes and breathing shadow produced the visible vertical rays shown in the user's screenshot. Fix: deleted the full multi-layer stroke loop and `shareCardGlow` animation; retained one low-opacity inner contour only.
-3. P2 — the previous share overlay movement could read as directional vertical motion rather than the homepage's organic particles. Fix: replaced persistent particles with the homepage spawn/drift/fade model and explicitly removed all line drawing.
-4. Post-fix evidence: the final capture has animation name `shareCardPop` only, a neutral black drop shadow, a full-card homepage-style particle canvas, and no console errors.
+## Full-view Comparison
 
-**Focused Region Evidence**
+The combined desktop evidence preserves the source card proportion, border treatment, seal motif, subdued backdrop, typography hierarchy, and restrained gold/jade accents. The new three-way chooser changes information architecture intentionally while remaining within the established visual system.
 
-- The QR/footer region is visible in the full card at the same viewport. Coordinate verification supplements the screenshot because the footer is small at the 420 px preview width: QR outline bottom 1177 px versus inner-frame bottom 1178 px in the 750 × 1200 export coordinate system.
+## Focused Region Comparison
 
-**Primary Interactions Tested**
+The mobile account-form screenshot checks inputs, tabs, benefits, button hierarchy, guest fallback, close/back controls, and small-copy wrapping. A separate crop was unnecessary because these controls remain legible at native 390 px width.
 
-- Share modal renders from the local preview route.
-- 750 × 1200 PNG is generated and displayed.
-- Particle canvas resolves exactly to the 420 × 672 preview bounds.
-- Entrance pop remains active; breathing edge glow is removed.
-- No horizontal overflow and no browser console errors.
+## Interaction Verification
 
-**Implementation Checklist**
+- A new visitor sees the full drawing page before authentication.
+- Clicking the vessel opens the three-option chooser.
+- Closing the chooser returns to the unchanged drawing page.
+- Username/password and email-code choices open the existing forms.
+- Choosing guest mode closes the chooser and automatically completes the pending draw.
+- The top account ribbon opens the chooser while unauthenticated.
+- Returning from the guest account space opens the same chooser.
+- Existing authenticated or guest sessions bypass the chooser.
+- Browser console error check: no errors observed.
+- Production build: passed.
+- Automated tests: passed.
+- Repository-wide lint is still blocked by three pre-existing template-rule errors outside the changed files (`ui/command.tsx`, `ui/textarea.tsx`, and `tailwind.config.ts`).
 
-- [x] Remove all vertical/grid line drawing from share-card motion
-- [x] Match homepage particle spawn/drift/fade behavior
-- [x] Keep static export populated with soft particle points
-- [x] Move QR completely inside inner card frame and remove its outline
-- [x] Remove yellow QR background
-- [x] Preserve reduced-motion fallback and static PNG export
+## Comparison History
 
-**Long-copy layout regression check**
+- Initial interaction pass found that “返回账号登录” exited guest mode but no longer opened an auth surface after removal of the full-page gate. Fix: it now exits guest mode, closes user space, and opens the shared chooser.
+- Initial state pass found that a cancelled pending draw could resume after a later account-only login. Fix: cancelling clears the pending draw intent; successful login or guest selection resumes only the original draw.
+- Post-fix desktop and mobile evidence show no remaining P0/P1/P2 issues.
 
-- Root cause: `dailyTip` could wrap to two lines while the footer remained fixed at y=1088, allowing the second metrics row to enter the footer.
-- Fix: measure the wrapped tip before drawing; two-line tips use a compact vertical rhythm across the hero, title, badge and copy sections while the footer keeps a protected zone.
-- Evidence: `/Users/connie/Documents/Codex/2026-08-31/1-lovable-webapp-github-vercel-lovable/work/repo/.artifacts/share-card-audit/tongren-layout-fixed.png`
-- Automated browser pass: all 64 fortunes generated successfully; 64/64 reported `layoutSafe=true`; maximum metrics content bottom was y=1072, above the protected footer threshold y=1076. The previously failing 同人卦 ended at y=1071.
-- Console errors: none.
+## Follow-up Polish
+
+- P3: consider adding a strict keyboard focus trap inside the modal in a future accessibility pass.
 
 final result: passed

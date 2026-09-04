@@ -1,6 +1,5 @@
-import { FormEvent, useState } from 'react';
-import { BookOpen, HardDrive, Loader2, LockKeyhole, MailCheck, RotateCcw, Sparkles } from 'lucide-react';
-import { InkCanvas } from '@/components/InkCanvas';
+import { FormEvent, useEffect, useState } from 'react';
+import { ArrowLeft, BookOpen, HardDrive, Loader2, LockKeyhole, MailCheck, RotateCcw, Sparkles, UserRound, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { setRememberSession, supabase } from '@/lib/supabase';
 
@@ -23,9 +22,9 @@ function authMessage(message: string) {
   return '暂时无法开启命册，请稍后重试。';
 }
 
-function AuthScreen() {
+function AuthScreen({ onClose }: { onClose: () => void }) {
   const { enterGuest } = useAuth();
-  const [authMethod, setAuthMethod] = useState<'username' | 'email'>('username');
+  const [authMethod, setAuthMethod] = useState<'chooser' | 'username' | 'email'>('chooser');
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -105,21 +104,46 @@ function AuthScreen() {
     if (error) setMessage('验证码无效或已经过期，请重新获取。');
   }
 
-  return (
-    <div className="auth-gate">
-      <InkCanvas />
-      <main className="auth-shell">
-        <section className="auth-brand" aria-labelledby="auth-title">
-          <div className="header-ornament" aria-hidden="true">
-            <div className="orn-line" /><div className="orn-diamond" /><div className="orn-line" />
-          </div>
-          <p className="auth-kicker">私人命册</p>
-          <h1 id="auth-title" className="site-title auth-title">爻光</h1>
-          <p className="site-subtitle auth-subtitle">一人一册，一签一存</p>
-        </section>
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
-        <section className="auth-card" aria-label="用户名登录或注册">
+  return (
+    <div className="auth-modal" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <main className="auth-modal-shell" role="dialog" aria-modal="true" aria-labelledby="auth-dialog-title">
+        <section className="auth-card" aria-label="选择签文保存方式">
           <div className="auth-seal" aria-hidden="true">命</div>
+          <button type="button" className="auth-close" onClick={onClose} aria-label="关闭"><X aria-hidden="true" /></button>
+
+          {authMethod === 'chooser' ? <div className="auth-chooser">
+            <p className="auth-kicker">开启今日一签</p>
+            <h2 id="auth-dialog-title">选择如何保存签文</h2>
+            <p className="auth-chooser-lead">登录后可跨设备同步；游客体验只保存在当前浏览器。</p>
+            <div className="auth-method-list">
+              <button type="button" className="auth-method-card is-primary" onClick={() => setAuthMethod('username')}>
+                <span className="auth-method-icon"><UserRound aria-hidden="true" /></span>
+                <span><strong>账号登录 / 注册</strong><small>用户名与密码 · 永久保存并跨设备同步</small></span>
+                <em>推荐</em>
+              </button>
+              <button type="button" className="auth-method-card" onClick={() => setAuthMethod('email')}>
+                <span className="auth-method-icon"><MailCheck aria-hidden="true" /></span>
+                <span><strong>邮箱验证码</strong><small>免记密码 · 验证后跨设备查看命册</small></span>
+              </button>
+              <button type="button" className="auth-method-card is-guest" onClick={enterGuest}>
+                <span className="auth-method-icon"><HardDrive aria-hidden="true" /></span>
+                <span><strong>先以游客体验</strong><small>无需注册 · 数据仅保存在当前浏览器</small></span>
+              </button>
+            </div>
+            <p className="auth-chooser-note">完成选择后，将自动继续刚才的抽签。</p>
+          </div> : <>
+          <div className="auth-detail-heading">
+            <button type="button" onClick={() => { setAuthMethod('chooser'); setPendingEmail(null); setMessage(null); }} aria-label="返回进入方式"><ArrowLeft aria-hidden="true" /></button>
+            <div><small>私人命册</small><h2 id="auth-dialog-title">{authMethod === 'username' ? '账号登录 / 注册' : '邮箱验证码'}</h2></div>
+          </div>
           <div className="auth-tabs" role="tablist" aria-label="登录方式" hidden={Boolean(pendingEmail)}>
             <button type="button" role="tab" aria-selected={authMethod === 'username'} className={authMethod === 'username' ? 'is-active' : ''}
               onClick={() => { setAuthMethod('username'); setMessage(null); }}>用户名密码</button>
@@ -200,6 +224,7 @@ function AuthScreen() {
             </button>
           </div>
           <p className="auth-note">{authMethod === 'username' ? '用户名账户无法通过邮箱或手机号找回；请妥善保管密码。' : '验证码邮件不会包含任何登录链接，也不会要求你回复。'}</p>
+          </>}
         </section>
       </main>
     </div>
@@ -207,17 +232,17 @@ function AuthScreen() {
 }
 
 function AuthLoading() {
-  return <div className="auth-gate auth-loading"><InkCanvas /><div className="auth-loading-mark" aria-live="polite">
+  return <div className="auth-gate auth-loading"><div className="auth-loading-mark" aria-live="polite">
     <span>爻</span><p>正在读取命册…</p>
   </div></div>;
 }
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  const { user, isGuest, loading, configured } = useAuth();
-  const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-    && ['user-space', 'share-card'].includes(new URLSearchParams(window.location.search).get('design-preview') ?? '');
+  const { user, isGuest, loading, configured, authPromptOpen, closeAuthPrompt } = useAuth();
   if (loading) return <AuthLoading />;
   if (!configured) return <div className="auth-config-error">云端命册尚未配置，请联系站点管理员。</div>;
-  if (!user && !isGuest && !isLocalPreview) return <AuthScreen />;
-  return <>{children}</>;
+  return <>
+    {children}
+    {authPromptOpen && !user && !isGuest && <AuthScreen onClose={closeAuthPrompt} />}
+  </>;
 }
